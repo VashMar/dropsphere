@@ -26,38 +26,38 @@
 
 $(document).ready(function(){
 
-    $("#dropsphere-setName").click(function(){  
+    $("#setName").click(function(){  
        setName();
     });
 
-    $('input#dropsphere-username').bind('keypress', function(e) {
+    $('input#username').bind('keypress', function(e) {
         if(e.keyCode==13){
             setName();
         }
     });
 
-    $('input#dropsphere-messageInput').bind('keypress', function(e) {
+    $('input#messageInput').bind('keypress', function(e) {
         if(e.keyCode==13){
             sendMsg();
         }
     });
     
-    $("#dropsphere-send").click(function()
+    $("#send").click(function()
     {
         sendMsg();
     });
 
     function sendMsg(){
-        var msg = $("#dropsphere-messageInput").val();
-        $("#dropsphere-messageInput").val("");
+        var msg = $("#messageInput").val();
+        $("#messageInput").val("");
         chat.Send(msg);
     }
     
     function setName(){
-        $("#dropsphere-name").hide(); 
-        $("#dropsphere-chat").show();
+        $("#name").hide(); 
+        $("#chat").show();
         chat = new Chat;
-        chat.Connect($("#dropsphere-username").val());
+        chat.Connect($("#username").val());
     }
 });
 
@@ -71,7 +71,7 @@ $(document).ready(function(){
             //
             socket.on('connect',function (data) {
                 socket.emit('setName', {name: name, time: new Date().timeNow()}, function(response){
-                    $("#dropsphere-content").append("<p>" + response.msg + "</p>");      // sphere entrance message 
+                    $("#content").append("<p>" + response.msg + "</p>");      // sphere entrance message 
                 });
             });
             //
@@ -81,7 +81,7 @@ $(document).ready(function(){
 
                         messages.push(data.msg);
                         // posts on message board 
-                        $("#dropsphere-content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
+                        $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
 
                     } else {
                          console.log("There is a problem:", data); 
@@ -89,7 +89,7 @@ $(document).ready(function(){
             });
 
             socket.on('announcement', function(data){
-                $("#dropsphere-content").append("<p>" + data.msg  + "</p>"); // announces the new entrant to others in the sphere
+                $("#content").append("<p>" + data.msg  + "</p>"); // announces the new entrant to others in the sphere
             });
         };
         
