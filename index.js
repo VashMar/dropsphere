@@ -18,12 +18,12 @@ app.use(express.static(__dirname + '/public'));
 app.configure(function () {
 	 app.use(
 	 // sass compilation	
-     sass.middleware({
-         src: __dirname + '/sass', //where the sass files are 
-         dest: __dirname + '/public', //where css should go
-         debug: true // obvious
-   	  });
-    
+     	sass.middleware({
+        	src: __dirname + '/sass', //where the sass files are 
+         	dest: __dirname + '/public', //where css should go
+         	debug: true // obvious
+   	  	})
+     );	
     app.use(express.cookieParser());
     app.use(express.session({secret:'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', key: 't3stk3y'}));
 });
