@@ -10,7 +10,8 @@
         "mongoose": "*",
         "connect-redis": "*",
         "cookie" : "*",
-        "connect": "*"
+        "connect": "*",
+        "bookmarkletify": "*"
     },
     "author": "developer"
 }
