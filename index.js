@@ -52,8 +52,8 @@ var io = require('socket.io').listen(app.listen(port));
 console.log("Listening on port " + port);
 
 
-/*  io.set('authorization', function (data, accept) {
-
+ /*io.set('authorization', function (data, accept) {
+ console.log(data);
   if (data.headers.cookie) {
 
       data.cookie = parseCookie(data.headers.cookie);
