@@ -9,7 +9,7 @@ d.style.position = "fixed";
 d.style.top="0";
 d.style.left="0";
 
-d.innerHTML = '<iframe id="myFrame" style="width:100%;height:100%; overflow:hidden" src="http://localhost:3500">';
+d.innerHTML = '<iframe id="myFrame" style="width:100%;height:100%; overflow:hidden" src="http://localhost:3500/bookmark">';
 document.body.appendChild(d);
 
 })();  

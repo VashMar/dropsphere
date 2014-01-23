@@ -5,16 +5,18 @@ html
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
         script(src='/chat.js')
         script(src='/socket.io/socket.io.js')
+        link(rel='stylesheet', href='/bootstrap.min.css') 
         link(rel='stylesheet', href='/style.css') 
 
     body
-        a#bookmarklet(style=' display:block; width: 100px; height: 100px; background-color:red;')
-        #chat(style='display:none;')
-            #content(style='width: 500px; height: 300px; margin: 0 0 20px 0; border: solid 1px #999; overflow-y: scroll;')
-            .controls
-                input#messageInput(style='width:350px;')
-                input#send(type='button', value='send')
-        #name
-          p Name:
-          input#username(style='width:350px;')
-          input#setName(type='button', value='join')
+        #container
+            a#bookmarklet click me
+            #chat(style='display:none;')
+                #content(class="form-control", style='width: 500px; height: 300px; margin: 0 0 20px 0; border: solid 1px #999; overflow-y: scroll;')
+                .controls
+                    input#messageInput(style='width:350px;', class="form-control")
+                    input#send(type='button',class="form-control" value='send')
+            #name
+              p Name:
+              input#username(style='width:350px;', class="form-control")
+              input#setName(type='button', value='join', class="form-control")
