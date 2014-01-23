@@ -11,7 +11,8 @@
         "connect-redis": "*",
         "cookie" : "*",
         "connect": "*",
-        "bookmarkletify": "*"
+        "bookmarkletify": "*",
+        "node-sass": "*"
     },
     "author": "developer"
 }

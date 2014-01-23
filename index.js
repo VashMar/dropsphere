@@ -1,6 +1,7 @@
 var database = require("./db");
 var express = require("express");
 var cookie = require("cookie");
+var sass = require('node-sass');
 var parseCookie = require('connect').utils.parseCookie;
 
 //var RedisStore = require('connect-redis')(express);
@@ -15,6 +16,14 @@ app.engine('jade', require('jade').__express);
 app.use(express.static(__dirname + '/public'));
 
 app.configure(function () {
+	 app.use(
+	 // sass compilation	
+     sass.middleware({
+         src: __dirname + '/sass', //where the sass files are 
+         dest: __dirname + '/public', //where css should go
+         debug: true // obvious
+   	  });
+    
     app.use(express.cookieParser());
     app.use(express.session({secret:'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', key: 't3stk3y'}));
 });
@@ -69,7 +78,7 @@ console.log("Listening on port " + port);
 });  */
 
 io.sockets.on('connection', function (socket) {
-	console.log("socket with session id: " + socket.handshake.sessionID);
+	console.log("Socket id:" + socket.id);
 	socket.on("setName", function(data, greeting){
 		greeting({msg: "Welcome to the Sphere, " + data.name});
 		socket.join("sphere");
