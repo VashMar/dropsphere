@@ -5,18 +5,22 @@ html
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
         script(src='/chat.js')
         script(src='/socket.io/socket.io.js')
+        script(src='/jquery.slimscroll.min.js')
+        script(src='/main.js')
         link(rel='stylesheet', href='/bootstrap.min.css') 
         link(rel='stylesheet', href='/style.css') 
 
     body
         #container
-            a#bookmarklet click me
+            h1 DropSphere
+            a#bookmarklet(href='javascript:(function(){var d=document.createElement("div");d.setAttribute("id", "dropsphere");d.style.width="300px";d.style.height="100%";d.style.background="#eee";d.style.color="#222";d.style.position="fixed";d.style.top="0";d.style.right="0";ifrm=document.createElement("iframe");ifrm.setAttribute("src", "http://localhost:3500");ifrm.style.width="100%";ifrm.style.height="100%";ifrm.style.overflow="hidden";ifrm.style.border="none";d.appendChild(ifrm);document.body.appendChild(d);})();') drag me baby...
             #chat(style='display:none;')
-                #content(class="form-control", style='width: 500px; height: 300px; margin: 0 0 20px 0; border: solid 1px #999; overflow-y: scroll;')
+                #content(class="form-control")
                 .controls
-                    input#messageInput(style='width:350px;', class="form-control")
+                    input#messageInput(class="form-control")
                     input#send(type='button',class="form-control" value='send')
             #name
               p Name:
-              input#username(style='width:350px;', class="form-control")
+              input#username(class="form-control")
               input#setName(type='button', value='join', class="form-control")
+
