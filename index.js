@@ -1,8 +1,8 @@
 var database = require("./db");
 var express = require("express");
 var cookie = require("cookie");
-var connect = require("connect");
-var RedisStore = require('connect-redis')(express);
+var parseCookie = require('connect').utils.parseCookie;
+//var RedisStore = require('connect-redis')(express);
 
 var db = database.db;
 var app = express();
@@ -15,7 +15,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.configure(function () {
     app.use(express.cookieParser());
-    app.use(express.session({secret: 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', key: 'express.sid'}));
+    app.use(express.session({secret: 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', key: 't3stk3y'}));
 });
 
 /*app.use(express.cookieParser());
@@ -40,22 +40,25 @@ app.get("/", function(req, res){
 	console.log(req.session.id);
 });
 
+
+app.get("/bookmark", function(req, res){
+	res.render("bookmark");
+});
+
+
+
 var io = require('socket.io').listen(app.listen(port));
 
 console.log("Listening on port " + port);
 
 
-/*io.set('authorization', function (handshakeData, accept) {
+/*  io.set('authorization', function (data, accept) {
 
-  if (handshakeData.headers.cookie) {
+  if (data.headers.cookie) {
 
-    handshakeData.cookie = cookie.parse(handshakeData.headers.cookie);
+      data.cookie = parseCookie(data.headers.cookie);
 
-    handshakeData.sessionID = connect.utils.parseSignedCookie(handshakeData.cookie['express.sid'], 'secret');
-
-    if (handshakeData.cookie['express.sid'] == handshakeData.sessionID) {
-      return accept('Cookie is invalid.', false);
-    }
+      data.sessionID = data.cookie['express.sid'];
 
   } else {
     return accept('No cookie transmitted.', false);
@@ -65,6 +68,7 @@ console.log("Listening on port " + port);
 }); */
 
 io.sockets.on('connection', function (socket) {
+	console.log("socket with session id: " + socket.handshake.sessionID);
 	socket.on("setName", function(data, greeting){
 		greeting({msg: "Welcome to the Sphere, " + data.name});
 		socket.join("sphere");
