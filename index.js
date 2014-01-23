@@ -17,7 +17,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.configure(function () {
 	 app.use(
-	 // sass compilation	
+	 // sass compilation
      	sass.middleware({
         	src: __dirname + '/sass', //where the sass files are 
          	dest: __dirname + '/public', //where css should go
