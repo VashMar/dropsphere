@@ -1,0 +1,18 @@
+doctype html
+html
+    head
+        title= "DropSphere"
+        script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+        script(src='/chat.js')
+        script(src='/socket.io/socket.io.js')
+
+    body
+        #dropsphere-chat(style='display:none;')
+            #dropsphere-content(style='width: 500px; height: 300px; margin: 0 0 20px 0; border: solid 1px #999; overflow-y: scroll;')
+            .controls
+                input#dropsphere-messageInput(style='width:350px;')
+                input#dropsphere-send(type='button', value='send')
+        #dropsphere-name
+          p Name:
+          input#dropsphere-username(style='width:350px;')
+          input#dropsphere-setName(type='button', value='join')
