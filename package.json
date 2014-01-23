@@ -8,7 +8,9 @@
         "jade": "latest",
         "mongodb": "*",
         "mongoose": "*",
-        "connect-redis": "*"
+        "connect-redis": "*",
+        "cookie" : "*",
+        "connect": "*"
     },
     "author": "developer"
 }

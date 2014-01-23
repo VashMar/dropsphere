@@ -1,6 +1,7 @@
 var database = require("./db");
 var express = require("express");
 var cookie = require("cookie");
+var connect = require("connect");
 var RedisStore = require('connect-redis')(express);
 
 var db = database.db;
@@ -44,7 +45,7 @@ var io = require('socket.io').listen(app.listen(port));
 console.log("Listening on port " + port);
 
 
-io.set('authorization', function (handshakeData, accept) {
+/*io.set('authorization', function (handshakeData, accept) {
 
   if (handshakeData.headers.cookie) {
 
@@ -61,7 +62,7 @@ io.set('authorization', function (handshakeData, accept) {
   } 
 
   accept(null, true);
-});
+}); */
 
 io.sockets.on('connection', function (socket) {
 	socket.on("setName", function(data, greeting){
