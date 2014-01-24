@@ -87,14 +87,31 @@ $(document).ready(function(){
                 socket.emit('setName', {name: name, time: new Date().timeNow()}, function(response){
                     $("#content").append("<p>" + response.msg + "</p>");      // sphere entrance message 
                 });
+
             });
+
+
+              socket.on('users', function(users){
+
+                $("#users").empty();
+
+                if(users.length == 1){
+                    $("#users").append("<h3>" + users.length + " user online <h3>");        
+                }else{
+                    $("#users").append("<h3>" + users.length + " users online <h3>");
+                }
+
+                for(var i = 0; i < users.length; i++){
+                    $("#users").append("<p>" + users[i] + "</p>");
+                }
+                
+               });
+
             //
             socket.on('message', function(data){
                     
                     if(data.msg) {
 
-                        messages.push(data.msg);
-                        // posts on message board 
                         $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
 
                     } else {

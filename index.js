@@ -118,13 +118,18 @@ io.set('authorization', function (data, callback) {
     });
 }); 
 
-// messages store, temporary 
+// messages and user stores -- temporary 
 var messages = [];
+var users = [];
+
 
 io.sockets.on('connection', function (socket) {
-	socket.on("setName", function(data, greeting){
+
+	socket.on('setName', function(data, greeting){
 		greeting({msg: "Welcome to the Sphere, " + data.name});
 		socket.join("sphere");
+    users.push(data.name);
+    io.sockets.emit('users', users);
 		socket.broadcast.to("sphere").emit('announcement', { msg: data.name + " joined the Sphere (" + data.time + ")" });
 	});
 
@@ -139,6 +144,7 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('requestMessages', function(fillMessages){
       fillMessages(messages);
+      socket.emit('users', users);
   });
 
 });

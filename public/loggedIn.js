@@ -32,14 +32,32 @@ $(document).ready(function(){
             socket =  io.connect();      
             name = username;
 
-            //gets and shows the last 25 messages that were sent in chat 
+            
             socket.on('connect',function (data) {
+                //gets and shows the last 25 messages that were sent in chat 
                 socket.emit('requestMessages', function(messages){
                    for(var i =0; i < 25; i++){
                         $("#content").append(messages[i]);      
                     }             
                 });
+
             });
+
+              socket.on('users', function(users){
+
+                    $("#users").empty();
+                    if(users.length == 1){
+                        $("#users").append("<h3>" + users.length + " user online <h3>");        
+                    }else{
+                        $("#users").append("<h3>" + users.length + " users online <h3>");
+                    }
+
+                    for(var i = 0; i < users.length; i++){
+                        $("#users").append("<p>" + users[i] + "</p>");
+                    }
+                });
+
+
             // 
             socket.on('message', function(data){
                     
