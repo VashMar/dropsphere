@@ -143,6 +143,10 @@ io.sockets.on('connection', function (socket) {
     var res = msg;
     var hasProtocol = msg.indexOf("http://") == 0;
 
+
+    
+
+
     if( hasProtocol || msg.indexOf("www.") == 0 ){
        
        if(hasProtocol){
@@ -168,7 +172,7 @@ io.sockets.on('connection', function (socket) {
        }  
          res += msg + "</a>";
     }
-
+    res = res.replace(/\n/g, '<br />');
     return res;
 
  }

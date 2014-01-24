@@ -9,6 +9,9 @@ body {
 	background:$bg-color;
 	text-align:center;
 }
+p{
+	font-size:16px;
+}
 h1{
 	font-weight:bold;
 	text-transform:uppercase;
@@ -21,11 +24,12 @@ h1{
 	margin-top:20px;
 	padding:12px 30px;
 	width:30px;
-	background:#356AA0;
-	border:1px solid #444;
+	background:#85C2FF;
+	border:1px solid #777;
+	border-radius:3px;
 }
 a#bookmarklet:hover{
-	background:#306495;
+	background:#7eb8F0;
 	text-decoration:none;
 }
 #container{
@@ -43,6 +47,8 @@ a#bookmarklet:hover{
 }
 #chat{
 	height:80%;
+}
+textarea{margin:9px 0 3px 0;
 }
 #users p{
 	display: inline-block;
@@ -64,4 +70,10 @@ a#bookmarklet:hover{
 }
 input{
 	margin:3px 0;
+}
+#logo{
+	margin-top:200px;
+}
+.bold{
+	font-weight:bold;
 }

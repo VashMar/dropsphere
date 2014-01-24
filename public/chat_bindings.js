@@ -1,7 +1,9 @@
 $(document).ready(function(){   
 
-    $('input#messageInput').bind('keypress', function(e) {
-        if(e.keyCode==13){
+    $('textarea#messageInput').bind('keypress', function(e) {
+        
+        if(e.keyCode==13 && !e.shiftKey){
+            e.preventDefault();
             sendMsg();
         }
     });
