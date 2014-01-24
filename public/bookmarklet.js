@@ -8,6 +8,7 @@ d.style.color = "#222";
 d.style.position = "fixed";
 d.style.top="0";
 d.style.right="0";
+d.style.zIndex="9999999";
 document.body.appendChild(d);
 ifrm = document.createElement("iframe");
 ifrm.setAttribute("src", "http://192.168.1.10:3500/bookmark");
