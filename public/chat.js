@@ -49,9 +49,13 @@ $(document).ready(function(){
         sendMsg();
     });
 
+});
+
+
     function sendMsg(){
 
         var msg = $("#messageInput").val();
+        
         $("#messageInput").val("");
         chat.Send(msg);
 
@@ -72,8 +76,6 @@ $(document).ready(function(){
         chat = new Chat;
         chat.Connect(name);
     }
-});
-
     function Chat(){
         this.socket = null;
         this.name = "";
