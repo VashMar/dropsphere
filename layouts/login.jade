@@ -1,0 +1,15 @@
+doctype html
+html
+    head
+        title= "DropSphere"
+        script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+        script(src='/chat.js')
+        script(src='/socket.io/socket.io.js')
+        link(rel='stylesheet', href='/bootstrap.min.css') 
+        link(rel='stylesheet', href='/style.css') 
+
+    body
+      #name
+              p Name:
+              input#username(style='width:350px;', class="form-control")
+              input#setName(type='button', value='join', class="form-control")

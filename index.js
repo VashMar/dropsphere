@@ -2,19 +2,21 @@ var database = require("./db");
 var express = require("express");
 var cookie = require("cookie");
 var sass = require('node-sass');
-var parseCookie = require('connect').utils.parseCookie;
-
+var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
+var cookieParser = express.cookieParser(COOKIE_SECRET);
+var EXPRESS_SID_KEY = 't3stk3y'
 //var RedisStore = require('connect-redis')(express);
 
 var db = database.db;
 var app = express();
-var session = new express.session.MemoryStore();
+var sessionStore = new express.session.MemoryStore();
 var port = 3500; 
 
 app.set('views', __dirname + '/layouts');
 app.set('view engine', "jade");
 app.engine('jade', require('jade').__express);
 app.use(express.static(__dirname + '/public'));
+app.use(express.bodyParser());
 
 app.configure(function () {
 	 app.use(
@@ -26,13 +28,12 @@ app.configure(function () {
    	  	})
      );
 
-    app.use(express.cookieParser());
+    app.use(cookieParser);
 
     app.use(express.session({
-      store : session,
-      secret: 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', 
-      key   : 't3stk3y',
-      cookie: {maxAge : 60 * 60 * 1000}
+      store : sessionStore,
+      key   : EXPRESS_SID_KEY,
+      cookie: {httpOnly: true}
     }));
 });
 
@@ -51,13 +52,25 @@ app.use(express.session({
 })); */
 
 
-
+// Routing -- Move to router file eventually 
 app.get("/", function(req, res){
-	res.render("home");
-	//var session = store.get(req.session.id);
-	console.log(req.session.id);
+  console.log(req.session);
+ if(req.session.isLogged == true){ 
+   res.render("chat", {name: req.session.username});
+ }else{
+	 res.render("home");
+ } 
 });
 
+
+app.post('/login', function (req, res) {
+    // We just set a session value indicating that the user is logged in
+    req.session.isLogged = true;
+    console.log("login hit");
+    req.session.username = req.body.name;
+    console.log("username is: " + req.session.username);
+    res.redirect('/');
+});
 
 app.get("/bookmark", function(req, res){
 	res.render("bookmark");
@@ -70,23 +83,42 @@ var io = require('socket.io').listen(app.listen(port));
 console.log("Listening on port " + port);
 
 
- io.set('authorization', function (data, accept) {
- console.log(data);
- /* if (data.headers.cookie) {
 
-      data.cookie = parseCookie(data.headers.cookie);
+// We configure the socket.io authorization handler (handshake)
+io.set('authorization', function (data, callback) {
+  console.log("authorizing...");
+    if(!data.headers.cookie) {
+        return callback('No cookie transmitted.', false);
+    }
 
-      data.sessionID = data.cookie['express.sid'];
+    // We use the Express cookieParser created before to parse the cookie
+    // Express cookieParser(req, res, next) is used initialy to parse data in "req.headers.cookie".
+    // Here our cookies are stored in "data.headers.cookie", so we just pass "data" to the first argument of function
+    cookieParser(data, {}, function(parseErr) {
+        if(parseErr) { return callback('Error parsing cookies.', false); }
 
-  } else {
-    return accept('No cookie transmitted.', false);
-  } */
+        // Get the SID cookie
+        var sidCookie = (data.secureCookies && data.secureCookies[EXPRESS_SID_KEY]) ||
+                        (data.signedCookies && data.signedCookies[EXPRESS_SID_KEY]) ||
+                        (data.cookies && data.cookies[EXPRESS_SID_KEY]);
 
-  accept(null, true);
- });  
+        // Then we just need to load the session from the Express Session Store
+        sessionStore.load(sidCookie, function(err, session) {
+            // And last, we check if the used has a valid session and if he is logged in
+            if (err || !session || session.isLogged !== true) {
+                callback('Not logged in.', false);
+            } else {
+                // If you want, you can attach the session to the handshake data, so you can use it again later
+                data.session = session;
+
+                callback(null, true);
+            }
+        });
+    });
+}); 
+
 
 io.sockets.on('connection', function (socket) {
-	console.log("Socket id:" + socket.id);
 	socket.on("setName", function(data, greeting){
 		greeting({msg: "Welcome to the Sphere, " + data.name});
 		socket.join("sphere");
@@ -94,6 +126,8 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('send', function (data) {
+    console.log("emitted message");
 		io.sockets.emit('message', data);
+
 	});
 });

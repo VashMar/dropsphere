@@ -1,42 +1,8 @@
-
-  
-    messages = [];
-    var chat = null;
-/*
-    // stores every sent message and displays 
-    socket.on('message', function (data) {
-        if(data.message) {
-            messages.push(data.message);
-            var html = '';
-            for(var i=0; i<messages.length; i++) {
-                html += messages[i] + '<br />';
-            }
-            content.innerHTML = html;
-        } else {
-            console.log("There is a problem:", data);
-        }
-    });
-
-    // gets message and fires send event 
-    sendButton.onclick = function() {
-        var text = field.value;
-        socket.emit('send', { message: text });
-    };
-*/
-
 $(document).ready(function(){
-  
-    socket =  io.connect();   
- 
-    $("#setName").click(function(){  
-       setName();
-    });
+	 messages = [];
+     chat = new Chat;
+     chat.Connect(name);
 
-    $('input#username').bind('keypress', function(e) {
-        if(e.keyCode==13){
-            setName();
-        }
-    });
 
     $('input#messageInput').bind('keypress', function(e) {
         if(e.keyCode==13){
@@ -57,29 +23,13 @@ $(document).ready(function(){
 
     }
     
-    function setName(){
-         var name = $("#username").val();
-        $.post( "/login", {name: name})
-         .done(function( data ) {
-            $("#name").hide();
-            $("#chat").show();
-        });
 
-        /*$.get('/login', function(data) {
-            $("#name").hide();
-            $("#chat").show();
-        });*/
-        chat = new Chat;
-        chat.Connect(name);
-    }
-});
-
-    function Chat(){
+	 function Chat(){
         this.socket = null;
         this.name = "";
         
         this.Connect = function(username){ 
-            socket.socket.reconnect();   
+            socket =  io.connect();      
             name = username;
 
             //
@@ -123,4 +73,4 @@ $(document).ready(function(){
 
     } // end chat
   
- 
+});
