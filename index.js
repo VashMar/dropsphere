@@ -54,8 +54,9 @@ app.use(express.session({
 
 // Routing -- Move to router file eventually 
 app.get("/", function(req, res){
-  console.log(req.session);
+
  if(req.session.isLogged == true){ 
+   console.log("This session belongs to:" + req.session.username);
    res.render("chat", {name: req.session.username});
  }else{
 	 res.render("home");

@@ -16,5 +16,6 @@ html
                     input#messageInput(style='width:350px;', class="form-control")
                     input#send(type='button',class="form-control" value='send')
     
-
+    script.
+      var name = !{JSON.stringify(name)};
     script(src='/loggedIn.js')
