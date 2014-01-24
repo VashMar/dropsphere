@@ -66,7 +66,7 @@ $(document).ready(function(){
         this.name = "";
         
         this.Connect = function(username){ 
-            socket =  io.connect('http://192.168.1.10:3500');    
+            socket =  io.connect();    
             name = username;
             //
             socket.on('connect',function (data) {

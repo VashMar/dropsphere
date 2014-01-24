@@ -8,6 +8,7 @@ var parseCookie = require('connect').utils.parseCookie;
 
 var db = database.db;
 var app = express();
+var session = new express.session.MemoryStore();
 var port = 3500; 
 
 app.set('views', __dirname + '/layouts');
@@ -23,9 +24,16 @@ app.configure(function () {
          	dest: __dirname + '/public', //where css should go
          	debug: true // obvious
    	  	})
-     );	
+     );
+
     app.use(express.cookieParser());
-    app.use(express.session({secret:'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', key: 't3stk3y'}));
+
+    app.use(express.session({
+      store : session,
+      secret: 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB', 
+      key   : 't3stk3y',
+      cookie: {maxAge : 60 * 60 * 1000}
+    }));
 });
 
 /*app.use(express.cookieParser());
@@ -62,9 +70,9 @@ var io = require('socket.io').listen(app.listen(port));
 console.log("Listening on port " + port);
 
 
-/*io.set('authorization', function (data, accept) {
+ io.set('authorization', function (data, accept) {
  console.log(data);
-  if (data.headers.cookie) {
+ /* if (data.headers.cookie) {
 
       data.cookie = parseCookie(data.headers.cookie);
 
@@ -72,10 +80,10 @@ console.log("Listening on port " + port);
 
   } else {
     return accept('No cookie transmitted.', false);
-  } 
+  } */
 
   accept(null, true);
-});  */
+ });  
 
 io.sockets.on('connection', function (socket) {
 	console.log("Socket id:" + socket.id);

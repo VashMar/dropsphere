@@ -11,6 +11,7 @@
         "connect-redis": "*",
         "cookie" : "*",
         "connect": "*",
+        "session.socket.io": "*",
         "bookmarkletify": "*",
         "node-sass": "*"
     },
