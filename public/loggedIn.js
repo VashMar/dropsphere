@@ -32,19 +32,18 @@ $(document).ready(function(){
             socket =  io.connect();      
             name = username;
 
-            //
+            //gets and shows the last 25 messages that were sent in chat 
             socket.on('connect',function (data) {
-                socket.emit('setName', {name: name, time: new Date().timeNow()}, function(response){
-                    $("#content").append("<p>" + response.msg + "</p>");      // sphere entrance message 
+                socket.emit('requestMessages', function(messages){
+                   for(var i =0; i < 25; i++){
+                        $("#content").append(messages[i]);      
+                    }             
                 });
             });
-            //
+            // 
             socket.on('message', function(data){
                     
-                    if(data.msg) {
-
-                        messages.push(data.msg);
-                        // posts on message board 
+                    if(data.msg) {    
                         $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
 
                     } else {

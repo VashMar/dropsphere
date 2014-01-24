@@ -118,6 +118,8 @@ io.set('authorization', function (data, callback) {
     });
 }); 
 
+// messages store, temporary 
+var messages = [];
 
 io.sockets.on('connection', function (socket) {
 	socket.on("setName", function(data, greeting){
@@ -128,7 +130,15 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('send', function (data) {
     console.log("emitted message");
+    var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
+    messages.push(messageData);      // store the message info on the server
+    console.log(messages);
 		io.sockets.emit('message', data);
 
 	});
+
+  socket.on('requestMessages', function(fillMessages){
+      fillMessages(messages);
+  });
+
 });
