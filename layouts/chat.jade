@@ -4,16 +4,18 @@ html
         title= "DropSphere"
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
         script(src='/socket.io/socket.io.js')
+        script(src='/jquery.slimscroll.min.js')
+        script(src='/main.js')
         link(rel='stylesheet', href='/bootstrap.min.css') 
         link(rel='stylesheet', href='/style.css') 
 
     body
         #container
-            a#bookmarklet click me
+            h1 DropSphere
             #chat
-                #content(class="form-control", style='width: 500px; height: 300px; margin: 0 0 20px 0; border: solid 1px #999; overflow-y: scroll;')
+                #content(class="form-control")
                 .controls
-                    input#messageInput(style='width:350px;', class="form-control")
+                    input#messageInput(class="form-control")
                     input#send(type='button',class="form-control" value='send')
     
     script.
