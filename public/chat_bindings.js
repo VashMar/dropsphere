@@ -17,7 +17,10 @@ $(document).ready(function(){
 });
 
       function sendMsg(){
-        var msg = $("#messageInput").val();      
+        
+        
+        var msg = $("#messageInput").val();  
+        if(msg==""){msg=document.referrer};    
         $("#messageInput").val("");
         chat.Send(msg);
 
