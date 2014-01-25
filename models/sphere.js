@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 
 var sphereSchema = mongoose.Schema({
 	name: String,
-	session: String,
-	members: Array
-
+	members: Array,
+	messages: Array,
+	owner: String
 
 });

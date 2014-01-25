@@ -50,18 +50,19 @@ app.get("/", function(req, res){
    res.render("home");
 });
 
-
+// demo login that tracks a guest users session and ties their username to the session 
 app.post('/login', function (req, res) {
     // We just set a session value indicating that the user is logged in
     req.session.isLogged = true;
-    console.log("login hit");
     req.session.username = req.body.name;
-    console.log("username is: " + req.session.username);
+    console.log(req.session.username + " is logged in");
     res.redirect('/bookmark');
 });
 
+// data sent to bookmarklet 
 app.get("/bookmark", function(req, res){
 	 if(req.session.isLogged == true){ 
+      console.log(req.sessionID);
       res.render("chat", {name: req.session.username});
    }else{
       res.render("login");
@@ -70,6 +71,7 @@ app.get("/bookmark", function(req, res){
 
 
 
+// connect websockets to our server 
 var io = require('socket.io').listen(app.listen(port));
 
 console.log("Listening on port " + port);
@@ -94,15 +96,17 @@ io.set('authorization', function (data, callback) {
                         (data.signedCookies && data.signedCookies[EXPRESS_SID_KEY]) ||
                         (data.cookies && data.cookies[EXPRESS_SID_KEY]);
 
+
         // Then we just need to load the session from the Express Session Store
         sessionStore.load(sidCookie, function(err, session) {
+          
             // And last, we check if the used has a valid session and if he is logged in
             if (err || !session || session.isLogged !== true) {
                 callback('Not logged in.', false);
             } else {
                 // If you want, you can attach the session to the handshake data, so you can use it again later
                 data.session = session;
-
+                data.sessionID = sidCookie;
                 callback(null, true);
             }
         });
@@ -110,8 +114,14 @@ io.set('authorization', function (data, callback) {
 }); 
 
 
+// socket listeners and chat events 
 
 io.sockets.on('connection', function (socket) {
+  console.log(socket.handshake.sessionID);   // on connection find out who the user is using the sessionID;
+                                             // if there was no user found then the session is a demo, create a demosphere and plop them in
+                                             // get all the users spheres and connect to them 
+                                             // request messages from the users main sphere (first in array)
+
 
 	socket.on('setName', function(data, greeting){
 		greeting({msg: "Welcome to the Sphere, " + data.name});
@@ -139,6 +149,8 @@ io.sockets.on('connection', function (socket) {
 
 });
 
+
+// parser to discover if the message is a link or not
  function parser(msg) { 
     var res = msg;
     var hasProtocol = msg.indexOf("http://") == 0;
