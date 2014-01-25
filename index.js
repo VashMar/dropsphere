@@ -59,7 +59,7 @@ app.get("/", function(req, res){
    console.log("This session belongs to:" + req.session.username);
    res.render("chat", {name: req.session.username});
  }else{
-	 res.render("home");
+	 res.render("login");
  } 
 });
 
@@ -134,6 +134,8 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('send', function (data) {
+
+    data.msg = parser(data.msg);
     console.log("emitted message");
     var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
     messages.push(messageData);      // store the message info on the server
@@ -148,3 +150,37 @@ io.sockets.on('connection', function (socket) {
   });
 
 });
+
+ function parser(msg) { 
+    var res = msg;
+    var hasProtocol = msg.indexOf("http://") == 0;
+
+    if( hasProtocol || msg.indexOf("www.") == 0 ){
+       
+       if(hasProtocol){
+        var suffix = /[^.]+$/.exec(msg);
+
+        if(suffix == "jpg" || suffix == "jpeg" || suffix == "gif" || suffix == "png"){
+          res = "<a target='_blank' href='";
+          res += msg +"'>" ;
+          msg = "<img style='max-width:200px; max-height: 200px;' src='" + msg + "'/>";
+
+        }else{
+          res = "<a href='";
+          res += msg +"'>" ;
+          msg = msg.substr(7);
+         } 
+
+       }else{
+          res = "<a href='http://";
+          res += msg +"'>" ;
+          msg = msg.substr(4);
+        
+
+       }  
+         res += msg + "</a>";
+    }
+
+    return res;
+
+ }

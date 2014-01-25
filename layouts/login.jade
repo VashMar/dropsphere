@@ -3,13 +3,26 @@ html
     head
         title= "DropSphere"
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-        script(src='/chat.js')
         script(src='/socket.io/socket.io.js')
+        script(src='/jquery.slimscroll.min.js')
+        script(src='/main.js')
         link(rel='stylesheet', href='/bootstrap.min.css') 
         link(rel='stylesheet', href='/style.css') 
 
     body
-      #name
+        #container
+            h1 DropSphere
+            a#bookmarklet(href='javascript:(function(){var d=document.createElement("div");d.setAttribute("id", "dropsphere");d.style.width="300px";d.style.height="100%";d.style.background="#eee";d.style.color="#222";d.style.position="fixed";d.style.top="0";d.style.right="0";ifrm=document.createElement("iframe");ifrm.setAttribute("src", "http://localhost:3500/bookmark");ifrm.style.width="100%";ifrm.style.height="100%";ifrm.style.overflow="hidden";ifrm.style.border="none";d.appendChild(ifrm);document.body.appendChild(d);})();') drag me baby...
+            #users
+            #chat(style='display:none;')
+                #content(class="form-control")
+                .controls
+                    input#messageInput(class="form-control")
+                    input#send(type='button',class="form-control" value='send')
+            #name
               p Name:
-              input#username(style='width:350px;', class="form-control")
+              input#username(class="form-control")
               input#setName(type='button', value='join', class="form-control")
+    script(src='/login_bindings.js')           
+    script(src='/chat_bindings.js')
+    script(src='/login.js')  
