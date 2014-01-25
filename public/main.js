@@ -1,12 +1,11 @@
 $(document).ready(function(){
     $('#content').slimScroll({
-    	height: '100%'
+    	height: '100%',
+    	start: 'bottom'
     });
     $('textarea').slimScroll({
     	height: '100%',
     	width:'100%'
     });
-	$("#content").animate({ scrollTop: $(document).height() }, "slow");
-
 
 });
