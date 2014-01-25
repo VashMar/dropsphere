@@ -54,13 +54,7 @@ app.use(express.session({
 
 // Routing -- Move to router file eventually 
 app.get("/", function(req, res){
-
- if(req.session.isLogged == true){ 
-   console.log("This session belongs to:" + req.session.username);
-   res.render("chat", {name: req.session.username});
- }else{
-	 res.render("login");
- } 
+   res.render("home");
 });
 
 
@@ -70,11 +64,15 @@ app.post('/login', function (req, res) {
     console.log("login hit");
     req.session.username = req.body.name;
     console.log("username is: " + req.session.username);
-    res.redirect('/');
+    res.redirect('/bookmark');
 });
 
 app.get("/bookmark", function(req, res){
-	res.render("bookmark");
+	 if(req.session.isLogged == true){ 
+      res.render("chat", {name: req.session.username});
+   }else{
+      res.render("login");
+   } 
 });
 
 
