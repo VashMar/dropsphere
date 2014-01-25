@@ -1,5 +1,5 @@
 javascript:(function(){
-if(typeof dropsphere === 'undefined'){
+if(typeof dropsphere === "undefined"){
 	dropsphere=true;
 	var d = document.createElement("div");
 	d.setAttribute("id", "dropsphere");
@@ -17,24 +17,21 @@ if(typeof dropsphere === 'undefined'){
 	css.type = "text/css";
 	css.innerHTML = "#dropsphere
 	{
-		animation:myfirst .5s;
-		-webkit-animation:myfirst .5s;
+		animation:slide .5s;
+		-webkit-animation:slide .5s;
 	}
-	@keyframes myfirst
+	@keyframes slide
 	{
 	from {right:-300px;}
 	to {right:0;}
 	}
-	@-webkit-keyframes myfirst
+	@-webkit-keyframes slide
 	{
 	from {right:-300px;}
 	to {right:0;}
 	}
 	";
 	document.body.appendChild(css);
-
-
-
 	ifrm = document.createElement("iframe");
 	ifrm.setAttribute("src", "http://192.168.1.10:3500/bookmark");
 	ifrm.style.width = "100%";
@@ -42,11 +39,7 @@ if(typeof dropsphere === 'undefined'){
 	ifrm.style.overflow = "hidden";
 	ifrm.style.border = "none";
 	d.appendChild(ifrm); 
-}else{
-	/*close dropsphere*/
 }
-
-
 })();  
 
 
