@@ -1,11 +1,16 @@
-$(document).ready(function(){
-     
 
+
+
+$(document).ready(function(){
     chat = new Chat;
     chat.Connect(name);
+});
 
-
-	 function Chat(){
+function scrollBottom(){
+    var chatBox = document.getElementById("content");
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+function Chat(){
         this.socket = null;
         this.name = "";
         
@@ -20,6 +25,7 @@ $(document).ready(function(){
                    for(var i =0; i < 25; i++){
                         $("#content").append(messages[i]);      
                     }             
+                    scrollBottom();
                 });
 
             });
@@ -44,6 +50,7 @@ $(document).ready(function(){
                     
                     if(data.msg) {    
                         $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
+                        scrollBottom();
 
                     } else {
                          console.log("There is a problem:", data); 
@@ -70,5 +77,3 @@ $(document).ready(function(){
         };
 
     } // end chat
-  
-});

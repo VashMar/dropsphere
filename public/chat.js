@@ -115,7 +115,7 @@ $(document).ready(function(){
                     if(data.msg) {
 
                         $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
-                        
+     
 
                     } else {
                          console.log("There is a problem:", data); 
