@@ -1,16 +1,23 @@
-var database = require("./db");
 var express = require("express");
 var cookie = require("cookie");
 var sass = require('node-sass');
+var mongoose = require('mongoose');
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
 var EXPRESS_SID_KEY = 't3stk3y'
 //var RedisStore = require('connect-redis')(express);
 
-var db = database.db;
 var app = express();
 var sessionStore = new express.session.MemoryStore();
 var port = 3500; 
+
+// db connection
+mongoose.connect("mongodb://localhost:27017/dropsphere_dev");
+
+// messages and user stores -- temporary 
+var messages = [];
+var users = [];
+
 
 app.set('views', __dirname + '/layouts');
 app.set('view engine', "jade");
@@ -36,20 +43,6 @@ app.configure(function () {
       cookie: {httpOnly: true}
     }));
 });
-
-/*app.use(express.cookieParser());
-
- var store = new RedisStore({
-    host: '192.168.1.10',
-    port: 6379,
-    db: 0,
-    pass: 'MFAwDQYJKoZIhvcNAQEBBQADPwAwPAI1Cz02/4pZZRRse4zsLhRddMeiaMAU8VBlpzaOwghEZGz6yEBD9rRUec+zvrZgEnBMYWszqnECAwEAAQ=='
-  });
-
-app.use(express.session({
-  store: store, 
-  secret: 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB'
-})); */
 
 
 // Routing -- Move to router file eventually 
@@ -116,9 +109,6 @@ io.set('authorization', function (data, callback) {
     });
 }); 
 
-// messages and user stores -- temporary 
-var messages = [];
-var users = [];
 
 
 io.sockets.on('connection', function (socket) {
