@@ -1,4 +1,5 @@
 javascript:(function(){
+
 if(typeof dropsphere === "undefined"){
 	dropsphere=true;
 	var d = document.createElement("div");
@@ -12,7 +13,14 @@ if(typeof dropsphere === "undefined"){
 	d.style.zIndex="9999999";
 	d.style.borderLeft="1px solid #ddd";
 	document.body.appendChild(d);
-
+	var close = document.createElement("div");
+	close.setAttribute("id", "close");
+	close.onclick = function() { 
+            var ds=document.getElementById("dropsphere");
+			ds.parentNode.removeChild(ds);
+			dropsphere=false;
+        };
+	d.appendChild(close);
 	var css = document.createElement("style");
 	css.type = "text/css";
 	css.innerHTML = "#dropsphere
@@ -30,6 +38,18 @@ if(typeof dropsphere === "undefined"){
 	from {right:-300px;}
 	to {right:0;}
 	}
+	#close{
+	cursor:pointer;
+	position:absolute;
+	top:0;
+	right:0;
+	height:30px;
+	width:30px;
+	background:url('http://localhost:3500/close.png') no-repeat;
+	}
+	#close:hover{
+	background:url('http://localhost:3500/close_hover.png') no-repeat;
+}
 	";
 	document.body.appendChild(css);
 	ifrm = document.createElement("iframe");
