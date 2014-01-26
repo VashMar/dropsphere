@@ -62,6 +62,7 @@ app.get('/demo', function (req, res) {
     res.render("demo");
 });
 
+
 app.post('/login', function (req, res) {
     // We just set a session value indicating that the user is logged in
     req.session.isLogged = true;
@@ -70,58 +71,58 @@ app.post('/login', function (req, res) {
     res.redirect('/bookmark');
 });
 
+
 // data sent to bookmarklet 
 app.get("/bookmark", function(req, res){
 	 if(req.session.isLogged == true){ 
-      console.log(req.sessionID);
       res.render("chat", {name: req.session.username});
    }else{
       res.render("login");
    } 
 });
 
+// issue sign up form
+app.get("/join", function(req, res){
+     res.render("join");
+});
+
 //signup 
 app.post("/signup", function(req, res){
+  console.log("signing up user with credentials: " + req.body.name);
    // get parameters 
     var name = req.body.name,
         password = req.body.password,
         email = req.body.email,
         session = req.sessionID;
 
-    // check if email is taken
-    User.count({ 'email': email }, function(err, count){
-
-      if(count == 0){
-          //try to create
+        //try to create
          var user = new User({name: name, email: email, password: password});
          user.save( function(err, user){
-           if(err){
-            console.log("validation errors"); // respond with validation errors here
-           } else{
-            // create a sphere for the user    
-            var sphere = new Sphere({name: name + "'s sphere", owner: user._id });
-            // add user as sphere member
-            sphere.members.push(user);
-            // log the user in
-            req.session.isLogged = true;
-            res.redirect('/bookmark');
-           }
-         });      
-      }
 
-      console.log("Email Taken!");
-      // respond with email taken error
-    });
+           if(err){ console.log("validation errors:" + err); } // respond with validation errors here
+           
+           else{
+              console.log("created user: " + name);
+              // create a sphere for the user   
+              var sphere = new Sphere({name: name + "'s sphere", owner: user._id });
+              // add user as sphere member
+              sphere.members.push(user);
+              sphere.save(function(err, sphere){
+                if(err){ console.log("Error saving sphere"); }
+
+                else {
+                  console.log("created sphere: " + sphere.name);
+                  // log the user in
+                  req.session.isLogged = true;
+                  req.session.username = name;
+                  res.redirect('/bookmark');
+                }  
+              });
+            }
+        });      
+}); 
 
 
-
-
-});
-
-// issue sign up form
-app.get("/join", function(req, res){
-     res.render("join");
-});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // connect websockets to our server 
