@@ -58,6 +58,10 @@ app.get("/", function(req, res){
 });
 
 // demo login that tracks a guest users session and ties their username to the session 
+app.get('/demo', function (req, res) {
+    res.render("demo");
+});
+
 app.post('/login', function (req, res) {
     // We just set a session value indicating that the user is logged in
     req.session.isLogged = true;
@@ -78,7 +82,38 @@ app.get("/bookmark", function(req, res){
 
 //signup 
 app.post("/signup", function(req, res){
-    // get parameters and check if email is taken, then try to create
+   // get parameters 
+    var name = req.body.name,
+        password = req.body.password,
+        email = req.body.email,
+        session = req.sessionID;
+
+    // check if email is taken
+    User.count({ 'email': email }, function(err, count){
+
+      if(count == 0){
+          //try to create
+         var user = new User({name: name, email: email, password: password});
+         user.save( function(err, user){
+           if(err){
+            console.log("validation errors"); // respond with validation errors here
+           } else{
+            // create a sphere for the user    
+            var sphere = new Sphere({name: name + "'s sphere", owner: user._id });
+            // add user as sphere member
+            sphere.members.push(user);
+            // log the user in
+            req.session.isLogged = true;
+            res.redirect('/bookmark');
+           }
+         });      
+      }
+
+      console.log("Email Taken!");
+      // respond with email taken error
+    });
+
+
 
 
 });
