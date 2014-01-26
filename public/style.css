@@ -14,7 +14,7 @@ h1 {
   font-weight: 200;
   margin: 6px; }
 
-#bookmarklet {
+a#bookmarklet {
   color: white;
   font-weight: bold;
   margin-top: 20px;
@@ -23,10 +23,9 @@ h1 {
   background: #4186cc;
   border: 1px solid #3980c3;
   border-radius: 3px; }
-
-a#bookmarklet:hover {
-  background: #3980c3;
-  text-decoration: none; }
+  a#bookmarklet :hover {
+    background: #3980c3;
+    text-decoration: none; }
 
 #container {
   position: absolute;
@@ -83,5 +82,11 @@ input {
   font-weight: 700; }
 
 #account {
+  clear: both;
   float: right;
   margin-right: 10px; }
+
+.btn-primary {
+  width: 100%; }
+  .btn-primary :hover {
+    color: white; }
