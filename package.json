@@ -13,7 +13,8 @@
         "connect": "*",
         "session.socket.io": "*",
         "bookmarkletify": "*",
-        "node-sass": "*"
+        "node-sass": "*",
+        "bcrypt": "*"
     },
     "author": "developer"
 }

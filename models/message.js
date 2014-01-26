@@ -7,3 +7,5 @@ var messageSchema = mongoose.Schema({
 	sphere: String 
 
 });
+
+module.exports = mongoose.model('Message', messageSchema);

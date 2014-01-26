@@ -1,7 +1,12 @@
 var express = require("express");
 var cookie = require("cookie");
 var sass = require('node-sass');
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    User     = require('./models/user'),
+    Sphere   = require('./models/sphere'),
+    Demosphere = require('./models/demo_sphere'),
+    Message   = require('./models/message');
+
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
 var EXPRESS_SID_KEY = 't3stk3y'
@@ -15,15 +20,9 @@ var port = 3500;
 mongoose.connect("mongodb://localhost:27017/dropsphere_dev");
 
 // messages and user stores -- temporary 
-var messages = [];
-var users = [];
+var messages = [],
+    users = [];
 
-
-app.set('views', __dirname + '/layouts');
-app.set('view engine', "jade");
-app.engine('jade', require('jade').__express);
-app.use(express.static(__dirname + '/public'));
-app.use(express.bodyParser());
 
 app.configure(function () {
 	 app.use(
@@ -42,6 +41,14 @@ app.configure(function () {
       key   : EXPRESS_SID_KEY,
       cookie: {httpOnly: true}
     }));
+
+    app.use(express.static(__dirname + '/public'));
+    app.use(express.bodyParser());
+
+    app.set('views', __dirname + '/layouts');
+    app.set('view engine', "jade");
+    app.engine('jade', require('jade').__express);
+
 });
 
 
@@ -69,6 +76,7 @@ app.get("/bookmark", function(req, res){
    } 
 });
 
+//signup 
 
 
 // connect websockets to our server 
