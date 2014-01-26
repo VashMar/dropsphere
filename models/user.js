@@ -6,13 +6,24 @@ var mongoose = require('mongoose'),
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
 
+// validatons on object attributes 
+var isEmail = validate({message: "Email is invalid"}, 'isEmail');
+var nameValidator = [validate({message: "Names must be between 3 and 20 characters "}, 'len', 3, 20), 
+                    validate(validate({message: "Names can only contain letters and numbers"}, 'isAlphanumeric')];
+var passValidator = [validate({message: "Passwords must be between 6 and 20 characters "}, 'len', 6, 20)];
+
+
 var userSchema = new Schema({
-	name: { type: String, required: true },
-	password: { type: String, required: true },
-	email: { type: String, required: true, index: { unique: true } }, 
+	name: { type: String, required: true, validate: nameValidator },
+	password: { type: String, required: true, validate: passValidator },
+	email: { type: String, required: true, index: { unique: true }, validate: email }, 
 	session: String, 
-    spheres: [{type: ObjectId, ref: 'Sphere'}]
+    spheres: [{type: ObjectId, ref: 'Sphere'}],
+    spherenames: [{type: String}]
+
 });
+
+
 
 userSchema.pre('save', function(next) {
     var user = this;
