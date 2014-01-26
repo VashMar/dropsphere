@@ -4,25 +4,15 @@ html
         title= "DropSphere"
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
         script(src='/socket.io/socket.io.js')
-        script(src='/jquery.slimscroll.min.js')
         script(src='/main.js')
-        link(rel='stylesheet', href='/bootstrap.min.css') 
-        link(rel='stylesheet', href='/style.css') 
-        link(rel="icon" type="image/png" href="favicon.png")
+        include includes/head
 
     body
         #container
-            h1 DropSphere
-            #users
-            #chat(style='display:none;')
-                #content(class="form-control")
-                .controls
-                    textarea#messageInput(class="form-control" placeholder="Enter a message...")
-                    input#send(type='button',class="form-control" value='send')
-            #name
-              p Name:
-              input#username(class="form-control")
-              input#setName(type='button', value='join', class="form-control")
-    script(src='/login_bindings.js')           
-    script(src='/chat_bindings.js')
-    script(src='/login.js')  
+            #join
+              img#chatLogo(src="dropsphere_sm.png")
+              input#email(class="form-control" type="email" placeholder="Email")
+              input#password(class="form-control" type="password" placeholder="Password")
+              input#setName(type='button', value='login', class="form-control")
+        script(src='/login_bindings.js')           
+        script(src='/login.js')  

@@ -11,6 +11,7 @@ if(typeof dropsphere === "undefined"){
 	d.style.top="0";
 	d.style.right="0";
 	d.style.zIndex="9999999";
+	d.style.padding="0 0 0 6px";
 	document.body.appendChild(d);
 
 	var css = document.createElement("style");
@@ -33,7 +34,7 @@ if(typeof dropsphere === "undefined"){
 	";
 	document.body.appendChild(css);
 	ifrm = document.createElement("iframe");
-	ifrm.setAttribute("src", "http://192.168.1.13:3500/bookmark");
+	ifrm.setAttribute("src", "http://localhost:3500/bookmark");
 	ifrm.style.width = "100%";
 	ifrm.style.height = "100%";
 	ifrm.style.overflow = "hidden";

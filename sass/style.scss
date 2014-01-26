@@ -1,22 +1,24 @@
-$font-stack:    Helvetica, sans-serif;
+$theme:#4186cc;
+$theme-dark:#3980c3;
+$font-stack: 'Source Sans Pro', Helvetica, Arial, sans-serif;
 $txt-color: #222;
 $bg-color:#ddd;
 
 body {
 	height:100%;
-	font: 140% $font-stack;
+	font-family:$font-stack !important;
 	color: $txt-color;
 	background:$bg-color;
 	text-align:center;
 }
 p{
-	font-size:16px;
+	font-size:14px;
 }
 h1{
-	font-weight:bold;
-	text-transform:uppercase;
+	font-family:$font-stack !important;
+	font-size:48px;
+	font-weight:200;
 	margin:6px;
-	letter-spacing:-.1em;
 }
 #bookmarklet{
 	color:white;
@@ -24,12 +26,12 @@ h1{
 	margin-top:20px;
 	padding:12px 30px;
 	width:30px;
-	background:#85C2FF;
-	border:1px solid #777;
+	background:$theme;
+	border:1px solid $theme-dark;
 	border-radius:3px;
 }
 a#bookmarklet:hover{
-	background:#7eb8F0;
+	background:$theme-dark;
 	text-decoration:none;
 }
 #container{
@@ -46,7 +48,7 @@ a#bookmarklet:hover{
 	text-align:left;
 }
 #chat{
-	height:80%;
+	height:76%;
 }
 textarea{margin:9px 0 3px 0;
 }
@@ -63,16 +65,22 @@ textarea{margin:9px 0 3px 0;
 	line-height: 12px;
 	font-size:12px;
 }
-#name{
+#name, #join{
 	position:absolute;
 	width:100%;
 	top:35%;
+}
+#join #chatLogo{
+	margin-bottom:14px;
 }
 input{
 	margin:3px 0;
 }
 #logo{
 	margin-top:200px;
+}
+#chatLogo{
+	margin:3px;
 }
 .bold{
 	font-weight:bold;
@@ -81,4 +89,12 @@ input{
 	background-image:url(favicon.png);
 	background-repeat:no-repeat;
 	background-position: center center;
+}
+#join input{
+	width:80%;
+	margin:auto;
+	margin-bottom:2px;
+}
+#join #setName{
+	margin-top:10px;
 }
