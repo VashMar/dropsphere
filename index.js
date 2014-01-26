@@ -52,7 +52,7 @@ app.configure(function () {
 });
 
 
-// Routing -- Move to router file eventually 
+// Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
    res.render("home");
 });
@@ -77,16 +77,17 @@ app.get("/bookmark", function(req, res){
 });
 
 //signup 
-app.get("/join", function(req, res){
-    // get parameters and check if email is taken, and password 
+app.post("/signup", function(req, res){
+    // get parameters and check if email is taken, then try to create
 
 
 });
 
 // issue sign up form
-app.get("/join_form", function(req, res){
+app.get("/join", function(req, res){
      res.render("join");
 });
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // connect websockets to our server 
 var io = require('socket.io').listen(app.listen(port));
@@ -131,7 +132,7 @@ io.set('authorization', function (data, callback) {
 }); 
 
 
-// socket listeners and chat events 
+// socket listeners and chat events //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
   console.log(socket.handshake.sessionID);   // on connection find out who the user is using the sessionID;
@@ -166,7 +167,7 @@ io.sockets.on('connection', function (socket) {
 
 });
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // parser to discover if the message is a link or not
  function parser(msg) { 
     var res = msg;
