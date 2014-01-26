@@ -77,8 +77,15 @@ app.get("/bookmark", function(req, res){
 });
 
 //signup 
-app.get("/signup", function(req, res){
+app.get("/join", function(req, res){
+    // get parameters and check if email is taken, and password 
 
+
+});
+
+// issue sign up form
+app.get("/join_form", function(req, res){
+     res.render("join");
 });
 
 // connect websockets to our server 
