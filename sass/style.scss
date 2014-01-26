@@ -36,9 +36,10 @@ a#bookmarklet:hover{
 }
 #container{
 	position:absolute;
-	width:100%;
+	width:80%;
 	height:100%;
 	margin:auto;
+	margin-left:10%;
 }
 
 #content{
@@ -50,31 +51,41 @@ a#bookmarklet:hover{
 #chat{
 	height:76%;
 }
-textarea{margin:9px 0 3px 0;
+textarea{
+	margin:9px 0 3px 0;
 }
-#users p{
-	display: inline-block;
-	margin-left: 6px;
-	background-color:rgba(0,0,0,0.1);
-	padding:4px;
-	border-radius:3px;
-}
-#users h3{
-	margin-top: 0;
-	margin-bottom: 0;
-	line-height: 12px;
-	font-size:12px;
+#users{
+	h3{
+		margin-top: 0;
+		margin-bottom: 0;
+		line-height: 12px;
+		font-size:12px;
+	}
+	p{
+		display: inline-block;
+		margin-left: 6px;
+		background-color:rgba(0,0,0,0.1);
+		padding:4px;
+		border-radius:3px;
+	}
 }
 #name, #join{
 	position:absolute;
 	width:100%;
-	top:35%;
+	top:30%;
 }
-#join #chatLogo{
-	margin-bottom:14px;
+#join{
+	#chatLogo{
+		margin-bottom:14px;
+	}
+
+	#setName{
+		margin-top:10px;
+	}
 }
 input{
-	margin:3px 0;
+	margin:auto;
+	margin-bottom:2px;
 }
 #logo{
 	margin-top:200px;
@@ -83,18 +94,9 @@ input{
 	margin:3px;
 }
 .bold{
-	font-weight:bold;
+	font-weight:700;
 }
-.blank{
-	background-image:url(favicon.png);
-	background-repeat:no-repeat;
-	background-position: center center;
-}
-#join input{
-	width:80%;
-	margin:auto;
-	margin-bottom:2px;
-}
-#join #setName{
-	margin-top:10px;
+#account{
+	float:right;
+	margin-right:10px;
 }
