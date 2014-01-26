@@ -5,9 +5,9 @@ var Schema = mongoose.Schema,
 
 var sphereSchema = mongoose.Schema({
 	name: String,
-	members: Array,
-	messages: Array,
-	owner: String
+	members: [{type: ObjectId, ref: 'User'}],
+	messages: [{type: ObjectId, ref: 'Message'}],
+	owner: {type: ObjectId, ref: 'User'}
 
 });
 

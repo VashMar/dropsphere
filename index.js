@@ -77,7 +77,9 @@ app.get("/bookmark", function(req, res){
 });
 
 //signup 
+app.get("/signup", function(req, res){
 
+});
 
 // connect websockets to our server 
 var io = require('socket.io').listen(app.listen(port));

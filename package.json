@@ -14,7 +14,8 @@
         "session.socket.io": "*",
         "bookmarkletify": "*",
         "node-sass": "*",
-        "bcrypt": "*"
+        "bcrypt": "*",
+        "mongoose-validator" : "*"
     },
     "author": "developer"
 }

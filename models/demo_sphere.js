@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 
 var demosphereSchema = mongoose.Schema({
-	members: Array,
-	messages: Array
+	members: [String],
+	messages: [{type: ObjectId, ref: 'Message'}]
 });
 
 
