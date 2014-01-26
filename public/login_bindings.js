@@ -1,28 +1,28 @@
 $(document).ready(function(){
+  
    $("#setName").click(function(){  
-       setName();
+       login();
     });
-
-    $('input#username').bind('keypress', function(e) {
-        if(e.keyCode==13){
-            setName();
-        }
-    });
+  
 });
 
 
- function setName(){
-         var name = $("#username").val();
-         $.post( "/login", {name: name})
-         .done(function( data ) {
-            $("#name").hide();
-            $("#chat").show();
-        });
+ function login(){
+    var email = $("#email").val();
+    var password = $("#password").val();
+   
+    var login = $.post( "/login", {email: email, password: password});
 
-        /*$.get('/login', function(data) {
-            $("#name").hide();
-            $("#chat").show();
-        });*/
-        chat = new Chat;
-        chat.Connect(name);
-    }
+    login.done(function( data ) {
+         console.log("login authorized");
+        if(data.redirect){
+            window.location = data.redirect; // login in user
+        }
+    });
+
+    login.fail(function( data ) {
+        console.log("login failed");
+        console.log(data.responseText);
+    });
+}
+

@@ -57,18 +57,56 @@ app.get("/", function(req, res){
    res.render("home");
 });
 
-// demo login that tracks a guest users session and ties their username to the session 
+// renders a demo login page 
 app.get('/demo', function (req, res) {
     res.render("demo");
 });
 
-
-app.post('/login', function (req, res) {
+// demo login that tracks a guest users session and ties their username to the session 
+app.post('/demologin', function (req, res) {
     // We just set a session value indicating that the user is logged in
     req.session.isLogged = true;
     req.session.username = req.body.name;
     console.log(req.session.username + " is logged in");
     res.redirect('/bookmark');
+});
+
+app.post('/login', function (req, res) {
+    
+    var email = req.body.email,
+        password = req.body.password;
+
+    User.findOne({email: email}, function(err, user){
+      if(!user){ 
+        console.log("Invalid Email"); 
+        res.send(400, err);
+      }
+
+      else{
+        user.comparePassword(password, function(err, isMatch){
+          if(!isMatch){ 
+            (console.log("Incorrect Password")); 
+             res.send(400, err);
+          }
+
+          else{
+             req.session.isLogged = true;
+             req.session.username = user.name;
+             console.log(req.session.username + " is logged in");
+             res.send({redirect: '/bookmark'});
+             user.session = req.sessionID;
+             user.save(function(err){
+                if(err){console.log(err);}
+
+                else{
+                  console.log("new user session saved");
+                }
+             });
+          }
+        });
+      }
+    }); // end query 
+   
 });
 
 
@@ -87,8 +125,8 @@ app.get("/join", function(req, res){
 });
 
 //signup 
-app.post("/signup", function(req, res){
-  console.log("signing up user with credentials: " + req.body.name);
+app.post("/signup", function(req, res, next){
+  console.log("signing up user with credentials: " + req.body);
    // get parameters 
     var name = req.body.name,
         password = req.body.password,
@@ -96,10 +134,14 @@ app.post("/signup", function(req, res){
         session = req.sessionID;
 
         //try to create
-         var user = new User({name: name, email: email, password: password});
+         var user = new User({name: name, email: email, password: password, session: session});
          user.save( function(err, user){
 
-           if(err){ console.log("validation errors:" + err); } // respond with validation errors here
+          // respond with validation errors here
+           if(err){ 
+               console.log("validation errors:" + err); 
+               res.send(400, err);
+           } 
            
            else{
               console.log("created user: " + name);
@@ -115,7 +157,7 @@ app.post("/signup", function(req, res){
                   // log the user in
                   req.session.isLogged = true;
                   req.session.username = name;
-                  res.redirect('/bookmark');
+                  res.send({redirect: '/bookmark'});
                 }  
               });
             }

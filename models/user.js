@@ -12,7 +12,7 @@ var nameValidator = [
                      validate({message: "Names must be between 3 and 20 characters "}, 'len', 3, 20), 
                      validate({message: "Names can only contain letters and numbers"}, 'isAlphanumeric')
                     ];
-var passValidator = [validate({message: "Passwords must be between 6 and 20 characters "}, 'len', 6, 20)];
+var passValidator = [validate({message: "Passwords must be more than 6 characters "}, 'len', 6)];
 
 
 var userSchema = new Schema({
