@@ -88,7 +88,7 @@ app.get("/join", function(req, res){
 
 //signup 
 app.post("/signup", function(req, res){
-  console.log("signing up user with credentials: " + {req.body.name});
+  console.log("signing up user with credentials: " + req.body.name);
    // get parameters 
     var name = req.body.name,
         password = req.body.password,
@@ -98,6 +98,7 @@ app.post("/signup", function(req, res){
         //try to create
          var user = new User({name: name, email: email, password: password});
          user.save( function(err, user){
+
            if(err){ console.log("validation errors:" + err); } // respond with validation errors here
            
            else{
