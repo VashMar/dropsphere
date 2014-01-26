@@ -1,10 +1,10 @@
 #container
     #join
       img#chatLogo(src="dropsphere_sm.png")
-     
+      input#username(class="form-control" type="text" placeholder="Name")
       input#email(class="form-control" type="email" placeholder="Email")
-      input#username(class="form-control" type="text" placeholder="Username")
       input#password(class="form-control" type="password" placeholder="Password")
       input#setName(type='button', value='join', class="btn btn-primary")
+
 script(src='/join_bindings.js')           
 script(src='/login.js')  
