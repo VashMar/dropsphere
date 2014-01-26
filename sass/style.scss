@@ -14,8 +14,10 @@ body {
 p{
 	font-size:14px;
 }
-h1{
+h1,h2,h3,h4,h5,h6{
 	font-family:$font-stack !important;
+}
+h1{
 	font-size:48px;
 	font-weight:200;
 	margin:6px;
@@ -137,6 +139,9 @@ input{
 }
 #settings:hover{
 	background:url("settings_hover.png") no-repeat;
+}
+.modal-dialog{
+	margin-top: 52px;
 }
 
 
