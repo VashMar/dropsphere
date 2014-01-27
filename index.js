@@ -94,6 +94,14 @@ app.post('/login', function (req, res) {
              req.session.username = user.name;
              console.log(req.session.username + " is logged in");
              res.send({redirect: '/bookmark'});
+             user.session = req.sessionID;
+             user.save(function(err){
+                if(err){console.log(err);}
+
+                else{
+                  console.log("new user session saved");
+                }
+             });
           }
         });
       }
@@ -126,7 +134,7 @@ app.post("/signup", function(req, res, next){
         session = req.sessionID;
 
         //try to create
-         var user = new User({name: name, email: email, password: password});
+         var user = new User({name: name, email: email, password: password, session: session});
          user.save( function(err, user){
 
           // respond with validation errors here
