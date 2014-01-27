@@ -13,7 +13,6 @@ $(document).ready(function(){
 
 
  function demoLogin(){
-        alert("hit");
          var name = $("#username").val();
         
         var demologin = $.post( "/demologin", {name: name});
