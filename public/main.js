@@ -4,7 +4,6 @@ $(document).ready(function(){
     	start: 'bottom'
     });
     $('textarea').slimScroll({
-    	height: '100%',
     	width:'100%'
     });
     /*

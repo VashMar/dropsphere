@@ -2,7 +2,7 @@ body {
   height: 100%;
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
   color: #222;
-  background: #ddd;
+  background: #f6f6f6;
   text-align: center; }
 
 p {
@@ -30,22 +30,30 @@ a#bookmarklet {
 
 #container {
   position: absolute;
-  width: 80%;
+  width: 94%;
   height: 100%;
   margin: auto;
-  margin-left: 10%; }
+  margin-left: 3%; }
 
 #content {
-  height: 80%;
+  height: 76%;
   width: 100%;
   margin: auto;
   text-align: left; }
+  #content p {
+    margin-bottom: 2px; }
 
 #chat {
-  height: 76%; }
+  height: 72%; }
+  #chat #chatLogo {
+    margin-top: 14px; }
 
 textarea {
-  margin: 9px 0 3px 0; }
+  margin: 9px 0 6px 0;
+  resize: none; }
+
+.controls .slimScrollDiv, .controls .slimScrollBar {
+  background: none !important; }
 
 #users h3 {
   margin-top: 0;
@@ -54,10 +62,11 @@ textarea {
   font-size: 12px; }
 #users p {
   display: inline-block;
-  margin-left: 6px;
+  margin-left: 5px;
   background-color: rgba(0, 0, 0, 0.1);
-  padding: 4px;
-  border-radius: 3px; }
+  border-radius: 3px;
+  padding: 0 6px 1px;
+  font-size: 12px; }
 
 #name, #join {
   position: absolute;
@@ -85,9 +94,24 @@ input {
 #account {
   clear: both;
   float: right;
-  margin-right: 10px; }
+  margin-right: 10%; }
 
 .btn-primary {
-  width: 100%; }
+  width: 80%; }
   .btn-primary :hover {
     color: white; }
+
+.gray {
+  color: #666; }
+
+#close {
+  cursor: pointer;
+  position: absolute;
+  top: 4px;
+  right: -2%;
+  height: 30px;
+  width: 30px;
+  background: url("close.png"); }
+
+#close:hover {
+  background: url("close_hover.png"); }

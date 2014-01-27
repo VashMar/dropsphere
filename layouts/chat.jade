@@ -11,12 +11,14 @@ html
     body
         #container
             #chat
+                #settings
+                #close
                 img#chatLogo(src="dropsphere_sm.png")
                 #users
                 #content(class="form-control")
                 .controls
                     textarea#messageInput(class="form-control" placeholder="Enter a message...")
-                    input#send(type='button',class="form-control" value='send')
+                    input#send(type='button' class="btn btn-primary" value='send')
     
     script.
       var name = !{JSON.stringify(name)};

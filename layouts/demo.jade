@@ -10,20 +10,18 @@ html
 
     body
         #container
-            
-            
             #chat(style='display:none;')
                 img#chatLogo(src="dropsphere_sm.png")
                 #users
                 #content(class="form-control")
                 .controls
                     textarea#messageInput(class="form-control" placeholder="Enter a message...")
-                    input#send(type='button',class="form-control" value='send')
+                    input#send(type='button' class="btn btn-primary" value='send')
             #name
               img(src="dropsphere_sm.png")
               p Name
               input#username(class="form-control")
-              input#setName(type='button', value='join', class="form-control")
+              input#setName(type='button' value='join' class="btn btn-primary")
     script(src='/login_bindings.js')           
     script(src='/chat_bindings.js')
     script(src='/login.js')  
