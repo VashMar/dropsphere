@@ -1,4 +1,5 @@
 $(document).ready(function(){
+
    $("#setName").click(function(){  
       setName();
     });
@@ -13,16 +14,13 @@ $(document).ready(function(){
 
  function setName(){
          var name = $("#username").val();
-         $.post( "/login", {name: name})
+         $.post( "/demologin", {name: name})
          .done(function( data ) {
             $("#name").hide();
             $("#chat").show();
         });
 
-        /*$.get('/login', function(data) {
-            $("#name").hide();
-            $("#chat").show();
-        });*/
+  
         chat = new Chat;
         chat.Connect(name);
     }
