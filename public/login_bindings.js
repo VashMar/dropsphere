@@ -1,5 +1,5 @@
 $(document).ready(function(){
-   alert("ready");
+  
    $("#setName").click(function(){  
        login();
     });
@@ -14,17 +14,15 @@ $(document).ready(function(){
     var login = $.post( "/login", {email: email, password: password});
 
     login.done(function( data ) {
-         console.log("signup done");
+         console.log("login authorized");
         if(data.redirect){
             window.location = data.redirect; // login in user
         }
     });
 
     login.fail(function( data ) {
-        console.log("signup failed");
+        console.log("login failed");
         console.log(data.responseText);
     });
 }
 
-
-}

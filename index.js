@@ -77,14 +77,14 @@ app.post('/login', function (req, res) {
         password = req.body.password;
 
     User.findOne({email: email}, function(err, user){
-      if(err){ 
+      if(!user){ 
         console.log("Invalid Email"); 
         res.send(400, err);
       }
 
       else{
         user.comparePassword(password, function(err, isMatch){
-          if(err){ 
+          if(!isMatch){ 
             (console.log("Incorrect Password")); 
              res.send(400, err);
           }
