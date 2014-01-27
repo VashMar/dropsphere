@@ -57,11 +57,12 @@ app.get("/", function(req, res){
    res.render("home");
 });
 
-// demo login that tracks a guest users session and ties their username to the session 
+// renders a demo login page 
 app.get('/demo', function (req, res) {
     res.render("demo");
 });
 
+// demo login that tracks a guest users session and ties their username to the session 
 
 app.post('/login', function (req, res) {
     // We just set a session value indicating that the user is logged in
@@ -87,8 +88,8 @@ app.get("/join", function(req, res){
 });
 
 //signup 
-app.post("/signup", function(req, res){
-  console.log("signing up user with credentials: " + req.body.name);
+app.post("/signup", function(req, res, next){
+  console.log("signing up user with credentials: " + req.body);
    // get parameters 
     var name = req.body.name,
         password = req.body.password,
@@ -99,7 +100,11 @@ app.post("/signup", function(req, res){
          var user = new User({name: name, email: email, password: password});
          user.save( function(err, user){
 
-           if(err){ console.log("validation errors:" + err); } // respond with validation errors here
+          // respond with validation errors here
+           if(err){ 
+               console.log("validation errors:" + err); 
+               res.send(400, err);
+           } 
            
            else{
               console.log("created user: " + name);
@@ -115,7 +120,7 @@ app.post("/signup", function(req, res){
                   // log the user in
                   req.session.isLogged = true;
                   req.session.username = name;
-                  res.redirect('/bookmark');
+                  res.send({redirect: '/bookmark'});
                 }  
               });
             }
