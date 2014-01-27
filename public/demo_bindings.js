@@ -1,24 +1,26 @@
 $(document).ready(function(){
 
    $("#setName").click(function(){  
-      setName();
+      demoLogin();
     });
 
     $('input#username').bind('keypress', function(e) {
         if(e.keyCode==13){
-            setName();
+            demoLogin();
         }
     });
 });
 
 
- function setName(){
+ function demoLogin(){
+        alert("hit");
          var name = $("#username").val();
-         $.post( "/demologin", {name: name})
-         .done(function( data ) {
+        
+        var demologin = $.post( "/demologin", {name: name});
+         demologin.done(function( data ) {
             $("#name").hide();
             $("#chat").show();
-        });
+        }); 
 
   
         chat = new Chat;
