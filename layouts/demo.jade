@@ -3,6 +3,7 @@ html
     head
         title= "DropSphere"
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+        script(src='/bootstrap.min.js')           
         script(src='/socket.io/socket.io.js')
         script(src='/jquery.slimscroll.min.js')
         script(src='/main.js')
@@ -10,6 +11,11 @@ html
 
     body
         #container
+            #settings.dropdown
+                a(data-toggle="dropdown" href="#") clickme
+                ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                    li poop
+                    li face
             #chat(style='display:none;')
                 img#chatLogo(src="dropsphere_sm.png")
                 #users

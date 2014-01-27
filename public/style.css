@@ -104,5 +104,10 @@ input {
 .gray {
   color: #666; }
 
-#close:hover {
-  background: url("close_hover.png"); }
+#settings {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  top: 0;
+  left: 0;
+  background: blue; }
