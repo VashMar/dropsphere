@@ -1,6 +1,6 @@
 javascript:(function(){
 
-if(typeof dropsphere === "undefined"){
+if(typeof dropsphere === "undefined" || dropsphere==false){
 	dropsphere=true;
 	var d = document.createElement("div");
 	d.setAttribute("id", "dropsphere");
