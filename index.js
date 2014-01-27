@@ -63,13 +63,42 @@ app.get('/demo', function (req, res) {
 });
 
 // demo login that tracks a guest users session and ties their username to the session 
-
-app.post('/login', function (req, res) {
+app.post('/demologin', function (req, res) {
     // We just set a session value indicating that the user is logged in
     req.session.isLogged = true;
     req.session.username = req.body.name;
     console.log(req.session.username + " is logged in");
     res.redirect('/bookmark');
+});
+
+app.post('/login', function (req, res) {
+    
+    var email = req.body.email,
+        password = req.body.password;
+
+    User.findOne({email: email}, function(err, user){
+      if(err){ 
+        console.log("Invalid Email"); 
+        res.send(400, err);
+      }
+
+      else{
+        user.comparePassword(password, function(err, isMatch){
+          if(err){ 
+            (console.log("Incorrect Password")); 
+             res.send(400, err);
+          }
+
+          else{
+             req.session.isLogged = true;
+             req.session.username = user.name;
+             console.log(req.session.username + " is logged in");
+             res.send({redirect: '/bookmark'});
+          }
+        });
+      }
+    }); // end query 
+   
 });
 
 
