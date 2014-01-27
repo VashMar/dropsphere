@@ -1,4 +1,5 @@
 $(document).ready(function(){
+   alert("ready");
    $("#setName").click(function(){  
        login();
     });
