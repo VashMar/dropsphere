@@ -104,14 +104,5 @@ input {
 .gray {
   color: #666; }
 
-#close {
-  cursor: pointer;
-  position: absolute;
-  top: 4px;
-  right: -2%;
-  height: 30px;
-  width: 30px;
-  background: url("close.png"); }
-
 #close:hover {
   background: url("close_hover.png"); }
