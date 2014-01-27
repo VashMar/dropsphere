@@ -54,7 +54,8 @@ a#bookmarklet{
 #chat{
 	height:72%;
 	#chatLogo{
-		margin-top:14px;
+		margin-top:-26px;
+		
 		
 	}
 }
@@ -128,11 +129,14 @@ input{
 	color:#666;
 }
 #settings{
-	position:absolute;
+	display:block;
+	cursor:pointer;
+	background:url("settings.png") no-repeat;
 	width:30px;
 	height:30px;
-	top:0;
-	left:0;
-	background:blue;
 }
+#settings:hover{
+	background:url("settings_hover.png") no-repeat;
+}
+
 
