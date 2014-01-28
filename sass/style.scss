@@ -138,15 +138,18 @@ input{
 #settings{
 	display:block;
 	cursor:pointer;
-	background:url("img/settings.png") no-repeat;
+	background:url("/img/settings.png") no-repeat;
 	width:30px;
 	height:30px;
 }
 #settings:hover{
-	background:url("img/settings_hover.png") no-repeat;
+	background:url("/img/settings_hover.png") no-repeat;
+}
+.dropdown a{
+	text-align:left;
 }
 .modal-dialog{
 	margin-top: 52px;
-}
 
+}
 

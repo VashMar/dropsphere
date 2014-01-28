@@ -1,0 +1,20 @@
+{
+  "vars": {},
+  "css": [
+    "type.less",
+    "forms.less",
+    "buttons.less",
+    "glyphicons.less",
+    "labels.less",
+    "badges.less",
+    "dropdowns.less",
+    "modals.less",
+    "component-animations.less"
+  ],
+  "js": [
+    "button.js",
+    "dropdown.js",
+    "modal.js",
+    "transition.js"
+  ]
+}
