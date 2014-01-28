@@ -16,4 +16,9 @@ $(document).ready(function(){
 		}
 	});
 */
+
+});
+window.addEventListener('message', function(e) {
+  var message = e.data;
+  alert(message);
 });

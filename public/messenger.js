@@ -52,7 +52,7 @@ function Chat(){
                    $("#currentSphere").append(currentSphere);   
 
                    for(var i = 0; i < sphereNames.length; i++){
-                        $("#sphereList").append("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>");
+                        $("#sphereList").prepend("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>");
                    }
                    
               });

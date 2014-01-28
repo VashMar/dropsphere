@@ -46,10 +46,10 @@ if(typeof dropsphere === "undefined" || dropsphere==false){
 	margin:2px 6px 0 0;
 	height:30px;
 	width:30px;
-	background:url(\"http://localhost:3500/close.png\") no-repeat;
+	background:url(http://localhost:3500/close.png) no-repeat;
 	}
 	#close:hover{
-	background:url(\"http://localhost:3500/close_hover.png\") no-repeat;
+	background:url(http://localhost:3500/close_hover.png) no-repeat;
 }
 	";
 	document.body.appendChild(css);

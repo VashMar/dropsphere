@@ -27,7 +27,7 @@ html
                     a#currentSphere(data-toggle="dropdown" href="#")
                     ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
                         li(role="presentation")
-                            a#sphereCreate(role="menuitem" tabindex="-1" href="#") + Create New Sphere
+                            a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") + Create New Sphere
                 #users
                 #content(class="form-control")
                 .controls
@@ -43,6 +43,18 @@ html
               
               .modal-body
                 input(class="form-control" placeholder="New Name")
+              
+              .modal-footer
+                button.btn.btn-primary(type="button") Save changes
+        #sphereDialog.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+         .modal-dialog
+            .modal-content
+              .modal-header
+                button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+                h4.modal-title Create a sphere
+              
+              .modal-body
+                input(class="form-control" placeholder="Sphere name")
               
               .modal-footer
                 button.btn.btn-primary(type="button") Save changes
