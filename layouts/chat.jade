@@ -6,6 +6,9 @@ html
         script(src='/js/lib/bootstrap.min.js')
         script(src='/socket.io/socket.io.js')
         script(src='/js/lib/jquery.slimscroll.min.js')
+        script(type="text/javascript" src="/easyxdm/easyxdm.debug.js")
+        script.
+            easyXDM.DomHelper.requiresJSON("/json2.js");
         script(src='/js/main.js')
         include includes/head
 
@@ -24,10 +27,11 @@ html
                             a(role="menuitem" tabindex="-1" href="#") Logout 
                 img#chatLogo(src="/img/dropsphere_sm.png")
                 .dropdown
-                    a#currentSphere(data-toggle="dropdown" href="#")
+                    a#currentSphere(data-toggle="dropdown" href="#") 
                     ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                        li(role="presentation" class="divider")
                         li(role="presentation")
-                            a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") + Create New Sphere
+                            a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
                 #users
                 #content(class="form-control")
                 .controls
@@ -63,8 +67,5 @@ html
             img(src="img/settings_hover.png")
     script.
       var name = !{JSON.stringify(name)};
-    script(type="text/javascript" src="/easyxdm/easyxdm.debug.js")
-    script.
-        easyXDM.DomHelper.requiresJSON("/json2.js");
     script(src='/js/chat_bindings.js')  
     script(src='/js/messenger.js')
