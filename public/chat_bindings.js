@@ -14,6 +14,19 @@ $(document).ready(function(){
     });
 
 
+            // get and display the new current sphere when the user chooses to switch
+    $("#sphereList").on("click", "a", function(e){
+            currentSphere = $(this).text();        
+                        
+            if(currentSphere != $("a#currentSphere").text()){    //doesn't switch if the user chooses the sphere they're already in
+                  $("a#currentSphere").html(currentSphere);
+                  chat.SwitchSphere(currentSphere);
+            }
+
+               
+    });
+
+
 });
 
       function sendMsg(){

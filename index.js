@@ -242,52 +242,80 @@ io.sockets.on('connection', function (socket) {
           } else{
             // connect to all the users spheres 
             console.log(user.spheres)
-            var sphereData = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+            var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
 
             for(var i = 0; i < user.spheres.length ; i++){
               socket.join(user.spheres[i].object.id);
-              sphereData[user.spheres[i].object.name] = {id: user.spheres[i].object.id, username: user.spheres[i].username};
+              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
             }
 
             // default sphere will be the users first sphere so send them that list of members
             socket.emit('users', user.spheres[0].object.members); 
             // pass the client side all the info necessary to track sphere related information 
-            socket.emit('sphereData', sphereData);
+            socket.emit('sphereMap', sphereMap);
 
            
           }
         }
   });
 
+	 socket.on('send', function (data) {
 
-                                             
-                                             
-                                          
-              
+      data.msg = parser(data.msg);
+      console.log("emitted message");
+      var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
+      messages.push(messageData);      // store the message info on the server
+      console.log(messages);
+  		io.sockets.emit('message', data);
 
-/*	socket.on('setName', function(data, greeting){
-		greeting({msg: "Welcome to the Sphere, " + data.name});
-		socket.join("sphere");
-    users.push(data.name);
-    io.sockets.emit('users', users);
-		socket.broadcast.to("sphere").emit('announcement', { msg: data.name + " joined the Sphere (" + data.time + ")" });
-	});*/
+  	});
 
-	socket.on('send', function (data) {
+    socket.on('requestMessages', function(data, fillMessages){
 
-    data.msg = parser(data.msg);
-    console.log("emitted message");
-    var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
-    messages.push(messageData);      // store the message info on the server
-    console.log(messages);
-		io.sockets.emit('message', data);
+        User.findOne({session: connection.sessionID}, function(err, user){
+            if(err){console.log(err);}
 
-	});
+            if(!user){
+              console.log("Session and user don't match up");
+            } else{
 
-  socket.on('requestMessages', function(fillMessages){
-      fillMessages(messages);
-      socket.emit('users', users);
-  });
+
+                var targetSphere = null;
+
+                // check if the sphere at the given index has the same id as the sent id 
+                if(user.spheres[sphereIndex].object == data.sphereID){
+                  targetSphere = user.spheres[sphereIndex]; // if it does we have our sphere 
+                } else{
+                  // we have to go on a sphere hunt 
+                  for(var i = 0; i < user.spheres.length; i++){
+                     if(user.spheres[i].object == data.sphereID){
+                        sphere = user.spheres[i];     
+                     }
+                  }
+                }
+               
+                if(targetSphere){ // lets only do a query if we know the sphere exists 
+                    // find the requested sphere with all its messages after the user joined the sphere 
+                    Sphere.findOne({id: data.sphereID}).populate('messages', null, {date: {$gte: sphere.joined }}).exec(function(err, sphere){    
+                      if(err){console.log(err);}
+
+                      if(!sphere){
+                        console.log("User requested a sphere that magically doesn't exist!");
+                      } else{
+                        console.log(sphere.messages);
+                      }
+
+                    });
+                  }
+                  console.log("Sphere: " + data.sphereID + " doesn't belong to user");
+            }
+
+
+        });
+
+     //   fillMessages(messages);
+      //  socket.emit('users', users);
+    });
 
 });
 

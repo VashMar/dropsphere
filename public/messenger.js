@@ -4,12 +4,17 @@
 $(document).ready(function(){
     chat = new Chat;
     chat.Connect(name);
+
+
 });
 
 function scrollBottom(){
     var chatBox = document.getElementById("content");
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+
+
 function Chat(){
         this.socket = null;
         this.name = "";
@@ -39,9 +44,16 @@ function Chat(){
                     }
                 });
 
-              socket.on('sphereData', function(sphereData){
-                   sphereData = sphereData;
-                   var sphereNames = Object.keys(sphereData);
+              socket.on('sphereMap', function(sphereMap){
+                   sphereMap = sphereMap;
+                   sphereNames = Object.keys(sphereMap);
+                   currentSphere = sphereNames[0];
+    
+                   $("#currentSphere").append(currentSphere);   
+
+                   for(var i = 0; i < sphereNames.length; i++){
+                        $("#sphereList").append("<li role='presentation'><a href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>");
+                   }
                    
               });
 
@@ -63,11 +75,30 @@ function Chat(){
             });
         };
         
-        this.Send = function Send (msg) {
+        this.Send = function Send(msg) {
 
             socket.emit("send", {msg: msg, sender: name, time: new Date().timeNow()}); 
             
         };
+
+        this.SwitchSphere = function SwitchSphere(currentSphere){
+            // set the user's name to their name in the new sphere 
+            name = sphereMap[currentSphere].username;
+            var sphereID = sphereMap[currentSphere].id,
+                sphereIndex = sphereNames.indexOf(currentSphere);
+
+             socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
+
+
+                   for(var i =0; i < 25; i++){
+                        $("#content").append(messages[i]);      
+                    }             
+                    scrollBottom();
+                });
+
+          
+
+        }
 
 
         Date.prototype.timeNow = function(){ 
@@ -77,4 +108,7 @@ function Chat(){
             + ((this.getMinutes() < 10)?"0":"") + this.getMinutes() + ((this.getHours()>12)?('PM'):'AM'); 
         };
 
+
     } // end chat
+
+

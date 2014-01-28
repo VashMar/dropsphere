@@ -23,6 +23,9 @@ html
                         li(role="presentation")
                             a(role="menuitem" tabindex="-1" href="#") Logout 
                 img#chatLogo(src="dropsphere_sm.png")
+                .dropdown
+                    a#currentSphere(data-toggle="dropdown" href="#")
+                    ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
                 #users
                 #content(class="form-control")
                 .controls
