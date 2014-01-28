@@ -16,6 +16,7 @@ $(document).ready(function(){
 		}
 	});
 */
+/*
     var socket = new easyXDM.Socket({
         onMessage: function(message, origin){
             $("textarea").append(message);
@@ -23,4 +24,5 @@ $(document).ready(function(){
 
         }
     });
+*/
 });
