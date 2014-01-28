@@ -5,7 +5,7 @@ var Schema = mongoose.Schema,
 
 var sphereSchema = mongoose.Schema({
 	name: String,
-	members: [{type: ObjectId, ref: 'User'}],
+	members: [String],					// list of all the member names in a sphere 
 	messages: [{type: ObjectId, ref: 'Message'}],
 	owner: {type: ObjectId, ref: 'User'}
 

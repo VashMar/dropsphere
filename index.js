@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
     Sphere   = require('./models/sphere'),
     Demosphere = require('./models/demo_sphere'),
     Message   = require('./models/message');
+    
 
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
@@ -18,6 +19,9 @@ var port = 3500;
 
 // db connection
 mongoose.connect("mongodb://localhost:27017/dropsphere_dev");
+
+// demosphere for users testing the product 
+demosphere = new Demosphere();
 
 // messages and user stores -- temporary 
 var messages = [],
@@ -133,36 +137,24 @@ app.post("/signup", function(req, res, next){
         email = req.body.email,
         session = req.sessionID;
 
-        //try to create
-         var user = new User({name: name, email: email, password: password, session: session});
-         user.save( function(err, user){
+    //try to create
+    var user = new User({name: name, email: email, password: password, session: session});
 
-          // respond with validation errors here
-           if(err){ 
-               console.log("validation errors:" + err); 
-               res.send(400, err);
-           } 
-           
-           else{
-              console.log("created user: " + name);
-              // create a sphere for the user   
-              var sphere = new Sphere({name: name + "'s sphere", owner: user._id });
-              // add user as sphere member
-              sphere.members.push(user);
-              sphere.save(function(err, sphere){
-                if(err){ console.log("Error saving sphere"); }
-
-                else {
-                  console.log("created sphere: " + sphere.name);
-                  // log the user in
-                  req.session.isLogged = true;
-                  req.session.username = name;
-                  res.send({redirect: '/bookmark'});
-                }  
-              });
-            }
-        });      
-}); 
+    user.save( function(err, user){
+        // respond with validation errors here
+        if(err){ 
+          console.log("validation errors:" + err); 
+          res.send(400, err);
+        } else{
+          console.log("created user: " + name);
+          // log the user in
+          req.session.isLogged = true;
+          req.session.username = name;
+          res.send({redirect: '/bookmark'});
+        }
+    });
+});      
+ 
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -213,19 +205,63 @@ io.set('authorization', function (data, callback) {
 // socket listeners and chat events //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
-  console.log(socket.handshake.sessionID);   // on connection find out who the user is using the sessionID;
-                                             // if there was no user found then the session is a demo, create a demosphere and plop them in
-                                             // get all the users spheres and connect to them 
-                                             // request messages from the users main sphere (first in array)
+  var connection = socket.handshake;
+  // on connection find out who the user is using the sessionID;
+  User.findOne({session: connection.sessionID}, function(err, user){
 
+      if(err){console.log(err);}
 
-	socket.on('setName', function(data, greeting){
+      // if there was no user found then the session is a demo plop them in the demosphere
+      if(!user){
+          var demouser = connection.session.username;
+          demosphere.members.push(demouser); 
+          console.log(demouser + " added to demosphere");
+          socket.join('demosphere');
+          io.sockets.in('demosphere').emit('users', demosphere.members); // update the member list of everyone in the sphere 
+          io.sockets.in('demosphere').emit('announcement', { msg: demouser + " joined the Sphere" }); // tell everyone who joined 
+      } else{  // get all the users spheres and connect to them 
+
+          if(user.spheres.length == 0){
+              // if the user doesn't have a sphere create them one
+ 
+              var sphere = new Sphere({name: user.name + "'s sphere", owner: user._id });
+              // add user as sphere member
+              sphere.members.push(user.name);
+              sphere.save(function(err, sphere){
+                if(err){ console.log("Error saving sphere"); }
+
+                else{
+                  socket.join(sphere.id);
+                  socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
+                  socket.emit('users', sphere.members); 
+                  user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+                  console.log(user.name + " and " + sphere.name + "sync'd");
+                }
+             }); 
+          } else{
+            user.populate('spheres').exec(function(err, member){
+              if(err){console.log(err);}
+
+              console.log(member);
+
+            });
+          }
+
+      }
+
+  });  
+                                             
+                                             
+                                          
+              
+
+/*	socket.on('setName', function(data, greeting){
 		greeting({msg: "Welcome to the Sphere, " + data.name});
 		socket.join("sphere");
     users.push(data.name);
     io.sockets.emit('users', users);
 		socket.broadcast.to("sphere").emit('announcement', { msg: data.name + " joined the Sphere (" + data.time + ")" });
-	});
+	});*/
 
 	socket.on('send', function (data) {
 

@@ -20,8 +20,10 @@ var userSchema = new Schema({
 	password: { type: String, required: true, validate: passValidator },
 	email: { type: String, required: true, index: { unique: true }, validate: isEmail }, 
 	session: String, 
-    spheres: [{type: ObjectId, ref: 'Sphere'}],
-    spherenames: [{type: String}]
+    spheres: [{
+        object: {type: ObjectId, ref: 'Sphere'},        // references the sphere object user belongs to              
+        username: {type: String}                    // references the users name in that sphere 
+        }]
 
 });
 
