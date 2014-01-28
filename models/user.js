@@ -22,7 +22,8 @@ var userSchema = new Schema({
 	session: String, 
     spheres: [{
         object: {type: ObjectId, ref: 'Sphere'},        // references the sphere object user belongs to              
-        username: {type: String}                    // references the users name in that sphere 
+        username: {type: String},                    // references the users name in that sphere 
+        joined: {type: Date, default: Date.now}
         }]
 
 });

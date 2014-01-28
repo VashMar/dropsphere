@@ -17,28 +17,33 @@ function Chat(){
         this.Connect = function(username){ 
             socket =  io.connect();      
             name = username;
-
+            
             
             socket.on('connect',function (data) {
                 //gets and shows the last 25 messages that were sent in chat 
-                socket.emit('requestMessages', function(messages){
+      /*          socket.emit('requestMessages', function(messages){
                    for(var i =0; i < 25; i++){
                         $("#content").append(messages[i]);      
                     }             
                     scrollBottom();
-                });
+                }); */
 
-            });
+            });  
 
               socket.on('users', function(users){
 
                     $("#users").empty();
 
-
                     for(var i = 0; i < users.length; i++){
                         $("#users").append("<p>" + users[i] + "</p>");
                     }
                 });
+
+              socket.on('sphereData', function(sphereData){
+                   sphereData = sphereData;
+                   var sphereNames = Object.keys(sphereData);
+                   
+              });
 
 
             // 

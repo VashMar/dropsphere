@@ -7,6 +7,7 @@ var Schema = mongoose.Schema,
 var messageSchema = mongoose.Schema({
 	text: String,
 	type: String,
+	date: {type: Date, default: Date.now },
 	owner: {type: ObjectId, ref: 'User'},
 	sphere: {type: ObjectId, ref: 'Sphere'} 
 

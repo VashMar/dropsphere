@@ -207,7 +207,7 @@ io.set('authorization', function (data, callback) {
 io.sockets.on('connection', function (socket) {
   var connection = socket.handshake;
   // on connection find out who the user is using the sessionID;
-  User.findOne({session: connection.sessionID}, function(err, user){
+  User.findOne({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
 
       if(err){console.log(err);}
 
@@ -220,7 +220,7 @@ io.sockets.on('connection', function (socket) {
           io.sockets.in('demosphere').emit('users', demosphere.members); // update the member list of everyone in the sphere 
           io.sockets.in('demosphere').emit('announcement', { msg: demouser + " joined the Sphere" }); // tell everyone who joined 
       } else{  // get all the users spheres and connect to them 
-
+          console.log(user.spheres);
           if(user.spheres.length == 0){
               // if the user doesn't have a sphere create them one
  
@@ -235,21 +235,31 @@ io.sockets.on('connection', function (socket) {
                   socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
                   socket.emit('users', sphere.members); 
                   user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+                  user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
              }); 
           } else{
-            user.populate('spheres').exec(function(err, member){
-              if(err){console.log(err);}
+            // connect to all the users spheres 
+            console.log(user.spheres)
+            var sphereData = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
 
-              console.log(member);
+            for(var i = 0; i < user.spheres.length ; i++){
+              socket.join(user.spheres[i].object.id);
+              sphereData[user.spheres[i].object.name] = {id: user.spheres[i].object.id, username: user.spheres[i].username};
+            }
 
-            });
+            // default sphere will be the users first sphere so send them that list of members
+            socket.emit('users', user.spheres[0].object.members); 
+            // pass the client side all the info necessary to track sphere related information 
+            socket.emit('sphereData', sphereData);
+
+           
           }
+        }
+  });
 
-      }
 
-  });  
                                              
                                              
                                           
