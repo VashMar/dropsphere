@@ -48,11 +48,11 @@ function Chat(){
                    sphereMap = sphereMap;
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[0];
-    
+
                    $("#currentSphere").append(currentSphere);   
 
                    for(var i = 0; i < sphereNames.length; i++){
-                        $("#sphereList").append("<li role='presentation'><a href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>");
+                        $("#sphereList").append("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>");
                    }
                    
               });
@@ -99,6 +99,8 @@ function Chat(){
           
 
         }
+
+        this.CreateSphere
 
 
         Date.prototype.timeNow = function(){ 

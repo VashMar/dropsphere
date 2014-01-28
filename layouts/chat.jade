@@ -26,6 +26,8 @@ html
                 .dropdown
                     a#currentSphere(data-toggle="dropdown" href="#")
                     ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                        li(role="presentation")
+                            a#sphereCreate(role="menuitem" tabindex="-1" href="#") + Create New Sphere
                 #users
                 #content(class="form-control")
                 .controls
