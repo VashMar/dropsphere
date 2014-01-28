@@ -88,11 +88,8 @@ javascript:(function() {
       }
 
 
-
-
-
     function book(){
-      dropsphere=true;
+            dropsphere=true;
       var d = document.createElement("div");
       d.setAttribute("id", "dropsphere");
       d.style.width = "300px";
@@ -141,29 +138,19 @@ javascript:(function() {
       }
       #close:hover{
       background:url(http://localhost:3500/img/close_hover.png) no-repeat;
+      }
+      #dropsphere iframe{
+        height:100%;
+        overflow:hidden;
+        border:none;
+      
     }
       ";
       document.body.appendChild(css);
-      ifrm = document.createElement("iframe");
-      ifrm.setAttribute("src", "http://localhost:3500/bookmark");
-      ifrm.style.width = "100%";
-      ifrm.style.height = "100%";
-      ifrm.style.overflow = "hidden";
-      ifrm.style.border = "none";
-      d.appendChild(ifrm); 
-            socket = new easyXDM.Socket({
-            remote: "http://localhost:3500/bookmark",
-            onMessage: function(message, origin){
-                alert("Received '" + message + "' from '" + origin + "'");
-            },
-            onReady: function() {
-                socket.postMessage("Yay, it works!");
-            }
-          });
-        }
 
-    function book2(){
-                  socket = new easyXDM.Socket({
+
+          socket = new easyXDM.Socket({
+            container:"dropsphere",
             remote: "http://localhost:3500/bookmark",
             onMessage: function(message, origin){
                 alert("Received '" + message + "' from '" + origin + "'");
@@ -172,7 +159,7 @@ javascript:(function() {
                 socket.postMessage("Yay, it works!");
             }
           });
-        }
+        
     }
     function draggify(){
       $("p,a,h1,h2,h3").draggable({stack: "div"})
