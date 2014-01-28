@@ -44,10 +44,10 @@ function Chat(){
                     }
                 });
 
-              socket.on('sphereMap', function(sphereMap){
-                   sphereMap = sphereMap;
+              socket.on('sphereMap', function(data){
+                   sphereMap = data.sphereMap;
                    sphereNames = Object.keys(sphereMap);
-                   currentSphere = sphereNames[0];
+                   currentSphere = sphereNames[data.index];
 
                    $("#currentSphere").append(currentSphere);   
 
@@ -100,7 +100,9 @@ function Chat(){
 
         }
 
-        this.CreateSphere
+        this.CreateSphere = function CreateSphere(sphereName){
+            socket.emit('createSphere', {sphereName: sphereName});
+        }
 
 
         Date.prototype.timeNow = function(){ 

@@ -202,7 +202,7 @@ io.set('authorization', function (data, callback) {
 }); 
 
 
-// socket listeners and chat events //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////// socket listeners and chat events -- a lot of code needs transferring to models //////////////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
   var connection = socket.handshake;
@@ -222,8 +222,8 @@ io.sockets.on('connection', function (socket) {
       } else{  // get all the users spheres and connect to them 
           console.log(user.spheres);
           if(user.spheres.length == 0){
+
               // if the user doesn't have a sphere create them one
- 
               var sphere = new Sphere({name: user.name + "'s sphere", owner: user._id });
               // add user as sphere member
               sphere.members.push(user.name);
@@ -238,7 +238,8 @@ io.sockets.on('connection', function (socket) {
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
-             }); 
+              }); 
+
           } else{
             // connect to all the users spheres 
             console.log(user.spheres)
@@ -252,7 +253,7 @@ io.sockets.on('connection', function (socket) {
             // default sphere will be the users first sphere so send them that list of members
             socket.emit('users', user.spheres[0].object.members); 
             // pass the client side all the info necessary to track sphere related information 
-            socket.emit('sphereMap', sphereMap);
+            socket.emit('sphereMap', {sphereMap: sphereMap, index: 0});
 
            
           }
@@ -269,6 +270,51 @@ io.sockets.on('connection', function (socket) {
   		io.sockets.emit('message', data);
 
   	});
+
+   socket.on('createSphere', function(data){
+
+      // find the user and make sure they're under the sphere limit 
+      User.findOne.({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
+
+          if(err){console.log(err);}
+
+          if(user){
+            if(user.spheres.length < 5 ){
+              // create the sphere 
+              var sphere = new Sphere({name: data.sphereName, owner: user._id });
+              // add user as sphere member
+              sphere.members.push(user.name);
+              sphere.save(function(err, sphere){
+                if(err){ console.log("Error saving sphere"); }
+
+                else{
+                  socket.join(sphere.id);
+                  
+                  /////////////////////////////////Modularize//////////////////////////////
+                  var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+                  for(var i = 0; i < user.spheres.length ; i++){
+                    sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
+                  }
+                  //////////////////////////////////////////////////////////////////////////
+                  
+                  socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
+                  socket.emit('users', sphere.members); 
+                   // pass the client side all the info necessary to track sphere related information 
+                  user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+                  user.save();
+                  console.log(user.name + " and " + sphere.name + "sync'd");
+                }
+              }); 
+            }else{
+              console.log("user has too many spheres");
+            }
+          } else{
+            console.log("User not found");
+          }
+      });
+
+    });
+
 
     socket.on('requestMessages', function(data, fillMessages){
 
@@ -320,6 +366,12 @@ io.sockets.on('connection', function (socket) {
 });
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 // parser to discover if the message is a link or not
  function parser(msg) { 
     var res = msg;

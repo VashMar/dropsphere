@@ -54,10 +54,10 @@ html
                 h4.modal-title Create a sphere
               
               .modal-body
-                input(class="form-control" placeholder="Sphere name")
+                input#sphereName(class="form-control" placeholder="Sphere name")
               
               .modal-footer
-                button.btn.btn-primary(type="button") Save changes
+                button#saveSphere.btn.btn-primary(type="button") Save changes
     
     script.
       var name = !{JSON.stringify(name)};
