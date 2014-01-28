@@ -234,19 +234,18 @@ io.sockets.on('connection', function (socket) {
                   socket.join(sphere.id);
                   socket.emit('announcement', {msg: "Welcome to your sphere!\nInvite 5 of your friends to share the web with!"});
                   socket.emit('users', sphere.members); 
-                  user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+                  user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
               }); 
 
           } else{
-            // connect to all the users spheres 
-            console.log(user.spheres)
+           
             var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
 
             for(var i = 0; i < user.spheres.length ; i++){
-              socket.join(user.spheres[i].object.id);
+              socket.join(user.spheres[i].object.id);  // connect to all the users spheres 
               sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
             }
 
@@ -265,11 +264,12 @@ io.sockets.on('connection', function (socket) {
       data.msg = parser(data.msg);
       console.log("emitted message");
       var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
-  		io.sockets.emit('message', data);
+  	   io.sockets.in((String(data.sphere))).emit('message', data);
 
-      Sphere.findOne({_id: data.sphereID}, function(err, sphere){
+       Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){
-          var message = new Message({text: data.msg, sender: data.sender});
+
+          var message = new Message({full: messageData, text: data.msg, sender: data.sender});
           message.save();
           console.log(message);
           sphere.messages.push(message);
@@ -352,13 +352,19 @@ io.sockets.on('connection', function (socket) {
                
                 if(targetSphere){ // lets only do a query if we know the sphere exists 
                     // find the requested sphere with all its messages after the user joined the sphere 
+                    console.log(targetSphere.joined);
                     Sphere.findOne({_id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
                       if(err){console.log(err);}
 
                       if(!sphere){
                         console.log("User requested a sphere that magically doesn't exist!");
                       } else{
-                        console.log(sphere.messages);
+                        var messages = [];
+                        for(var i = 0; i < sphere.messages.length; i++){
+                           messages.push(sphere.messages[i].full);
+                        }
+
+                        fillMessages(messages);
                       }
 
                     });
@@ -371,8 +377,7 @@ io.sockets.on('connection', function (socket) {
 
         });
 
-     //   fillMessages(messages);
-      //  socket.emit('users', users);
+  
     });
 
 });
