@@ -16,15 +16,11 @@ $(document).ready(function(){
 		}
 	});
 */
+    var socket = new easyXDM.Socket({
+        onMessage: function(message, origin){
+            $("textarea").append(message);
+            alert("Received '" + message + "' from '" + origin + "'");
 
-});
-window.addEventListener('message', function(e) {
-  var message = e.data;
-  alert(message);
-});
-var socket = new easyXDM.Socket({
-    onMessage: function(message, origin){
-        alert("Received '" + message + "' from '" + origin + "'");
-        socket.postMessage("Indeed it does!");
-    }
+        }
+    });
 });
