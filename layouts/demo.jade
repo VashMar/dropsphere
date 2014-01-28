@@ -3,10 +3,10 @@ html
     head
         title= "DropSphere"
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-        script(src='/bootstrap.min.js')           
+        script(src='/js/bootstrap.min.js')           
         script(src='/socket.io/socket.io.js')
-        script(src='/jquery.slimscroll.min.js')
-        script(src='/main.js')
+        script(src='/js/lib/jquery.slimscroll.min.js')
+        script(src='/js/main.js')
         include includes/head
 
     body
@@ -17,7 +17,7 @@ html
                     ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
                         li(role="presentation")
                             a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Make an account 
-                img#chatLogo(src="dropsphere_sm.png")
+                img#chatLogo(src="/img/dropsphere_sm.png")
                 #users
                 #content(class="form-control")
                 .controls
@@ -43,6 +43,6 @@ html
                 button.btn.btn-default(type="button" data-dismiss="modal") Close
                 button.btn.btn-primary(type="button") Save changes
 
-    script(src='/demo_bindings.js')           
-    script(src='/chat_bindings.js')
-    script(src='/login.js')  
+    script(src='/js/demo_bindings.js')           
+    script(src='/js/chat_bindings.js')
+    script(src='/js/login.js')  

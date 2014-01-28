@@ -33,7 +33,7 @@ app.configure(function () {
 	 // sass compilation
      	sass.middleware({
         	src: __dirname + '/sass', //where the sass files are 
-         	dest: __dirname + '/public', //where css should go
+         	dest: __dirname + '/public/css', //where css should go
          	debug: true // obvious
    	  	})
      );
@@ -232,7 +232,7 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
-                  socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
+                  socket.emit('announcement', {msg: "Welcome to your sphere!/nInvite 5 of your friends to share the web with!"});
                   socket.emit('users', sphere.members); 
                   user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
                   user.save();

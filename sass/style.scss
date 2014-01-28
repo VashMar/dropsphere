@@ -22,6 +22,11 @@ h1{
 	font-weight:200;
 	margin:6px;
 }
+#preload{
+	position:absolute;
+	left:-99999px;
+	top:-99999px;
+}
 #bookmarklet{
 	color:white;
 	font-weight:bold;
@@ -133,12 +138,12 @@ input{
 #settings{
 	display:block;
 	cursor:pointer;
-	background:url("settings.png") no-repeat;
+	background:url("img/settings.png") no-repeat;
 	width:30px;
 	height:30px;
 }
 #settings:hover{
-	background:url("settings_hover.png") no-repeat;
+	background:url("img/settings_hover.png") no-repeat;
 }
 .modal-dialog{
 	margin-top: 52px;
