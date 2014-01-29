@@ -274,7 +274,7 @@ io.sockets.on('connection', function (socket) {
    socket.on('createSphere', function(data){
 
       // find the user and make sure they're under the sphere limit 
-      User.findOne.({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
+      User.findOne({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
 
           if(err){console.log(err);}
 
@@ -289,18 +289,18 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
-                  
+                  socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
+                  socket.emit('users', sphere.members); 
+                   // pass the client side all the info necessary to track sphere related information 
+                  user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+      
                   /////////////////////////////////Modularize//////////////////////////////
                   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
                   for(var i = 0; i < user.spheres.length ; i++){
                     sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
                   }
                   //////////////////////////////////////////////////////////////////////////
-                  
-                  socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
-                  socket.emit('users', sphere.members); 
-                   // pass the client side all the info necessary to track sphere related information 
-                  user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length}); //send the updated sphereMap new sphere should be the last in list
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
