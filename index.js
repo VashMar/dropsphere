@@ -272,7 +272,7 @@ io.sockets.on('connection', function (socket) {
   	});
 
    socket.on('createSphere', function(data){
-
+    console.log("Started sphere creation");
       // find the user and make sure they're under the sphere limit 
       User.findOne({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
 

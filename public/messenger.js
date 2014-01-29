@@ -49,6 +49,7 @@ function Chat(){
                 });
 
               socket.on('sphereMap', function(data){
+                    alert("hit");
                    sphereMap = data.sphereMap;
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
@@ -57,7 +58,7 @@ function Chat(){
                    $(".sphere").parent().remove();
 
                    for(var i = 0; i < sphereNames.length; i++){
-                        $("#sphereList").prepend("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>");
+                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>").insertBefore(".sphereDivider");
                    }
                    
               });
