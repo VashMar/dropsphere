@@ -26,12 +26,13 @@ $(document).ready(function(){
     });
 
     $("#saveSphere").click(function(){
+        $('#sphereDialog').modal('hide');
         // overlay for sphere name input goes here 
-        var sphereName = $("#sphereName").val().trim();
-        if(sphereName){
-          $('#sphereDialog').modal('hide');  
+        //var sphereName = $("#sphereName").val().trim();
+       // alert(sphereName);
+       /* if(sphereName){
           chat.CreateSphere(sphereName);
-        }
+        } */
     }); 
 
 

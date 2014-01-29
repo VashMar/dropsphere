@@ -33,7 +33,7 @@ app.configure(function () {
 	 // sass compilation
      	sass.middleware({
         	src: __dirname + '/sass', //where the sass files are 
-         	dest: __dirname + '/public/css', //where css should go
+         	dest: __dirname + '/public', //where css should go
          	debug: true // obvious
    	  	})
      );
@@ -330,8 +330,8 @@ io.sockets.on('connection', function (socket) {
                 var targetSphere = null;
 
                 // check if the sphere at the given index has the same id as the sent id 
-                if(user.spheres[sphereIndex].object == data.sphereID){
-                  targetSphere = user.spheres[sphereIndex]; // if it does we have our sphere 
+                if(user.spheres[data.sphereIndex].object == data.sphereID){
+                  targetSphere = user.spheres[data.sphereIndex]; // if it does we have our sphere 
                 } else{
                   // we have to go on a sphere hunt 
                   for(var i = 0; i < user.spheres.length; i++){
@@ -343,7 +343,7 @@ io.sockets.on('connection', function (socket) {
                
                 if(targetSphere){ // lets only do a query if we know the sphere exists 
                     // find the requested sphere with all its messages after the user joined the sphere 
-                    Sphere.findOne({id: data.sphereID}).populate('messages', null, {date: {$gte: sphere.joined }}).exec(function(err, sphere){    
+                    Sphere.findOne({id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
                       if(err){console.log(err);}
 
                       if(!sphere){
