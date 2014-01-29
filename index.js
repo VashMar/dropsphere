@@ -265,9 +265,18 @@ io.sockets.on('connection', function (socket) {
       data.msg = parser(data.msg);
       console.log("emitted message");
       var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
-      messages.push(messageData);      // store the message info on the server
-      console.log(messages);
   		io.sockets.emit('message', data);
+
+      Sphere.findOne({_id: data.sphereID}, function(err, sphere){
+        if(sphere){
+          var message = new Message({text: data.msg, sender: data.sender});
+          message.save();
+          console.log(message);
+          sphere.messages.push(message);
+          sphere.save();
+          console.log(sphere);
+        }
+      });
 
   	});
 

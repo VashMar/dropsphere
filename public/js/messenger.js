@@ -58,6 +58,9 @@ function Chat(){
                      .insertBefore(".sphereDivider");
                    }
                    
+                    // track sphere data 
+                    sphereID = sphereMap[currentSphere].id;
+                    sphereIndex = sphereNames.indexOf(currentSphere);
                    
               });
 
@@ -81,18 +84,19 @@ function Chat(){
         
         this.Send = function Send(msg) {
 
-            socket.emit("send", {msg: msg, sender: name, time: new Date().timeNow()}); 
+            socket.emit("send", {sphere: sphereID, msg: msg, sender: name, time: new Date().timeNow()}); 
             
         };
 
         this.SwitchSphere = function SwitchSphere(currentSphere){
             // set the user's name to their name in the new sphere 
             name = sphereMap[currentSphere].username;
-            var sphereID = sphereMap[currentSphere].id,
-                sphereIndex = sphereNames.indexOf(currentSphere);
+            sphereID = sphereMap[currentSphere].id;
+            sphereIndex = sphereNames.indexOf(currentSphere);
 
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
+                  $("#content").empty();
 
                    for(var i =0; i < 25; i++){
                         $("#content").append(messages[i]);      
