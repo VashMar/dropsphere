@@ -27,7 +27,9 @@ html
                             a(role="menuitem" tabindex="-1" href="#") Logout 
                 img#chatLogo(src="/img/dropsphere_sm.png")
                 .dropdown
-                    a#currentSphere(data-toggle="dropdown" href="#") 
+                    a#currentInfo(data-toggle="dropdown" href="#")
+                        span#notifications.badge.badge-success 
+                        span#currentSphere
                     ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
                         li(role="presentation" class="divider")
                         li(role="presentation")

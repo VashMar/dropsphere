@@ -19,7 +19,7 @@ $(document).ready(function(){
         currentSphere = $(this).text();        
                 
         if(currentSphere != $("a#currentSphere").text()){    //doesn't switch if the user chooses the sphere they're already in
-            $("a#currentSphere").html(currentSphere);
+            $("span#currentSphere").html(currentSphere);
             chat.SwitchSphere(currentSphere);
         }
 

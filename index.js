@@ -232,7 +232,7 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
-                  socket.emit('announcement', {msg: "Welcome to your sphere!/nInvite 5 of your friends to share the web with!"});
+                  socket.emit('announcement', {msg: "Welcome to your sphere!\nInvite 5 of your friends to share the web with!"});
                   socket.emit('users', sphere.members); 
                   user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
                   user.save();
@@ -279,7 +279,7 @@ io.sockets.on('connection', function (socket) {
           if(err){console.log(err);}
 
           if(user){
-            if(user.spheres.length < 5 ){
+            if(user.spheres.length < 30){
               // create the sphere 
               var sphere = new Sphere({name: data.sphereName, owner: user._id });
               // add user as sphere member
@@ -290,10 +290,10 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   socket.emit('clearChat');
-                  socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
+                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/>Invite 5 of your friends to share the web with!"});
                   socket.emit('users', sphere.members); 
                    // pass the client side all the info necessary to track sphere related information 
-                  user.spheres.push({object: sphere._id, username: user.name }); // add the sphere to user's sphere list 
+                  user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
       
                   /////////////////////////////////Modularize//////////////////////////////
                   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
@@ -301,8 +301,8 @@ io.sockets.on('connection', function (socket) {
                     sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
                   }
                   //////////////////////////////////////////////////////////////////////////
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length}); //send the updated sphereMap new sphere should be the last in list
-                  user.save();
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1}); //send the updated sphereMap new sphere should be the last in list
+                //  user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
               }); 
@@ -343,7 +343,7 @@ io.sockets.on('connection', function (socket) {
                
                 if(targetSphere){ // lets only do a query if we know the sphere exists 
                     // find the requested sphere with all its messages after the user joined the sphere 
-                    Sphere.findOne({id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
+                    Sphere.findOne({_id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
                       if(err){console.log(err);}
 
                       if(!sphere){
@@ -353,8 +353,10 @@ io.sockets.on('connection', function (socket) {
                       }
 
                     });
+                  }else{
+                     console.log("Sphere: " + data.sphereID + " doesn't belong to user");
                   }
-                  console.log("Sphere: " + data.sphereID + " doesn't belong to user");
+                 
             }
 
 
