@@ -8,7 +8,7 @@ var messageSchema = mongoose.Schema({
 	text: String,
 	type: String,
 	date: {type: Date, default: Date.now },
-	sender: {String}
+	sender: String
 
 });
 
