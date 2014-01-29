@@ -63,7 +63,11 @@ app.get("/", function(req, res){
 
 //for testing
 app.get('/test', function(req, res){
-  res.render("test");
+   if(req.session.isLogged == true){ 
+        res.render("test", {name: req.session.username});
+   }else{
+      res.render("login");
+   } 
 });
 
 // renders a demo login page 
@@ -122,11 +126,7 @@ app.post('/login', function (req, res) {
 // data sent to bookmarklet 
 app.get("/bookmark", function(req, res){
 	 if(req.session.isLogged == true){ 
-      if(req.session.inviteID){
         res.render("chat", {name: req.session.username});
-      }else{
-        res.render("chat", {name: req.session.username});
-      }
       
    }else{
       res.render("login");
