@@ -289,6 +289,7 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
+                  socket.emit('clearChat');
                   socket.emit('announcement', {msg: "Welcome to your sphere " + user.name + "! Invite up to 5 more people to share the web with!"});
                   socket.emit('users', sphere.members); 
                    // pass the client side all the info necessary to track sphere related information 

@@ -35,6 +35,10 @@ function Chat(){
 
             });  
 
+              socket.on('clearChat', function(){
+                    $("#content").empty();
+              });
+
               socket.on('users', function(users){
 
                     $("#users").empty();
