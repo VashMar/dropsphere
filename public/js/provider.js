@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    var socketxdm = new easyXDM.Socket({
+    var socket = new easyXDM.Socket({
         onMessage: function(message, origin){
             
             alert("Received '" + message + "' from '" + origin + "'");

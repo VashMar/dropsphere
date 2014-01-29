@@ -17,11 +17,6 @@ $(document).ready(function(){
 	});
 */
 
-var socket = new easyXDM.Socket({
-    onMessage: function(message, origin){
-        alert("Received '" + message + "' from '" + origin + "'");
-        socket.postMessage("Indeed it does!");
-    }
-});
+
 
 });
