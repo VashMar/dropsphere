@@ -1,9 +1,20 @@
 $(document).ready(function(){
-    var socketxdm = new easyXDM.Socket({
-        onMessage: function(message, origin){
-            
-            alert("Received '" + message + "' from '" + origin + "'");
-			$("textarea").append(message);
+    var iframe;
+    var socket = new easyXDM.Socket({
+        onReady : function() {
+            iframe = document.createElement("iframe");
+            iframe.frameBorder = 0;
+            document.body.appendChild(iframe);
+            iframe.src = easyXDM.query.url;
+
+            var timer;
+            iframe.onload = function() {
+
+                socket.postMessage("Hellooooo!?");
+            };
+        },
+        onMessage : function(url, origin) {
+            iframe.src = url;
         }
     });
 });
