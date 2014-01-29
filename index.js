@@ -61,6 +61,11 @@ app.get("/", function(req, res){
    res.render("home");
 });
 
+//for testing
+app.get('/test', function(req, res){
+  res.render("test");
+});
+
 // renders a demo login page 
 app.get('/demo', function (req, res) {
     res.render("demo");
@@ -117,7 +122,12 @@ app.post('/login', function (req, res) {
 // data sent to bookmarklet 
 app.get("/bookmark", function(req, res){
 	 if(req.session.isLogged == true){ 
-      res.render("chat", {name: req.session.username});
+      if(req.session.inviteID){
+        res.render("chat", {name: req.session.username});
+      }else{
+        res.render("chat", {name: req.session.username});
+      }
+      
    }else{
       res.render("login");
    } 
@@ -155,6 +165,31 @@ app.post("/signup", function(req, res, next){
     });
 });      
  
+app.get("/invite/:id", function(req, res){
+  var inviteID = req.param('id');
+   if(req.session.isLogged == true){
+    User.findOne({session: req.sessionID}, function(err, user){
+      if(user){
+        res.render("/bookmark");
+        req.session.invite = inviteID;
+        Sphere.findOne({id: inviteID}, function(err,sphere){
+          // if the sphere isn't full add it's new member 
+          if(spheres.members.length < 6){
+            user.spheres.push({object: sphere._id, username: user.name, joined: Date.now}); 
+            sphere.members.push(user.name);
+            user.save();
+            sphere.save();
+          }
+        });
+      }
+    })
+
+  } else{
+    req.session.invite = inviteID;
+    res.render("/login");
+  }
+
+});
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +346,7 @@ io.sockets.on('connection', function (socket) {
                   }
                   //////////////////////////////////////////////////////////////////////////
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1}); //send the updated sphereMap new sphere should be the last in list
-                //  user.save();
+                  user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
               }); 
