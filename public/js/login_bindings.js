@@ -18,9 +18,7 @@ $(document).ready(function(){
 
         chat = new Chat;
         chat.Connect(name);
-       /* if(data.redirect){
-            window.location = data.redirect; // login in user
-        } */
+     
     });
 
     login.fail(function( data ) {

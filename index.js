@@ -126,13 +126,13 @@ app.get("/bookmark", function(req, res){
         res.render("template_chat", {name: req.session.username});
       
    }else{
-        res.render("template");
+        res.render("template_login");
    } 
 });
 
 // issue sign up form
 app.get("/join", function(req, res){
-     res.render("join");
+     res.render("template_join");
 });
 
 //signup 
@@ -157,7 +157,7 @@ app.post("/signup", function(req, res, next){
           // log the user in
           req.session.isLogged = true;
           req.session.username = name;
-          res.redirect('/bookmark');
+          res.render("includes/chat", {name: name});
         }
     });
 });      
