@@ -1,5 +1,4 @@
 $(document).ready(function(){
-      alert("hit");
    $("#setName").click(function(){  
        signup();
     });
@@ -23,7 +22,7 @@ $(document).ready(function(){
         chat.Connect(name);
     });
 
-    submit.fail(function( data ) {
+    submit.fail(function(data){
         console.log("signup failed");
         console.log(data.responseText);
     });

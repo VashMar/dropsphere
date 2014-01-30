@@ -9,7 +9,8 @@ html
         script.
             easyXDM.DomHelper.requiresJSON("/json2.js");
         script(src='/js/provider.js')
-        script(src='/js/login_bindings.js')       
+        script(src='/js/login_bindings.js') 
+        script(src='/js/join_bindings.js')         
         script(src='/js/messenger.js')    
         include includes/head
 
@@ -19,7 +20,7 @@ html
               img#chatLogo(src="/img/dropsphere_sm.png")
               input#email(class="form-control" type="email" placeholder="Email")
               input#password(class="form-control" type="password" placeholder="Password")
-              input#setName(type='button' value='login' class="btn btn-primary")
-              a#account(href="/join") Need an account?
+              input#setName(type='button' onclick='login();' value='login' class="btn btn-primary")
+              a#account(href="#") Need an account?
         
       

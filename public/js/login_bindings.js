@@ -1,9 +1,11 @@
 $(document).ready(function(){
-  
-   $("#setName").click(function(){  
-       login();
-    });
-  
+
+   $("a#account").click(function(){  
+       $.get("/join", function(data){
+
+        $("body").html(data);
+      });
+    });  
 });
 
 

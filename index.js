@@ -132,7 +132,7 @@ app.get("/bookmark", function(req, res){
 
 // issue sign up form
 app.get("/join", function(req, res){
-     res.render("template_join");
+     res.render("includes/join");
 });
 
 //signup 
