@@ -152,7 +152,7 @@ javascript:(function() {
         }
 
     function book2(){
-      var transport = new easyXDM.Socket(/** The configuration */{
+      transport = new easyXDM.Socket(/** The configuration */{
                 remote: "http://localhost:3500/bookmark",
                 container:"dropsphere",
                 onMessage: function(message, origin){

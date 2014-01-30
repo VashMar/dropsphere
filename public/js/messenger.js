@@ -1,12 +1,7 @@
 
 
 
-$(document).ready(function(){
-    chat = new Chat;
-    chat.Connect(name);
 
-
-});
 
 function scrollBottom(){
     var chatBox = document.getElementById("content");
@@ -23,17 +18,6 @@ function Chat(){
             socket =  io.connect();      
             name = username;
             
-            
-            socket.on('connect',function (data) {
-                //gets and shows the last 25 messages that were sent in chat 
-      /*          socket.emit('requestMessages', function(messages){
-                   for(var i =0; i < 25; i++){
-                        $("#content").append(messages[i]);      
-                    }             
-                    scrollBottom();
-                }); */
-
-            });  
 
               socket.on('users', function(users){
 
@@ -61,13 +45,22 @@ function Chat(){
                     // track sphere data 
                     sphereID = sphereMap[currentSphere].id;
                     sphereIndex = sphereNames.indexOf(currentSphere);
+
+                    requestMessages();
                    
               });
+
+                socket.on('fillMessages', function(messages){
+                   for(var i =0; i < 25; i++){
+                        $("#content").append(messages[i]);      
+                    }             
+                    scrollBottom();
+                }); 
 
 
             // 
             socket.on('message', function(data){
-                    
+                   
                     if(data.msg) {    
                         $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
                         scrollBottom();
@@ -80,7 +73,13 @@ function Chat(){
             socket.on('announcement', function(data){
                 $("#content").append("<p>" + data.msg  + "</p>"); // announces the new entrant to others in the sphere
             });
+
+
+
+
+
         };
+   
         
         this.Send = function Send(msg) {
 
@@ -93,20 +92,12 @@ function Chat(){
             name = sphereMap[currentSphere].username;
             sphereID = sphereMap[currentSphere].id;
             sphereIndex = sphereNames.indexOf(currentSphere);
-
-             socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
-
-                  $("#content").empty();
-
-                   for(var i =0; i < 25; i++){
-                        $("#content").append(messages[i]);      
-                    }             
-                    scrollBottom();
-                });
-
           
+            requestMessages();
 
         }
+
+ 
 
         this.CreateSphere = function CreateSphere(sphereName){
             socket.emit('createSphere', {sphereName: sphereName});
@@ -119,6 +110,21 @@ function Chat(){
             ((this.getHours()>12)?(this.getHours()-12):this.getHours()) +":"
             + ((this.getMinutes() < 10)?"0":"") + this.getMinutes() + ((this.getHours()>12)?('PM'):'AM'); 
         };
+
+         function requestMessages(){
+
+             socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
+
+                $("#content").empty();
+
+                for(var i =0; i < 25; i++){
+                    $("#content").append(messages[i]);      
+                }             
+                
+                scrollBottom();
+         });
+
+        }
 
 
     } // end chat

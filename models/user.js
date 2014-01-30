@@ -59,5 +59,17 @@ userSchema.methods.comparePassword = function(sentPassword, callback) {
     });
 };
 
+userSchema.methods.isMember = function(sphere){
+
+    var isMember = false;
+
+    for(var i = 0; i < this.spheres.length; i++){
+        if(sphere._id == this.spheres[i].object || sphere._id == this.spheres[i].object._id){
+            isMember = true;
+        }
+    }
+
+    return isMember; 
+}
 
 module.exports = mongoose.model('User', userSchema);

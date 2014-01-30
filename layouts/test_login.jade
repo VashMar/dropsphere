@@ -3,14 +3,7 @@ html
     head
         title= "DropSphere"
         script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-        script(src='/js/lib/bootstrap.min.js')
         script(src='/socket.io/socket.io.js')
-        script(type="text/javascript" src="/easyxdm/easyxdm.debug.js")
-        script.
-            easyXDM.DomHelper.requiresJSON("/json2.js");
-        script(src='/js/provider.js')
-        script(src='/js/login_bindings.js')       
-        script(src='/js/messenger.js')    
         include includes/head
 
     body
@@ -22,4 +15,5 @@ html
               input#setName(type='button' value='login' class="btn btn-primary")
               a#account(href="/join" ) Need an account?
         
-      
+        script(src='/js/login_bindings.js')           
+        script(src='/js/login.js')  

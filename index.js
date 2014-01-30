@@ -61,15 +61,6 @@ app.get("/", function(req, res){
    res.render("home");
 });
 
-//for testing
-app.get('/test', function(req, res){
-   if(req.session.isLogged == true){ 
-        res.render("test", {name: req.session.username});
-   }else{
-      res.render("login");
-   } 
-});
-
 // renders a demo login page 
 app.get('/demo', function (req, res) {
     res.render("demo");
@@ -106,7 +97,13 @@ app.post('/login', function (req, res) {
              req.session.isLogged = true;
              req.session.username = user.name;
              console.log(req.session.username + " is logged in");
-             res.send({redirect: '/bookmark'});
+
+             if(req.session.invite == true){
+                res.redirect('/invite/' + req.session.inviteID);
+             }else{
+                res.render("includes/chat", {name: user.name});
+             }
+
              user.session = req.sessionID;
              user.save(function(err){
                 if(err){console.log(err);}
@@ -126,10 +123,10 @@ app.post('/login', function (req, res) {
 // data sent to bookmarklet 
 app.get("/bookmark", function(req, res){
 	 if(req.session.isLogged == true){ 
-        res.render("chat", {name: req.session.username});
+        res.render("template_chat", {name: req.session.username});
       
    }else{
-      res.render("login");
+        res.render("template");
    } 
 });
 
@@ -160,32 +157,42 @@ app.post("/signup", function(req, res, next){
           // log the user in
           req.session.isLogged = true;
           req.session.username = name;
-          res.send({redirect: '/bookmark'});
+          res.redirect('/bookmark');
         }
     });
 });      
  
 app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
+   req.session.inviteID = inviteID;
+   req.session.invite = true; 
+
    if(req.session.isLogged == true){
     User.findOne({session: req.sessionID}, function(err, user){
       if(user){
-        res.render("/bookmark");
-        req.session.invite = inviteID;
+        res.redirect('/bookmark');
         Sphere.findOne({id: inviteID}, function(err,sphere){
-          // if the sphere isn't full add it's new member 
-          if(spheres.members.length < 6){
-            user.spheres.push({object: sphere._id, username: user.name, joined: Date.now}); 
-            sphere.members.push(user.name);
-            user.save();
-            sphere.save();
+          if(!sphere){
+            console.log("Invited Sphere doesn't exist");
+          } else{
+              if(!user.isMember(sphere)){         // if user is already a member of this sphere we don't have to do anything 
+                if(spheres.members.length < 6){    // if the sphere isn't full add it's new member 
+                user.spheres.push({object: sphere._id, username: user.name, joined: Date.now}); 
+                sphere.members.push(user.name);
+                user.save();
+                sphere.save();
+                }else{
+                console.log("sphere is full");
+                }
+              } 
+          console.log("already in sphere")
           }
+         
         });
       }
     })
 
   } else{
-    req.session.invite = inviteID;
     res.render("/login");
   }
 
@@ -240,22 +247,25 @@ io.set('authorization', function (data, callback) {
 /////////// socket listeners and chat events -- a lot of code needs transferring to models //////////////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
-  var connection = socket.handshake;
+   console.log("Server Connection: " + new Date().getTime());
+  var sessionID = socket.handshake.sessionID;
+  var sessionData = socket.handshake.session;
+
   // on connection find out who the user is using the sessionID;
-  User.findOne({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
+  User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
 
       if(err){console.log(err);}
 
       // if there was no user found then the session is a demo plop them in the demosphere
       if(!user){
-          var demouser = connection.session.username;
+          var demouser = sessionData.username;
           demosphere.members.push(demouser); 
           console.log(demouser + " added to demosphere");
           socket.join('demosphere');
           io.sockets.in('demosphere').emit('users', demosphere.members); // update the member list of everyone in the sphere 
           io.sockets.in('demosphere').emit('announcement', { msg: demouser + " joined the Sphere" }); // tell everyone who joined 
       } else{  // get all the users spheres and connect to them 
-          console.log(user.spheres);
+
           if(user.spheres.length == 0){
 
               // if the user doesn't have a sphere create them one
@@ -267,7 +277,7 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
-                  socket.emit('announcement', {msg: "Welcome to your sphere!\nInvite 5 of your friends to share the web with!"});
+                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/>Invite 5 of your friends to share the web with!"});
                   socket.emit('users', sphere.members); 
                   user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
                   user.save();
@@ -278,18 +288,27 @@ io.sockets.on('connection', function (socket) {
           } else{
            
             var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+            var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
 
             for(var i = 0; i < user.spheres.length ; i++){
+               //makes sure the user first lands in the invite sphere 
+              if(sessionData.invite == true && sessionData.inviteID == user.spheres[i].object.id){
+                  index = i; 
+                  sessionData.invite = false; // the invite has been handled 
+              }
+
               socket.join(user.spheres[i].object.id);  // connect to all the users spheres 
-              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
+              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username, link: user.spheres[i].object.link};
             }
 
             // default sphere will be the users first sphere so send them that list of members
-            socket.emit('users', user.spheres[0].object.members); 
+            socket.emit('users', user.spheres[index].object.members); 
+         
             // pass the client side all the info necessary to track sphere related information 
-            socket.emit('sphereMap', {sphereMap: sphereMap, index: 0});
-
+            socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
            
+           // fill the messages of the current sphere
+
           }
         }
   });
@@ -297,10 +316,11 @@ io.sockets.on('connection', function (socket) {
 	 socket.on('send', function (data) {
 
       data.msg = parser(data.msg);
-      console.log("emitted message");
+    
       var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
-  	   io.sockets.in((String(data.sphere))).emit('message', data);
 
+  	 io.sockets.in((String(data.sphere))).emit('message', data);
+      console.log("emitted message");
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){
 
@@ -318,7 +338,7 @@ io.sockets.on('connection', function (socket) {
    socket.on('createSphere', function(data){
     console.log("Started sphere creation");
       // find the user and make sure they're under the sphere limit 
-      User.findOne({session: connection.sessionID}).populate('spheres.object').exec(function(err, user){
+      User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
 
           if(err){console.log(err);}
 
@@ -334,7 +354,7 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   socket.emit('clearChat');
-                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/>Invite 5 of your friends to share the web with!"});
+                  socket.emit('announcement', {msg: welcomeMessage(sphere) });
                   socket.emit('users', sphere.members); 
                    // pass the client side all the info necessary to track sphere related information 
                   user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
@@ -342,11 +362,11 @@ io.sockets.on('connection', function (socket) {
                   /////////////////////////////////Modularize//////////////////////////////
                   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
                   for(var i = 0; i < user.spheres.length ; i++){
-                    sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username};
+                    sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username, link: user.spheres[i].object.link};
                   }
                   //////////////////////////////////////////////////////////////////////////
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1}); //send the updated sphereMap new sphere should be the last in list
-                  user.save();
+                 // user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
               }); 
@@ -363,7 +383,7 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('requestMessages', function(data, fillMessages){
 
-        User.findOne({session: connection.sessionID}, function(err, user){
+        User.findOne({session: sessionID}, function(err, user){
             if(err){console.log(err);}
 
             if(!user){
@@ -420,8 +440,10 @@ io.sockets.on('connection', function (socket) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
+// returns welcome message for sphere 
+function welcomeMessage(sphere){
+  return "Welcome to " + sphere.name + "!<br/>Invite others to " + sphere.name + " with this link:<br/>" + sphere.link;
+}
 
 
 // parser to discover if the message is a link or not

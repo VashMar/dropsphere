@@ -14,12 +14,12 @@ html
         include includes/head
 
     body
-        #container
-            #join
-              img#chatLogo(src="/img/dropsphere_sm.png")
-              input#email(class="form-control" type="email" placeholder="Email")
-              input#password(class="form-control" type="password" placeholder="Password")
-              input#setName(type='button' value='login' class="btn btn-primary")
-              a#account(href="/join" ) Need an account?
-        
+        include includes/chat
+        script.
+          $(document).ready(function(){
+            chat = new Chat;
+            chat.Connect(name);
+             
+          });
       
+          
