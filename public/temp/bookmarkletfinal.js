@@ -178,6 +178,7 @@ javascript:(function() {
                     socketxdm.postMessage('Yay, it works!');
             }
           });
+        draggify()
     }
     function draggify(){
       $('p, a, h1, h2, h3, h4').draggable({
@@ -189,14 +190,17 @@ javascript:(function() {
       });
       $( '#dropper' ).droppable({
         drop: function( event, ui ) {
-        $( this )
-        .addClass( 'ui-state-highlight' )
-        .find( 'p' )
-        .html( 'Dropped!' );
+          $( this )
+          .addClass( 'ui-state-highlight' )
+          .find( 'p' )
+          .html( 'Dropped!' );
 
         socketxdm.postMessage(ui.draggable.html());
         }
       });
+    }
+    function imgParse(img){
+      return img.find("img").attr("src");
     }
   }
 })();
