@@ -71,6 +71,7 @@ function Chat(){
             });
 
             socket.on('announcement', function(data){
+                alert("announcement");
                 $("#content").append(data.msg); // announces the new entrant to others in the sphere
             });
 
@@ -112,7 +113,7 @@ function Chat(){
         };
 
          function requestMessages(){
-
+              alert("messages");
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();

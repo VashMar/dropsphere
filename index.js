@@ -99,7 +99,7 @@ app.post('/login', function (req, res) {
              console.log(req.session.username + " is logged in");
 
              if(req.session.invite == true){
-                res.redirect('/invite/' + req.session.inviteID);
+                res.redirect('/bookmark/invite/' + req.session.inviteID);
              }else{
                 res.render("includes/chat", {name: user.name});
              }
@@ -200,7 +200,7 @@ app.get("/bookmark/invite/:id", function(req, res){
     })
 
   } else{
-    res.render("/login");
+    res.render("template_login");
   }
 
 });
@@ -316,11 +316,13 @@ io.sockets.on('connection', function (socket) {
 
             // default sphere will be the users first sphere so send them that list of members
             socket.emit('users', user.spheres[index].object.members); 
-         
+          
+           
+
             // pass the client side all the info necessary to track sphere related information 
             socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
            
-           // fill the messages of the current sphere
+            socket.emit('announcement', {msg: "Sphere Link: " + user.spheres[index].object.link});
 
           }
         }
