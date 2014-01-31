@@ -90,17 +90,12 @@ javascript:(function() {
         } ,2500);
       }
 
-
-
-
-
     function book(){
       dropsphere=true;
       var d = document.createElement('div');
       d.setAttribute('id', 'dropsphere');
       d.style.width = '300px';
       d.style.height = '100%';
-      d.style.background='#f6f6f6';
       d.style.position = 'fixed';
       d.style.top='0';
       d.style.right='0';
@@ -124,10 +119,12 @@ javascript:(function() {
 
       var css = document.createElement('style');
       css.type = 'text/css';
-      css.innerHTML = "#dropsphere
+      css.innerHTML = '#dropsphere
       {
         animation:slide .5s;
         -webkit-animation:slide .5s;
+        background: #f6f6f6 no-repeat center center; 
+        background-image:url(\'data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==\');
       }
       @keyframes slide
       {
@@ -152,6 +149,8 @@ javascript:(function() {
       #close:hover{
       background:url(http://localhost:3500/img/close_hover.png) no-repeat;
       }
+      #dropsphere{
+         }
       #dropsphere iframe{
         border:none;
         height:100%;
@@ -161,45 +160,50 @@ javascript:(function() {
         top:0;
          pointer-events:none;
       }
-      ";
+      ';
       document.body.appendChild(css);
 
         }
 
     function book2(){
           socketxdm = new easyXDM.Socket({
-            remote: "http://localhost:3500/bookmark",
-            container:"dropsphere",
+            remote: 'http://localhost:3500/bookmark',
+            container:'dropsphere',
 
             onMessage: function(message, origin){
-                console.log("Received '" + message + "' from '" + origin + "'");
-                if(message=="#draggify"){
+                console.log('Received \'' + message + '\' from \'' + origin + '\'');
+                if(message=='#draggify'){
                   draggify();
                 }
             },
             onReady : function() {
 
-                    socketxdm.postMessage("Yay, it works!");
+                    socketxdm.postMessage('Yay, it works!');
             }
           });
         draggify()
     }
     function draggify(){
-      $("p, a, h1, h2, h3, h4").draggable({
+      $('p, a, h1, h2, h3, h4').draggable({
           stack: 'div',
           zIndex:99999999,
           start: function() {
             $(this).height(100).width(100);   
           },
       });
-      $( "#dropper" ).droppable({
+      $( '#dropper' ).droppable({
         drop: function( event, ui ) {
-        $( this )
-        .addClass( "ui-state-highlight" )
-        .find( "p" )
-        .html( "Dropped!" );
+          $( this )
+          .addClass( 'ui-state-highlight' )
+          .find( 'p' )
+          .html( 'Dropped!' );
+
+        socketxdm.postMessage(ui.draggable.html());
         }
       });
+    }
+    function imgParse(img){
+      return img.find("img").attr("src");
     }
   }
 })();
