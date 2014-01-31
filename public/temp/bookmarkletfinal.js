@@ -1,4 +1,6 @@
 javascript:(function() {
+  if(typeof dropsphere === "undefined" || dropsphere==false){
+    dropsphere=true;
       var el=document.createElement('div'),
           b=document.getElementsByTagName('body')[0],
           otherlib=false,
@@ -113,6 +115,13 @@ javascript:(function() {
           dropsphere=false;
             };
       d.appendChild(close);
+
+      var dropper = document.createElement("div");
+      dropper.setAttribute("id", "dropper");
+      dropper.style.width = "300px";
+      dropper.style.height = "100%";
+      d.appendChild(dropper);
+
       var css = document.createElement("style");
       css.type = "text/css";
       css.innerHTML = "#dropsphere
@@ -144,7 +153,13 @@ javascript:(function() {
       background:url(http://localhost:3500/img/close_hover.png) no-repeat;
       }
       #dropsphere iframe{
+        border:none;
         height:100%;
+      }
+      #dropper{
+        position:absolute;
+        top:0;
+         pointer-events:none;
       }
       ";
       document.body.appendChild(css);
@@ -157,22 +172,31 @@ javascript:(function() {
             container:"dropsphere",
 
             onMessage: function(message, origin){
-              iframe.src = url;
                 console.log("Received '" + message + "' from '" + origin + "'");
             },
             onReady : function() {
-                iframe = document.createElement("iframe");
-                iframe.frameBorder = 0;
-                document.body.appendChild(iframe);
-                iframe.src = easyXDM.query.url;
-                iframe.onload = function() {
+
                     socketxdm.postMessage("Yay, it works!");
-                };
             }
           });
-        
+        draggify()
     }
     function draggify(){
-      $("p,a,h1,h2,h3").draggable({stack: "div"})
+      $("p, a, h1, h2, h3, h4").draggable({
+          stack: 'div',
+          zIndex:99999999,
+          start: function() {
+            $(this).height(100).width(100);   
+          },
+      });
+      $( "#dropper" ).droppable({
+        drop: function( event, ui ) {
+        $( this )
+        .addClass( "ui-state-highlight" )
+        .find( "p" )
+        .html( "Dropped!" );
+        }
+      });
     }
+  }
 })();

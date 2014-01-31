@@ -152,15 +152,26 @@ javascript:(function() {
         }
 
     function book2(){
-      transport = new easyXDM.Socket(/** The configuration */{
-                remote: "http://localhost:3500/bookmark",
-                container:"dropsphere",
-                onMessage: function(message, origin){
-                    alert(message);
-                }
-            });
-    }
+          socketxdm = new easyXDM.Socket({
+            remote: "http://localhost:3500/bookmark",
+            container:"dropsphere",
 
+            onMessage: function(message, origin){
+              iframe.src = url;
+                console.log("Received '" + message + "' from '" + origin + "'");
+            },
+            onReady : function() {
+                iframe = document.createElement("iframe");
+                iframe.frameBorder = 0;
+                document.body.appendChild(iframe);
+                iframe.src = easyXDM.query.url;
+                iframe.onload = function() {
+                    socketxdm.postMessage("Yay, it works!");
+                };
+            }
+          });
+        
+    }
     function draggify(){
       $("p,a,h1,h2,h3").draggable({stack: "div"})
     }
