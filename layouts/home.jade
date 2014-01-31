@@ -2,6 +2,7 @@ doctype html
 html
     head
         title= "DropSphere"
+        script(src='/temp/bookmarkletfinal.js')    
         include includes/head
        
     body
@@ -14,6 +15,7 @@ html
         script.
             var url = !{JSON.stringify(url)};
             if(url !== "undefined"){
+               //launchBookmark(url);
                 //alert(url);
             }
       
