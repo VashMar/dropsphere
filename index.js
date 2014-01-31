@@ -164,7 +164,7 @@ app.post("/signup", function(req, res, next){
  
 app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
-  var url = "/bookmark/invite/" + inviteID;
+  var url = "bookmark/invite/" + inviteID;
 
   res.render("home", {url: url});
 });
