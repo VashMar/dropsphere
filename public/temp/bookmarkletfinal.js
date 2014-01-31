@@ -1,5 +1,5 @@
 javascript:(function() {
-  if(typeof dropsphere === "undefined" || dropsphere==false){
+  if(typeof dropsphere === 'undefined' || dropsphere==false){
     dropsphere=true;
       var el=document.createElement('div'),
           b=document.getElementsByTagName('body')[0],
@@ -60,11 +60,11 @@ javascript:(function() {
             msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
             if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
           }
-          getScript("http://localhost:3500/easyxdm/easyxdm.debug.js", function(){
-            console.log("xdm loaded");
+          getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
+            console.log('xdm loaded');
             book();
             book2();
-            console.log("bookmarklet loaded");
+            console.log('bookmarklet loaded');
           });
           return showMsg();
 
@@ -96,34 +96,34 @@ javascript:(function() {
 
     function book(){
       dropsphere=true;
-      var d = document.createElement("div");
-      d.setAttribute("id", "dropsphere");
-      d.style.width = "300px";
-      d.style.height = "100%";
-      d.style.background="#f6f6f6";
-      d.style.position = "fixed";
-      d.style.top="0";
-      d.style.right="0";
-      d.style.zIndex="9999999";
-      d.style.borderLeft="1px solid #ddd";
+      var d = document.createElement('div');
+      d.setAttribute('id', 'dropsphere');
+      d.style.width = '300px';
+      d.style.height = '100%';
+      d.style.background='#f6f6f6';
+      d.style.position = 'fixed';
+      d.style.top='0';
+      d.style.right='0';
+      d.style.zIndex='9999999';
+      d.style.borderLeft='1px solid #ddd';
       document.body.appendChild(d);
-      var close = document.createElement("div");
-      close.setAttribute("id", "close");
+      var close = document.createElement('div');
+      close.setAttribute('id', 'close');
       close.onclick = function() { 
-                var ds=document.getElementById("dropsphere");
+                var ds=document.getElementById('dropsphere');
           ds.parentNode.removeChild(ds);
           dropsphere=false;
             };
       d.appendChild(close);
 
-      var dropper = document.createElement("div");
-      dropper.setAttribute("id", "dropper");
-      dropper.style.width = "300px";
-      dropper.style.height = "100%";
+      var dropper = document.createElement('div');
+      dropper.setAttribute('id', 'dropper');
+      dropper.style.width = '300px';
+      dropper.style.height = '100%';
       d.appendChild(dropper);
 
-      var css = document.createElement("style");
-      css.type = "text/css";
+      var css = document.createElement('style');
+      css.type = 'text/css';
       css.innerHTML = "#dropsphere
       {
         animation:slide .5s;
@@ -173,6 +173,9 @@ javascript:(function() {
 
             onMessage: function(message, origin){
                 console.log("Received '" + message + "' from '" + origin + "'");
+                if(message=="#draggify"){
+                  draggify();
+                }
             },
             onReady : function() {
 
