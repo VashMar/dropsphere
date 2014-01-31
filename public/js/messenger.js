@@ -71,8 +71,7 @@ function Chat(){
             });
 
             socket.on('announcement', function(data){
-                alert(data.msg);
-                $("#content").append("<p>" + data.msg  + "</p>"); // announces the new entrant to others in the sphere
+                $("#content").append(data.msg); // announces the new entrant to others in the sphere
             });
 
 

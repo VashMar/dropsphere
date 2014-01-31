@@ -164,6 +164,13 @@ app.post("/signup", function(req, res, next){
  
 app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
+  var url = "/bookmark/invite/" + inviteID;
+
+  res.render("home", {url: url});
+});
+
+app.get("/bookmark/invite/:id", function(req, res){
+  var inviteID = req.param('id');
    req.session.inviteID = inviteID;
    req.session.invite = true; 
 
@@ -280,7 +287,7 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   sphereMap[sphere.name] = {id: sphere._id, username: user.name, link: sphere.link}; // build a sphereMap for the client 
-                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/>Invite 5 of your friends to share the web with!"});
+                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> Send this link to whomever you deem worthy to join it : " + sphere.link});
                   socket.emit('users', sphere.members); 
 
                   // pass the client side all the info necessary to track sphere related information 
