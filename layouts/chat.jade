@@ -39,7 +39,7 @@ html
                 #content(class="form-control")
                 .controls
                     textarea#messageInput(class="form-control" placeholder="Enter a message...")
-                    input#send(type='button' class="btn btn-primary" value='send')
+                    input#send(type='button' class="btn btn-primary" value='send' data-loading-text="Wait...")
 
         #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
          .modal-dialog
@@ -52,7 +52,7 @@ html
                 input(class="form-control" placeholder="New Name")
               
               .modal-footer
-                button.btn.btn-primary(type="button") Save changes
+                button.btn.btn-primary(type="button" data-loading-text="Wait...") Save changes
         #sphereDialog.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
          .modal-dialog
             .modal-content
@@ -64,7 +64,7 @@ html
                 input#sphereName(class="form-control" placeholder="Sphere name")
               
               .modal-footer
-                button#saveSphere.btn.btn-primary(type="button") Save changes
+                button#saveSphere.btn.btn-primary(type="button" data-loading-text="Wait...") Save changes
 
         #preload
             img(src="/img/settings_hover.png")
