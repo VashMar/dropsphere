@@ -90,10 +90,6 @@ javascript:(function() {
         } ,2500);
       }
 
-
-
-
-
     function book(){
       dropsphere=true;
       var d = document.createElement('div');
@@ -124,7 +120,7 @@ javascript:(function() {
 
       var css = document.createElement('style');
       css.type = 'text/css';
-      css.innerHTML = "#dropsphere
+      css.innerHTML = '#dropsphere
       {
         animation:slide .5s;
         -webkit-animation:slide .5s;
@@ -161,43 +157,44 @@ javascript:(function() {
         top:0;
          pointer-events:none;
       }
-      ";
+      ';
       document.body.appendChild(css);
 
         }
 
     function book2(){
           socketxdm = new easyXDM.Socket({
-            remote: "http://localhost:3500/bookmark",
-            container:"dropsphere",
+            remote: 'http://localhost:3500/bookmark',
+            container:'dropsphere',
 
             onMessage: function(message, origin){
-                console.log("Received '" + message + "' from '" + origin + "'");
-                if(message=="#draggify"){
+                console.log('Received \'' + message + '\' from \'' + origin + '\'');
+                if(message=='#draggify'){
                   draggify();
                 }
             },
             onReady : function() {
 
-                    socketxdm.postMessage("Yay, it works!");
+                    socketxdm.postMessage('Yay, it works!');
             }
           });
-        draggify()
     }
     function draggify(){
-      $("p, a, h1, h2, h3, h4").draggable({
+      $('p, a, h1, h2, h3, h4').draggable({
           stack: 'div',
           zIndex:99999999,
           start: function() {
             $(this).height(100).width(100);   
           },
       });
-      $( "#dropper" ).droppable({
+      $( '#dropper' ).droppable({
         drop: function( event, ui ) {
         $( this )
-        .addClass( "ui-state-highlight" )
-        .find( "p" )
-        .html( "Dropped!" );
+        .addClass( 'ui-state-highlight' )
+        .find( 'p' )
+        .html( 'Dropped!' );
+
+        socketxdm.postMessage(ui.draggable.html());
         }
       });
     }
