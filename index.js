@@ -250,6 +250,8 @@ io.sockets.on('connection', function (socket) {
    console.log("Server Connection: " + new Date().getTime());
   var sessionID = socket.handshake.sessionID;
   var sessionData = socket.handshake.session;
+  var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+  var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
 
   // on connection find out who the user is using the sessionID;
   User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
@@ -273,12 +275,17 @@ io.sockets.on('connection', function (socket) {
               // add user as sphere member
               sphere.members.push(user.name);
               sphere.save(function(err, sphere){
-                if(err){ console.log("Error saving sphere"); }
+                if(err || !sphere){ console.log("Error saving sphere"); }
 
                 else{
                   socket.join(sphere.id);
+                  sphereMap[sphere.name] = {id: sphere._id, username: user.name, link: sphere.link}; // build a sphereMap for the client 
                   socket.emit('announcement', {msg: "Welcome to your sphere!<br/>Invite 5 of your friends to share the web with!"});
                   socket.emit('users', sphere.members); 
+
+                  // pass the client side all the info necessary to track sphere related information 
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: index});
+
                   user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
@@ -287,8 +294,7 @@ io.sockets.on('connection', function (socket) {
 
           } else{
            
-            var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
-            var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
+          
 
             for(var i = 0; i < user.spheres.length ; i++){
                //makes sure the user first lands in the invite sphere 
@@ -354,7 +360,7 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   socket.emit('clearChat');
-                  socket.emit('announcement', {msg: welcomeMessage(sphere) });
+                  socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/>Invite others to this sphere by sharing this link: " + sphere.link });
                   socket.emit('users', sphere.members); 
                    // pass the client side all the info necessary to track sphere related information 
                   user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
@@ -366,7 +372,7 @@ io.sockets.on('connection', function (socket) {
                   }
                   //////////////////////////////////////////////////////////////////////////
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1}); //send the updated sphereMap new sphere should be the last in list
-                 // user.save();
+                  user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
               }); 
@@ -442,7 +448,7 @@ io.sockets.on('connection', function (socket) {
 
 // returns welcome message for sphere 
 function welcomeMessage(sphere){
-  return "Welcome to " + sphere.name + "!<br/>Invite others to " + sphere.name + " with this link:<br/>" + sphere.link;
+  return "Welcome to " + sphere.name + "!<br/>Invite others to this sphere with this link:" + sphere.link;
 }
 
 

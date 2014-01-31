@@ -14,7 +14,7 @@ $(document).ready(function(){
 
     var submit = $.post( "/signup", {name: name, email: email, password: password});
 
-    submit.done(function( data ) {
+    submit.done(function( data ){
      
        $("body").html(data);
 
