@@ -60,11 +60,6 @@ a#bookmarklet{
 }
 #chat{
 	height:72%;
-	#chatLogo{
-		margin-top:-26px;
-		
-		
-	}
 }
 textarea{
 	margin:9px 0 6px 0;
@@ -147,15 +142,32 @@ input{
 .gray{
 	color:#666;
 }
+#navButtons{
+	position:absolute;
+	top:0;
+	left:0;
+}
 #settings{
+	float:left;
 	display:block;
 	cursor:pointer;
 	background:url("/img/settings.png") no-repeat;
-	width:30px;
-	height:30px;
+	width:32px;
+	height:32px;
 }
 #settings:hover{
 	background:url("/img/settings_hover.png") no-repeat;
+}
+#share{
+	float:left;
+	display:block;
+	cursor:pointer;
+	background:url("/img/share.png") no-repeat;
+	width:32px;
+	height:32px;
+}
+#share:hover{
+	background:url("/img/share_hover.png") no-repeat;
 }
 .dropdown a{
 	text-align:left;

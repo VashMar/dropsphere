@@ -17,15 +17,17 @@ html
         #container
             #chat
                 .dropdown
-                    a#settings(data-toggle="dropdown" href="#")
-                    ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
-                        li(role="presentation")
-                            a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
-                        li(role="presentation")
-                            a(role="menuitem" tabindex="-1" href="#") Set Nickname 
-                        li(role="presentation" class="divider")
-                        li(role="presentation")
-                            a(role="menuitem" tabindex="-1" href="#") Logout 
+                    #navButtons 
+                        a#settings(data-toggle="dropdown" href="#")
+                        ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                            li(role="presentation")
+                                a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
+                            li(role="presentation")
+                                a(role="menuitem" tabindex="-1" href="#") Set Nickname 
+                            li(role="presentation" class="divider")
+                            li(role="presentation")
+                                a(role="menuitem" tabindex="-1" href="#") Logout 
+                        a#share(data-toggle="modal" data-target="#shareModal")
                 img#chatLogo(src="/img/dropsphere_sm.png")
                 .dropdown
                     a#currentInfo(data-toggle="dropdown" href="#")
@@ -41,6 +43,16 @@ html
                     textarea#messageInput(class="form-control" placeholder="Enter a message...")
                     input#send(type='button' class="btn btn-primary" value='send' data-loading-text="Wait...")
 
+        #shareModal.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+         .modal-dialog
+            .modal-content
+              .modal-header
+                button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+                h4.modal-title Invite your friends
+              
+              .modal-body
+                label Copy and Paste the link below
+                input(class="form-control" placeholder="New Name" value="asdf" readonly="readonly")
         #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
          .modal-dialog
             .modal-content
