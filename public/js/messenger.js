@@ -104,7 +104,7 @@ function Chat(){
             sphereIndex = sphereNames.indexOf(current);   
             sphereLink = sphereMap[current].link;
             currentSphere = current;
-            
+            socket.emit('requestUsers', {sphereID : sphereID});
             requestMessages();
 
         }

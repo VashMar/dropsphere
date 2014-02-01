@@ -433,7 +433,20 @@ io.sockets.on('connection', function (socket) {
     });
 
 
-    socket.on('requestMessages', function(data, fillMessages){
+  socket.on('requestUsers', function(data){
+    console.log("Requesting users..");
+    
+      Sphere.findOne({_id: data.sphereID}, function(err, sphere){
+          if(err|!sphere){ console.log("Error finding sphere");}
+
+          else{
+            socket.emit('users', sphere.members);
+          }
+      });
+  });
+
+
+  socket.on('requestMessages', function(data, fillMessages){
 
         User.findOne({session: sessionID}, function(err, user){
             if(err){console.log(err);}
@@ -485,7 +498,7 @@ io.sockets.on('connection', function (socket) {
         });
 
   
-    });
+  });
 
 });
 
