@@ -33,7 +33,10 @@ function Chat(){
                    sphereMap = data.sphereMap;
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
-                   
+        
+                   console.log(sphereNames);
+                   console.log(data.index);
+                   alert(Object.prototype.toString.call(currentSphere));
                    $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                    $(".sphere").parent().remove();
 
@@ -92,12 +95,13 @@ function Chat(){
             
         };
 
-        this.SwitchSphere = function SwitchSphere(currentSphere){
+        this.SwitchSphere = function SwitchSphere(current){
             // set the user's name to their name in the new sphere 
-            name = sphereMap[currentSphere].username;
-            sphereID = sphereMap[currentSphere].id;
-            sphereIndex = sphereNames.indexOf(currentSphere);   
-            sphereLink = sphereMap[currentSphere].link;
+            
+            name = sphereMap[current].username;
+            sphereID = sphereMap[current].id;
+            sphereIndex = sphereNames.indexOf(current);   
+            sphereLink = sphereMap[current].link;
 
             requestMessages();
 

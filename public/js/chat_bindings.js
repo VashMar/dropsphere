@@ -17,7 +17,7 @@ $(document).ready(function(){
             // get and display the new current sphere when the user chooses to switch
     $("#sphereList").on("click", "a.sphere", function(e){
         currentSphere = $(this).text();        
-                
+    
         if(currentSphere != $("a#currentSphere").text()){    //doesn't switch if the user chooses the sphere they're already in
             $("span#currentSphere").html(currentSphere);
             chat.SwitchSphere(currentSphere);

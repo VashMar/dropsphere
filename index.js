@@ -172,7 +172,7 @@ app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
   var url = "bookmark/invite/" + inviteID;
 
-  res.render("home", {url: url});
+  res.render("invite", {url: url});
 });
 
 app.get("/bookmark/invite/:id", function(req, res){
@@ -355,7 +355,7 @@ io.sockets.on('connection', function (socket) {
             socket.emit('users', user.spheres[index].object.members); 
           
            
-
+            console.log(index);
             // pass the client side all the info necessary to track sphere related information 
             socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
            
