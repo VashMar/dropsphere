@@ -45,8 +45,12 @@ function Chat(){
                     // track sphere data 
                     sphereID = sphereMap[currentSphere].id;
                     sphereIndex = sphereNames.indexOf(currentSphere);
+                    sphereLink = sphereMap[currentSphere].link;
 
-                    requestMessages();
+                    if(data.justmade === undefined){
+                        requestMessages();
+                    }
+                
                    
               });
 
@@ -71,7 +75,7 @@ function Chat(){
             });
 
             socket.on('announcement', function(data){
-                alert("announcement");
+        
                 $("#content").append(data.msg); // announces the new entrant to others in the sphere
             });
 
@@ -92,8 +96,9 @@ function Chat(){
             // set the user's name to their name in the new sphere 
             name = sphereMap[currentSphere].username;
             sphereID = sphereMap[currentSphere].id;
-            sphereIndex = sphereNames.indexOf(currentSphere);
-          
+            sphereIndex = sphereNames.indexOf(currentSphere);   
+            sphereLink = sphereMap[currentSphere].link;
+
             requestMessages();
 
         }
@@ -113,11 +118,13 @@ function Chat(){
         };
 
          function requestMessages(){
-              alert("messages");
+             
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();
 
+                $("#content").append("<p> Sphere Link: " + sphereLink + "</p>");
+  
                 for(var i =0; i < 25; i++){
                     $("#content").append(messages[i]);      
                 }             

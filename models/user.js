@@ -60,12 +60,12 @@ userSchema.methods.comparePassword = function(sentPassword, callback) {
 };
 
 userSchema.methods.isMember = function(sphere){
-
+ 
     var isMember = false;
 
     for(var i = 0; i < this.spheres.length; i++){
-        if(sphere._id == this.spheres[i].object || sphere._id == this.spheres[i].object._id){
-            isMember = true;
+        if(sphere.id == this.spheres[i].object){
+               isMember = true;
         }
     }
 

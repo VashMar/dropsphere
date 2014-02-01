@@ -99,6 +99,7 @@ app.post('/login', function (req, res) {
              console.log(req.session.username + " is logged in");
 
              if(req.session.invite == true){
+                req.session.isNew = true;     // flag for user who just logged in 
                 res.redirect('/bookmark/invite/' + req.session.inviteID);
              }else{
                 res.render("includes/chat", {name: user.name});
@@ -157,7 +158,12 @@ app.post("/signup", function(req, res, next){
           // log the user in
           req.session.isLogged = true;
           req.session.username = name;
-          res.render("includes/chat", {name: name});
+          if(req.session.invite == true){
+             req.session.isNew = true;     // flag for user who just logged in 
+             res.redirect('/bookmark/invite/' + req.session.inviteID);
+          } else{
+            res.render("includes/chat", {name: name});
+          }
         }
     });
 });      
@@ -171,33 +177,44 @@ app.get("/invite/:id", function(req, res){
 
 app.get("/bookmark/invite/:id", function(req, res){
   var inviteID = req.param('id');
+
    req.session.inviteID = inviteID;
    req.session.invite = true; 
 
    if(req.session.isLogged == true){
     User.findOne({session: req.sessionID}, function(err, user){
       if(user){
-        res.redirect('/bookmark');
-        Sphere.findOne({id: inviteID}, function(err,sphere){
+        // due to easy xdm persistence new session gets ajax response, existing one gets new template
+        if(req.session.isNew == true){
+            res.render('includes/chat', {name: user.name});
+            req.session.isNew = false;
+        } else{
+            res.redirect('/bookmark');
+        }
+      
+        Sphere.findOne({_id: inviteID}, function(err,sphere){
           if(!sphere){
             console.log("Invited Sphere doesn't exist");
           } else{
+              console.log("The user:" + user);
+              console.log("The sphere:" + sphere);
               if(!user.isMember(sphere)){         // if user is already a member of this sphere we don't have to do anything 
-                if(spheres.members.length < 6){    // if the sphere isn't full add it's new member 
-                user.spheres.push({object: sphere._id, username: user.name, joined: Date.now}); 
-                sphere.members.push(user.name);
-                user.save();
-                sphere.save();
+                if(sphere.members.length < 6){    // if the sphere isn't full add it's new member 
+                  user.spheres.push({object: sphere._id, username: user.name}); 
+                  sphere.members.push(user.name);
+                  user.save(function(err){console.log(err);});
+                  sphere.save(function(err){console.log(err);});
                 }else{
-                console.log("sphere is full");
+                  console.log("sphere is full");
                 }
+              }else{
+                 console.log("already in sphere");
               } 
-          console.log("already in sphere")
           }
          
         });
       }
-    })
+    });
 
   } else{
     res.render("template_login");
@@ -205,6 +222,26 @@ app.get("/bookmark/invite/:id", function(req, res){
 
 });
 
+app.get("/test/:id", function(req, res){
+    var inviteID = req.param('id');
+ 
+      User.findOne({name: 'bart'},function(err,user){
+        if(err|!user){
+          console.log("User not found");
+        } else{
+           Sphere.findOne({_id: inviteID}, function(err,sphere){
+              if(sphere){
+                console.log(user.isMember(sphere));
+              }
+           });
+
+        }
+     });
+
+     res.render("home");
+
+
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -291,7 +328,7 @@ io.sockets.on('connection', function (socket) {
                   socket.emit('users', sphere.members); 
 
                   // pass the client side all the info necessary to track sphere related information 
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: index});
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true});
 
                   user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
                   user.save();
@@ -322,8 +359,6 @@ io.sockets.on('connection', function (socket) {
             // pass the client side all the info necessary to track sphere related information 
             socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
            
-            socket.emit('announcement', {msg: "Sphere Link: " + user.spheres[index].object.link});
-
           }
         }
   });
@@ -380,7 +415,9 @@ io.sockets.on('connection', function (socket) {
                     sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username, link: user.spheres[i].object.link};
                   }
                   //////////////////////////////////////////////////////////////////////////
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1}); //send the updated sphereMap new sphere should be the last in list
+
+                  //send the updated sphereMap new sphere should be the last in list
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1, justmade: true}); 
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
@@ -454,11 +491,6 @@ io.sockets.on('connection', function (socket) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-// returns welcome message for sphere 
-function welcomeMessage(sphere){
-  return "Welcome to " + sphere.name + "!<br/>Invite others to this sphere with this link:" + sphere.link;
-}
 
 
 // parser to discover if the message is a link or not
