@@ -11,9 +11,12 @@ function scrollBottom(){
 
 
 function Chat(){
+
         this.socket = null;
         this.name = "";
+      
         
+
         this.Connect = function(username){ 
             socket =  io.connect();      
             name = username;
@@ -34,9 +37,7 @@ function Chat(){
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
         
-                   console.log(sphereNames);
-                   console.log(data.index);
-                   alert(Object.prototype.toString.call(currentSphere));
+                   
                    $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                    $(".sphere").parent().remove();
 
@@ -102,7 +103,8 @@ function Chat(){
             sphereID = sphereMap[current].id;
             sphereIndex = sphereNames.indexOf(current);   
             sphereLink = sphereMap[current].link;
-
+            currentSphere = current;
+            
             requestMessages();
 
         }

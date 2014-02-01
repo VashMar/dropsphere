@@ -327,6 +327,7 @@ io.sockets.on('connection', function (socket) {
                   socket.emit('announcement', {msg: "Welcome to your sphere!<br/> Send this link to whomever you deem worthy to join it : " + sphere.link});
                   socket.emit('users', sphere.members); 
 
+
                   // pass the client side all the info necessary to track sphere related information 
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true});
 
@@ -354,8 +355,7 @@ io.sockets.on('connection', function (socket) {
             // default sphere will be the users first sphere so send them that list of members
             socket.emit('users', user.spheres[index].object.members); 
           
-           
-            console.log(index);
+
             // pass the client side all the info necessary to track sphere related information 
             socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
            
