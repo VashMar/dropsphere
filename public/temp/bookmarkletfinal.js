@@ -203,7 +203,7 @@ javascript:(function() {
       });
     }
     function imgParse(img){
-      return img.find("img").attr("src");
+      return img.find('img').attr('src');
     }
   }
 })();

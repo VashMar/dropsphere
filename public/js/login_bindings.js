@@ -6,6 +6,14 @@ $(document).ready(function(){
         $("body").html(data);
       });
     });  
+
+    $('#username, #password').bind('keypress', function(e) {
+        
+        if(e.keyCode==13 && !e.shiftKey){
+            e.preventDefault();
+            login();
+        }
+    });
 });
 
 
