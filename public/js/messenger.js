@@ -34,12 +34,12 @@ function Chat(){
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
                    
-                   $("span#currentSphere").html(currentSphere);   
+                   $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                    $(".sphere").parent().remove();
 
                    for(var i = 0; i < sphereNames.length; i++){
-                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'>" + sphereNames[i] + "</a></li>")
-                     .insertBefore(".sphereDivider");
+                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + sphereNames[i] + "</a></li>")
+                     .insertBefore("#sphereDivider");
                    }
                    
                     // track sphere data 

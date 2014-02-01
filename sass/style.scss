@@ -93,6 +93,9 @@ textarea{
 		font-size: 12px;
 	}
 }
+#users p:first-child{
+	margin-left:0;
+}
 #name, #join{
 	position:absolute;
 	width:100%;
@@ -125,8 +128,16 @@ input{
 	float:right;
 	margin-right:10%;
 }
-.btn-primary{
+#send{
 	width: 80%;
+}
+#currentInfo{
+	padding:0 4px;
+	margin-bottom:3px;
+
+}
+.btn-primary{
+	
 
 	:hover{
 		color:white;

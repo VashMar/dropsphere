@@ -4,6 +4,7 @@
         .dropdown
             a#settings(data-toggle="dropdown" href="#")
             ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                li(role="presentation" class="dropdown-header") Profile Settings
                 li(role="presentation")
                     a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
                 li(role="presentation")
@@ -13,11 +14,13 @@
                     a(role="menuitem" tabindex="-1" href="#") Logout 
         img#chatLogo(src="/img/dropsphere_sm.png")
         .dropdown
-            a#currentInfo(data-toggle="dropdown" href="#")
+            a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
                 span#notifications.badge.badge-success 
-                span#currentSphere
+                span#currentSphere 
+                    span.caret
             ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
-                li(role="presentation" class="divider sphereDivider")
+                li.dropdown-header(role="presentation") My Spheres
+                li#sphereDivider.divider(role="presentation" )
                 li(role="presentation")
                     a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
         #users
