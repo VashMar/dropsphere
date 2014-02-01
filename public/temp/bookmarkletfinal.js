@@ -1,4 +1,5 @@
 javascript:(function() {
+  var socketxdm;
   if(typeof dropsphere === 'undefined' || dropsphere==false){
     dropsphere=true;
       var el=document.createElement('div'),
@@ -181,10 +182,14 @@ javascript:(function() {
                     socketxdm.postMessage('Yay, it works!');
             }
           });
-        draggify()
     }
-    function draggify(){
-      $('p, a, h1, h2, h3, h4').draggable({
+    function draggify(selector){
+      if(selector == "text"){
+        selector = 'p, a, h1, h2, h3, h4';
+      }else{
+        selector = 'img';
+      }
+      $(selector).draggable({
           stack: 'div',
           zIndex:99999999,
           start: function() {

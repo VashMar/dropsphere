@@ -132,13 +132,14 @@ input{
 	width: 80%;
 }
 #currentInfo{
+	width:auto;
 	padding:0 4px;
 	margin-bottom:3px;
 
 }
 .btn-primary{
 	
-
+	width:80%;
 	:hover{
 		color:white;
 	}
@@ -162,5 +163,8 @@ input{
 .modal-dialog{
 	margin-top: 52px;
 
+}
+#dropperControl{
+	margin-top:10px;
 }
 

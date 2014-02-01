@@ -28,7 +28,14 @@
         .controls
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
-
+        #dropperControl.btn-group
+            button.btn.btn-default(type="button" onclick="socketxdm.postMessage('#draggify')")
+                span.glyphicon.glyphicon-align-center
+            button.btn.btn-default(type="button")
+                span.glyphicon.glyphicon-picture
+            button.btn.btn-default(type="button")
+                span.glyphicon.glyphicon-link
+      
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
     .modal-content

@@ -110,11 +110,14 @@ input {
   width: 80%; }
 
 #currentInfo {
+  width: auto;
   padding: 0 4px;
   margin-bottom: 3px; }
 
-.btn-primary :hover {
-  color: white; }
+.btn-primary {
+  width: 80%; }
+  .btn-primary :hover {
+    color: white; }
 
 .gray {
   color: #666; }
@@ -134,3 +137,6 @@ input {
 
 .modal-dialog {
   margin-top: 52px; }
+
+#dropperControl {
+  margin-top: 10px; }
