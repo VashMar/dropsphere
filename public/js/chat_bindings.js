@@ -35,6 +35,16 @@ $(document).ready(function(){
         }
     }); 
 
+    $("#saveName").click(function(){
+        // overlay for sphere name input goes here 
+        var newName = $("#newName").val().trim();
+        var sphereWide = true; // signal name change on all spheres 
+
+        if(newName && newName.length > 3){
+          $('#sphereDialog').modal('hide');  
+          chat.ChangeName(newName, sphereWide);
+        }
+    }); 
 
 });
 

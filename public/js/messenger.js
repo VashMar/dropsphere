@@ -115,6 +115,12 @@ function Chat(){
             socket.emit('createSphere', {sphereName: sphereName});
         }
 
+        this.ChangeName = function ChangeName(newName, sphereWide){
+            alert($("#users").children());
+            //name = newName;
+               
+        }
+
 
         Date.prototype.timeNow = function(){ 
 
