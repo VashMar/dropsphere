@@ -186,10 +186,12 @@ app.get("/bookmark/invite/:id", function(req, res){
       if(user){
         // due to easy xdm persistence new session gets ajax response, existing one gets new template
         if(req.session.isNew == true){
+            console.log("user just logged in");
             res.render('includes/chat', {name: user.name});
             req.session.isNew = false;
         } else{
-            res.redirect('/bookmark');
+            console.log("user is already logged in");
+            res.render("template_chat", {name: user.name});
         }
       
         Sphere.findOne({_id: inviteID}, function(err,sphere){
@@ -344,6 +346,7 @@ io.sockets.on('connection', function (socket) {
             for(var i = 0; i < user.spheres.length ; i++){
                //makes sure the user first lands in the invite sphere 
               if(sessionData.invite == true && sessionData.inviteID == user.spheres[i].object.id){
+                  console.log("user responding to invitation");
                   index = i; 
                   sessionData.invite = false; // the invite has been handled 
               }
@@ -435,7 +438,7 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('requestUsers', function(data){
     console.log("Requesting users..");
-    
+
       Sphere.findOne({_id: data.sphereID}, function(err, sphere){
           if(err|!sphere){ console.log("Error finding sphere");}
 
@@ -447,7 +450,7 @@ io.sockets.on('connection', function (socket) {
 
 
   socket.on('requestMessages', function(data, fillMessages){
-
+      console.log("Requesting Messages...");
         User.findOne({session: sessionID}, function(err, user){
             if(err){console.log(err);}
 
