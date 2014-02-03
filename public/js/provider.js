@@ -11,7 +11,19 @@ $(document).ready(function(){
         }
     });
     $("#dropperControl .btn").live('click',function() {
-        alert("sending message");
-        socketxdm.postMessage("#ds-img");
+    	var index = $(this).index();
+    	alert("sending message");
+    	if(index==0){
+    		//text mode
+    		 socketxdm.postMessage("#ds-text");
+    	}else if(index==1){
+    		//image mode
+    		 socketxdm.postMessage("#ds-img");
+    	}else if(index==2){
+    		//link mode (default)
+    		 socketxdm.postMessage("#ds-link");
+    	}
+        
+       
     });
 });
