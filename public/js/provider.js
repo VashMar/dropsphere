@@ -10,7 +10,7 @@ $(document).ready(function(){
 
         }
     });
-    $("#dropperControl .btn").live('click',function() {
+    $("#dropperControl .btn").on('click',function() {
     	var index = $(this).index();
     	alert("sending message");
     	if(index==0){
