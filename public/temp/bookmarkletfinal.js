@@ -172,8 +172,9 @@ javascript:(function() {
             container:'dropsphere',
 
             onMessage: function(message, origin){
+              alert(message);
                 console.log('Received \'' + message + '\' from \'' + origin + '\'');
-                if(message=='#draggify'){
+                if(message=='#ds-img'){
                   draggify();
                 }
             },
@@ -184,6 +185,7 @@ javascript:(function() {
           });
     }
     function draggify(selector){
+      alert('drag called');
       if(selector == "text"){
         selector = 'p, a, h1, h2, h3, h4';
       }else{
@@ -192,6 +194,8 @@ javascript:(function() {
       $(selector).draggable({
           stack: 'div',
           zIndex:99999999,
+          cursor: "move", 
+          cursorAt: { top: 56, left: 56 },
           start: function() {
             $(this).height(100).width(100);   
           },
