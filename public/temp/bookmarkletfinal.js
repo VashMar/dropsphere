@@ -163,8 +163,7 @@ javascript:(function() {
       }
       ';
       document.body.appendChild(css);
-
-        }
+    }
 
     function book2(){
           socketxdm = new easyXDM.Socket({
@@ -175,7 +174,10 @@ javascript:(function() {
               alert(message);
                 console.log('Received \'' + message + '\' from \'' + origin + '\'');
                 if(message=='#ds-img'){
-                  draggify();
+                  draggify('img');
+                }else if(message=='#ds-text'){
+                  draggify('text');
+                }else if(message=='#ds-link'){
                 }
             },
             onReady : function() {
@@ -186,15 +188,17 @@ javascript:(function() {
     }
     function draggify(selector){
       alert('drag called');
-      if(selector == "text"){
+      if(selector == 'text'){
         selector = 'p, a, h1, h2, h3, h4';
-      }else{
+      }else if(selector == 'img'){
         selector = 'img';
+      }else{
+        return;
       }
       $(selector).draggable({
           stack: 'div',
           zIndex:99999999,
-          cursor: "move", 
+          cursor: 'move', 
           cursorAt: { top: 56, left: 56 },
           start: function() {
             $(this).height(100).width(100);   
