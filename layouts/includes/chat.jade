@@ -9,7 +9,7 @@
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
                     li(role="presentation")
-                        a(role="menuitem" tabindex="-1" href="#") Set Nickname 
+                        a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") Set Nickname 
                     li(role="presentation" class="divider")
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" href="#") Logout 
@@ -53,13 +53,24 @@
     .modal-content
       .modal-header
         button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
-        h4.modal-title Change your name
+        h4.modal-title New Username  
       
       .modal-body
         input#newName(class="form-control" placeholder="New Name")
       
       .modal-footer
         button#saveName.btn.btn-primary(type="button") Save changes
+#nickChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+ .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+        h4.modal-title New Sphere Nickname
+      .modal-body
+        input#newNick(class="form-control" placeholder="New Name")
+      
+      .modal-footer
+        button#saveNick.btn.btn-primary(type="button") Save changes
 #sphereDialog.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
     .modal-content

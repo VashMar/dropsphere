@@ -561,23 +561,17 @@ io.sockets.on('connection', function (socket) {
            } else{
               // otherwise only change the nickname pertaining to the user's current sphere 
               var userSphere = user.spheres[sphereIndex];
+
               // swap the current user nickname is the sphere members list with the new one 
-              for(var m = 0; m < userSphere.object.members.length; m++){
-                  if(userSphere.object.members[m] == userSphere.nickname){
-                      userSphere.object.members[m] = newName;
-                      // broadcast to all members of the sphere that the users name has changed 
-                      io.sockets.in(userSphere.object.id).emit('announcement', {msg: userSphere.nickname + " is now known as " + newName});
-                  }  
-              }
+              Sphere.update({$and: [{_id: userSphere.object.id} , {'members.id': user.id}]}, {'$set': {'members.$.nickname' : newName}}, function(err){
+                  if(err){console.log(err);}
+              });
+
+              io.sockets.in(userSphere.object.id).emit('announcement', {msg: userSphere.nickname + " is now known as " + newName});
+
 
               userSphere.nickname = newName; // change the nickname to the new name 
-
-              userSphere.object.save(function(err){
-                  if(err){console.log(err);}
-                  else{
-                    console.log("Sphere: " + userSphere.object.id + " member list updated");
-                  }
-              });
+        
 
               user.save(function(err){
                   if(err){console.log(err);}

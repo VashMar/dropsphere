@@ -46,6 +46,18 @@ $(document).ready(function(){
         }
     }); 
 
+
+    $("#saveNick").click(function(){
+        // overlay for sphere name input goes here 
+        var newName = $("#newNick").val().trim();
+        var sphereWide = false; // signal name change on all spheres 
+
+        if(newName && newName.length > 3){
+          $('#nickChange').modal('hide');  
+          chat.ChangeName(newName, sphereWide);
+        }
+    }); 
+
 });
 
       function sendMsg(){
