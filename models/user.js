@@ -16,13 +16,13 @@ var passValidator = [validate({message: "Passwords must be more than 6 character
 
 
 var userSchema = new Schema({
-	name: { type: String, required: true, validate: nameValidator },
+	name: { type: String, required: true, trim: true, validate: nameValidator },
 	password: { type: String, required: true, validate: passValidator },
 	email: { type: String, required: true, index: { unique: true }, validate: isEmail }, 
 	session: String, 
     spheres: [{
         object: {type: ObjectId, ref: 'Sphere'},        // references the sphere object user belongs to              
-        username: {type: String},                    // references the users name in that sphere 
+        nickname: {type: String},                    // references the users name in that sphere 
         joined: {type: Date, default: Date.now}
         }]
 

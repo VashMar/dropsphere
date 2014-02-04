@@ -96,14 +96,7 @@ app.post('/login', function (req, res) {
           else{
              req.session.isLogged = true;
              req.session.username = user.name;
-             console.log(req.session.username + " is logged in");
 
-             if(req.session.invite == true){
-                req.session.isNew = true;     // flag for user who just logged in 
-                res.redirect('/bookmark/invite/' + req.session.inviteID);
-             }else{
-                res.render("includes/chat", {name: user.name});
-             }
 
              user.session = req.sessionID;
              user.save(function(err){
@@ -113,6 +106,18 @@ app.post('/login', function (req, res) {
                   console.log("new user session saved");
                 }
              });
+
+
+             console.log(req.session.username + " is logged in");
+
+             if(req.session.invite == true){
+                req.session.isNew = true;     // flag for user who just logged in 
+                res.redirect('/bookmark/invite/' + req.session.inviteID);
+             }else{
+                res.render("includes/chat", {name: user.name});
+             }
+
+            
           }
         });
       }
@@ -202,8 +207,9 @@ app.get("/bookmark/invite/:id", function(req, res){
               console.log("The sphere:" + sphere);
               if(!user.isMember(sphere)){         // if user is already a member of this sphere we don't have to do anything 
                 if(sphere.members.length < 6){    // if the sphere isn't full add it's new member 
-                  user.spheres.push({object: sphere._id, username: user.name}); 
-                  sphere.members.push(user.name);
+                  user.spheres.push({object: sphere._id, nickname: user.name}); 
+                  sphere.members.push({id: user.id , name: user.name});
+                  req.session.justAdded = true;   // flag to show the user was just added to sphere
                   user.save(function(err){console.log(err);});
                   sphere.save(function(err){console.log(err);});
                 }else{
@@ -319,21 +325,21 @@ io.sockets.on('connection', function (socket) {
               // if the user doesn't have a sphere create them one
               var sphere = new Sphere({name: user.name + "'s sphere", owner: user._id });
               // add user as sphere member
-              sphere.members.push(user.name);
+              sphere.members.push({id: user.id , name: user.name});
               sphere.save(function(err, sphere){
                 if(err || !sphere){ console.log("Error saving sphere"); }
 
                 else{
                   socket.join(sphere.id);
-                  sphereMap[sphere.name] = {id: sphere._id, username: user.name, link: sphere.link}; // build a sphereMap for the client 
-                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> Send this link to whomever you deem worthy to join it : " + sphere.link});
-                  socket.emit('users', sphere.members); 
+                  sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link}; // build a sphereMap for the client 
+                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> Invite whomever you deem worthy with this link: " + sphere.link});
+                  socket.emit('users', sphere.nicknames); 
 
 
                   // pass the client side all the info necessary to track sphere related information 
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true});
 
-                  user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
+                  user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
@@ -342,26 +348,33 @@ io.sockets.on('connection', function (socket) {
           } else{
            
           
-
+            console.log(user.spheres);
             for(var i = 0; i < user.spheres.length ; i++){
                //makes sure the user first lands in the invite sphere 
               if(sessionData.invite == true && sessionData.inviteID == user.spheres[i].object.id){
                   console.log("user responding to invitation");
                   index = i; 
                   sessionData.invite = false; // the invite has been handled 
+
+
               }
 
               socket.join(user.spheres[i].object.id);  // connect to all the users spheres 
-              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username, link: user.spheres[i].object.link};
+              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, nickname: user.spheres[i].nickname, link: user.spheres[i].object.link};
             }
 
             // default sphere will be the users first sphere so send them that list of members
-            socket.emit('users', user.spheres[index].object.members); 
+            socket.emit('users', user.spheres[index].object.nicknames); 
           
 
             // pass the client side all the info necessary to track sphere related information 
             socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
-           
+
+          if(sessionData.justAdded == true){
+            io.sockets.in(user.spheres[index].object.id).emit('announcement', {msg: userSphere.nickname + " joined the sphere"}); 
+            sessionData.justAdded == false
+          }
+
           }
         }
   });
@@ -386,7 +399,7 @@ io.sockets.on('connection', function (socket) {
         }
       });
 
-  	});
+  	}); // end send 
 
    socket.on('createSphere', function(data){
     console.log("Started sphere creation");
@@ -400,7 +413,7 @@ io.sockets.on('connection', function (socket) {
               // create the sphere 
               var sphere = new Sphere({name: data.sphereName, owner: user._id });
               // add user as sphere member
-              sphere.members.push(user.name);
+              sphere.members.push({id: user.id , name: user.name});
               sphere.save(function(err, sphere){
                 if(err){ console.log("Error saving sphere"); }
 
@@ -408,14 +421,14 @@ io.sockets.on('connection', function (socket) {
                   socket.join(sphere.id);
                   socket.emit('clearChat');
                   socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/>Invite others to this sphere by sharing this link: " + sphere.link });
-                  socket.emit('users', sphere.members); 
+                  socket.emit('users', sphere.nicknames); 
                    // pass the client side all the info necessary to track sphere related information 
-                  user.spheres.push({object: sphere, username: user.name }); // add the sphere to user's sphere list 
+                  user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
       
                   /////////////////////////////////Modularize//////////////////////////////
                   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
                   for(var i = 0; i < user.spheres.length ; i++){
-                    sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, username: user.spheres[i].username, link: user.spheres[i].object.link};
+                    sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, nickname: user.spheres[i].nickname, link: user.spheres[i].object.link};
                   }
                   //////////////////////////////////////////////////////////////////////////
 
@@ -433,7 +446,7 @@ io.sockets.on('connection', function (socket) {
           }
       });
 
-    });
+    }); // end create sphere
 
 
   socket.on('requestUsers', function(data){
@@ -443,10 +456,10 @@ io.sockets.on('connection', function (socket) {
           if(err|!sphere){ console.log("Error finding sphere");}
 
           else{
-            socket.emit('users', sphere.members);
+            socket.emit('users', sphere.nicknames);
           }
       });
-  });
+  }); // end request users 
 
 
   socket.on('requestMessages', function(data, fillMessages){
@@ -501,10 +514,82 @@ io.sockets.on('connection', function (socket) {
         });
 
   
+  }); // end request messages 
+
+
+  socket.on('changeName', function(data){
+    console.log("Changing Name...");
+      console.log("Name: " + data.newName + " sphereWide: " + data.sphereWide);
+
+      var newName = data.newName,
+          sphereWide = data.sphereWide,
+          sphereIndex = data.sphereIndex;
+
+      User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
+
+        if( err || !user){ console.log("Couldn't find user");}
+
+        else{
+           // if the change is sphere wide update the name of the user and the name in every sphere 
+           if(sphereWide == true){
+
+             Sphere.update({'members.id': user.id}, {'$set': {'members.$.name' : newName}}, function(err){
+                  if(err){console.log(err);}
+              });
+
+              for(var i = 0; i < user.spheres.length; i++){
+                  var userSphere = user.spheres[i];
+                  // if the sphere nickname is the username, update it 
+                  if(userSphere.nickname == user.name){
+                      userSphere.nickname = newName;
+                  }
+
+              }
+                
+              user.name = newName; 
+
+              user.save(function(err){
+                  if(err){console.log(err);}
+                  else{
+                    console.log("User: " + user.id + " now known as " + user.name);
+                    console.log(user.spheres);
+                  } 
+              });
+
+           } else{
+              // otherwise only change the nickname pertaining to the user's current sphere 
+              var userSphere = user.spheres[sphereIndex];
+              // swap the current user nickname is the sphere members list with the new one 
+              for(var m = 0; m < userSphere.object.members.length; m++){
+                  if(userSphere.object.members[m] == userSphere.nickname){
+                      userSphere.object.members[m] = newName;
+                      // broadcast to all members of the sphere that the users name has changed 
+                      io.sockets.in(userSphere.object.id).emit('announcement', {msg: userSphere.nickname + " is now known as " + newName});
+                  }  
+              }
+
+              userSphere.nickname = newName; // change the nickname to the new name 
+
+              userSphere.object.save(function(err){
+                  if(err){console.log(err);}
+                  else{
+                    console.log("Sphere: " + userSphere.object.id + " member list updated");
+                  }
+              });
+
+              user.save(function(err){
+                  if(err){console.log(err);}
+                  else{ console.log("User nickname in sphere: " + userSphere.object.id + "is now " + userSphere.nickname)}
+              });
+           }
+
+        }
+
+      });
+ 
   });
 
-});
-
+}); // end connection 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

@@ -14,13 +14,15 @@ function Chat(){
 
         this.socket = null;
         this.name = "";
-      
+       
         
 
-        this.Connect = function(username){ 
+        this.Connect = function(user){ 
             socket =  io.connect();      
-            name = username;
-            
+            username = user;
+            name = username;    // user's name on sphere (username by default)
+        
+        
 
               socket.on('users', function(users){
 
@@ -37,7 +39,7 @@ function Chat(){
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
         
-                   
+
                    $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                    $(".sphere").parent().remove();
 
@@ -46,6 +48,11 @@ function Chat(){
                      .insertBefore("#sphereDivider");
                    }
                    
+                   // if the user has a different name on the sphere specify it 
+                    if(sphereMap[currentSphere].nickname !== name){
+                        name = sphereMap[currentSphere].nickname;
+                    }
+
                     // track sphere data 
                     sphereID = sphereMap[currentSphere].id;
                     sphereIndex = sphereNames.indexOf(currentSphere);
@@ -99,7 +106,7 @@ function Chat(){
         this.SwitchSphere = function SwitchSphere(current){
             // set the user's name to their name in the new sphere 
             
-            name = sphereMap[current].username;
+            name = sphereMap[current].nickname;
             sphereID = sphereMap[current].id;
             sphereIndex = sphereNames.indexOf(current);   
             sphereLink = sphereMap[current].link;
@@ -116,8 +123,33 @@ function Chat(){
         }
 
         this.ChangeName = function ChangeName(newName, sphereWide){
-            alert($("#users").children());
-            //name = newName;
+             // update name on client side first  
+        
+           $("#users").children('p').each(function(){
+                if($(this).text() == name){
+                    alert("found it");
+                    $(this).text(newName);
+                   
+                }
+           });
+
+           if(sphereWide){
+             //update the user's name on all spheres of the sphereMap
+             for(var i = 0; i< sphereNames.length; i++){
+                    // if the sphere nickname is the user's default username swap it with the new one 
+                  if(sphereMap[sphereNames[i]].nickname == username){ 
+                        sphereMap[sphereNames[i]].nickname = newName;
+                  }
+             }
+            username = newName; // the username is now the newname  
+           } else{
+             // just update the name in this sphere  
+             sphereMap[currentSphere].nickname = newName;   
+           }
+           // the user's name in the sphere changes in both scenarios  
+           name = newName;
+
+           socket.emit("changeName", {newName: name, sphereWide: sphereWide, sphereIndex: sphereIndex});
                
         }
 

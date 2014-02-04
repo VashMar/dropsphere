@@ -41,7 +41,7 @@ $(document).ready(function(){
         var sphereWide = true; // signal name change on all spheres 
 
         if(newName && newName.length > 3){
-          $('#sphereDialog').modal('hide');  
+          $('#nameChange').modal('hide');  
           chat.ChangeName(newName, sphereWide);
         }
     }); 
