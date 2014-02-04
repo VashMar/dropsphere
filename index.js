@@ -456,6 +456,8 @@ io.sockets.on('connection', function (socket) {
           if(err|!sphere){ console.log("Error finding sphere");}
 
           else{
+            console.log("Sphere:" + sphere);
+            console.log("Sphere Members:" + sphere.members);
             socket.emit('users', sphere.nicknames);
           }
       });
@@ -533,7 +535,7 @@ io.sockets.on('connection', function (socket) {
            // if the change is sphere wide update the name of the user and the name in every sphere 
            if(sphereWide == true){
 
-             Sphere.update({'members.id': user.id}, {'$set': {'members.$.name' : newName}}, function(err){
+             Sphere.update({'members.id': user.id}, {'$set': {'members.$.name' : newName}}, {multi:true}, function(err){
                   if(err){console.log(err);}
               });
 

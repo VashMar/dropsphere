@@ -91,6 +91,9 @@ function Chat(){
             });
 
 
+            socket.on('clearChat', function(){
+                 $("#content").empty();
+            });
 
 
 
