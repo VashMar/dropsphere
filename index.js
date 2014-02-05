@@ -80,14 +80,14 @@ app.post('/login', function (req, res) {
     User.findOne({email: email}, function(err, user){
       if(!user || err){ 
         console.log("Invalid Email"); 
-        res.json(400, err);
+        res.json(400, {message: "The entered email doesn't exist", type: "email"});
       }
 
       else{
         user.comparePassword(password, function(err, isMatch){
-          if(!isMatch){ 
-            (console.log("Incorrect Password")); 
-             res.send(400, err);
+          if(!isMatch || err){ 
+             console.log("Incorred Login Credentials");
+             res.json(400, {message: "The email or password you entered is incorrect"});
           }
 
           else{

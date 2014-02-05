@@ -33,7 +33,11 @@ $(document).ready(function(){
 
     login.fail(function( data ) {
         console.log("login failed");
-        console.log(data);
+        if(data.responseJSON.type == "email"){
+            $("#loginEmailError").html(data.responseJSON.message);
+        }else{
+            $("#loginPassError").html(data.responseJSON.message);
+        }
     });
 }
 
