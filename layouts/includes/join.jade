@@ -1,7 +1,11 @@
 #container
     #join
       img#chatLogo(src="/img/dropsphere_sm.png")
-      input#email.form-control(type="email" placeholder="Email")
-      input#username.form-control(type="text" placeholder="Name")
-      input#password.form-control(type="password" placeholder="Password")
-      input#setName.btn.btn-primary(type='button' onclick='signup();' value='join' data-loading-text="Wait..." )
+      input#joinEmail(class="form-control" type="email" placeholder="Email")
+      h5#joinEmailError(class="error")
+      input#username(class="form-control" type="text" placeholder="Name")
+      h5#usernameError(class="error")
+      input#joinPassword(class="form-control" type="password" placeholder="Password")
+      h5#joinPassError(class="error")
+      input#joinSet(type='button' onclick="signup();" value='login' class="btn btn-primary")
+       

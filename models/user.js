@@ -7,7 +7,7 @@ var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
 
 // validatons on object attributes 
-var isEmail = validate({message: "Email is invalid"}, 'isEmail');
+var isEmail = validate({message: "This is not a valid email address"}, 'isEmail');
 var nameValidator = [
                      validate({message: "Names must be between 3 and 20 characters "}, 'len', 3, 20), 
                      validate({message: "Names can only contain letters and numbers"}, 'isAlphanumeric')

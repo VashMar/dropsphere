@@ -154,7 +154,7 @@ app.post("/signup", function(req, res, next){
         // respond with validation errors here
         if(err){ 
           console.log("validation errors:" + err); 
-          res.send(400, err);
+          res.json(400,  err);
         } else{
           console.log("created user: " + name);
           // log the user in
