@@ -76,14 +76,15 @@ textarea {
 #users p:first-child {
   margin-left: 0; }
 
-#name, #join {
+#name, #join, #login {
   position: absolute;
   width: 100%;
   top: 30%; }
 
-#join #chatLogo {
+#join #chatLogo, #login #chatLogo {
   margin-bottom: 14px; }
-#join #setName {
+
+#joinSet, #loginSet {
   margin-top: 10px; }
 
 input {
