@@ -16,7 +16,12 @@ $(document).ready(function(){
 		}
 	});
 */
-
-
+$("#content").click(function(){
+    $("#content").prepend("<div class='alert'>asdf asdf asdf</div>")
+    $('.alert').delay(5000).fadeOut(400);
+    $('.alert').click(function(){
+        $(this).fadeOut();
+    });
+});
 
 });

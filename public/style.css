@@ -43,12 +43,23 @@ a#bookmarklet {
   margin-left: 3%; }
 
 #content {
+  position: relative;
   height: 76%;
   width: 100%;
   margin: auto;
   text-align: left; }
   #content p {
     margin-bottom: 2px; }
+
+.alert {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #4186cc;
+  text-align: center;
+  padding: 4px;
+  color: white; }
 
 #chat {
   height: 72%; }
@@ -167,6 +178,9 @@ h6 {
   padding: 14px 12px;
   margin-top: 6px;
   border-top: 1px solid #eee;
-  color: #999;
   border-bottom: 1px solid #eee;
+  color: #999;
   text-align: center; }
+
+#inviteLink {
+  cursor: text; }

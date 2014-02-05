@@ -6,18 +6,10 @@ javascript:(function() {
           b=document.getElementsByTagName('body')[0],
           otherlib=false,
           msg='';
-      el.style.position='fixed';
-      el.style.height='32px';
-      el.style.width='220px';
-      el.style.marginLeft='-110px';
-      el.style.top='0';
-      el.style.left='50%';
-      el.style.padding='5px 10px';
-      el.style.zIndex = 1001;
-      el.style.fontSize='12px';
-      el.style.color='#222';
-      el.style.backgroundColor='#f99';
-     
+
+      var img=new Image();
+      img.src="http://localhost:3500/img/close_hover.png";
+      
       if(typeof jQuery!='undefined') {
         msg='This page already using jQuery v'+jQuery.fn.jquery;
       } else if (typeof $=='function') {

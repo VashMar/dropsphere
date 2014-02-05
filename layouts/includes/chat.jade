@@ -27,6 +27,7 @@
                     a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
         #users
         #content(class="form-control")
+            
         .controls
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -46,7 +47,7 @@
               
               .modal-body
                 label Copy and Paste the link below
-                input#inviteLink(class="form-control" placeholder="New Name" value="asdf" readonly="readonly")
+                input#inviteLink(class="form-control" placeholder="New Name" value="" readonly="readonly")
 
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
