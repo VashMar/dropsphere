@@ -94,7 +94,7 @@ function Chat(){
             socket.on('message', function(data){
                    
                     if(data.msg) {    
-                        $("#content").append("<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>");
+                        $("#content").append("<p>" + data.sender + ": " + data.msg  + "</p>");
                         scrollBottom();
 
                     } else {
@@ -104,7 +104,7 @@ function Chat(){
 
             socket.on('announcement', function(data){
         
-                $("#content").append(data.msg); // announces the new entrant to others in the sphere
+                $("#content").append("<p class='announcement'>" + data.msg + "</p>"); // announces the new entrant to others in the sphere
             });
 
 
@@ -198,7 +198,7 @@ function Chat(){
                        var convoTime = conversations[i];
                        var convo = messages[convoTime];
 
-                       $("#content").append("<h3>" + moment(convoTime).calendar() + "</h3>");
+                       $("#content").append("<h6>" + moment(convoTime).calendar() + "</h6>");
 
                         for(var msg = 0; msg < convo.length; msg++){
                             $("#content").append(convo[msg]);
@@ -207,11 +207,11 @@ function Chat(){
                     
 
                     if(members < 2){
-                        $("#content").append("Not that talking to yourself is weird or anything... but perhaps you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?");    
+                        $("#content").append("<p class='announcement'>Not that talking to yourself is weird or anything... but perhaps you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
                      }
 
                 } else{
-                    $("#content").append("It's pretty quiet in here... Maybe you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?");    
+                    $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
                 }         
                 
                 scrollBottom();

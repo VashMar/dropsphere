@@ -1,7 +1,5 @@
 $(document).ready(function(){
-   $("#setName").click(function(){  
-       signup();
-    });
+
 
 });
 
