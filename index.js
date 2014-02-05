@@ -528,17 +528,9 @@ io.sockets.on('connection', function (socket) {
                            //    console.log(now.diff(a, 'hours'));
                            //  console.log(a.format("ddd, MMM Do [at] h:mm a")); 
 
-
-
-
-                      
-                           
-                           // if the difference is greater than 30 minutes create a new hash key for the message date
-                           // repeat for all messages 
-                          // messages.push(sphere.messages[i].full); 
                         }
 
-                     //   fillMessages(messages);
+                        fillMessages(messages);
                       }
 
                     });

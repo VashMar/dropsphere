@@ -9,6 +9,18 @@ function scrollBottom(){
 }
 
 
+moment.lang('en', {
+    calendar : {
+        lastDay : '[Yesterday at] LT',
+        sameDay : '[Today at] LT',
+        nextDay : '[Tomorrow at] LT',
+        lastWeek : '[last] dddd [at] LT',
+        nextWeek : 'dddd [at] LT',
+        sameElse : 'MMM Do [at] LT'
+    }
+});
+
+
 
 function Chat(){
 
@@ -21,7 +33,7 @@ function Chat(){
             socket =  io.connect();      
             username = user;
             name = username;    // user's name on sphere (username by default)
-        
+            moment().format();
         
 
               socket.on('users', function(users){
@@ -177,22 +189,33 @@ function Chat(){
 
                 $("#inviteLink").val(sphereLink);
 
+                var conversations = Object.keys(messages);
 
+                if(conversations.length > 0 ){
 
-                if(messages.length > 0 ){
-                    for(var i =0; i < 25; i++){
-                        $("#content").append(messages[i]);      
+                    for(var i =0; i < conversations.length; i++){
+                    
+                       var convoTime = conversations[i];
+                       var convo = messages[convoTime];
+
+                       $("#content").append("<h3>" + moment(convoTime).calendar() + "</h3>");
+
+                        for(var msg = 0; msg < convo.length; msg++){
+                            $("#content").append(convo[msg]);
+                        }
                     }
+                    
+
                     if(members < 2){
                         $("#content").append("Not that talking to yourself is weird or anything... but perhaps you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?");    
-                    }
+                     }
 
                 } else{
                     $("#content").append("It's pretty quiet in here... Maybe you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?");    
-                }                 
+                }         
                 
                 scrollBottom();
-         });
+            });
 
         }
 
