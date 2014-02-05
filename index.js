@@ -78,9 +78,9 @@ app.post('/login', function (req, res) {
         password = req.body.password;
 
     User.findOne({email: email}, function(err, user){
-      if(!user){ 
+      if(!user || err){ 
         console.log("Invalid Email"); 
-        res.send(400, err);
+        res.json(400, err);
       }
 
       else{
@@ -335,7 +335,7 @@ io.sockets.on('connection', function (socket) {
                   // pass the client side all the info necessary to track sphere related information 
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true});
 
-                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> <a data-toggle='modal' data-target='#shareModal'> Invite </a>  whomever you deem worthy to the group "});
+                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> <a href='#' data-toggle='modal' data-target='#shareModal'> Invite </a>  whomever you deem worthy to the group "});
 
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
                   user.save();
@@ -418,7 +418,7 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   socket.emit('clearChat');
-                  socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/> <a data-toggle='modal' data-target='#shareModal'> Invite </a> your friends and start sharing the web!"});
+                  socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/> <a href='#' data-toggle='modal' data-target='#shareModal'> Invite </a> your friends and start sharing the web!"});
                   socket.emit('users', sphere.nicknames); 
                    // pass the client side all the info necessary to track sphere related information 
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 

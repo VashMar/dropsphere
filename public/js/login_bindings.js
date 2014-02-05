@@ -33,7 +33,7 @@ $(document).ready(function(){
 
     login.fail(function( data ) {
         console.log("login failed");
-        console.log(data.responseText);
+        console.log(data);
     });
 }
 

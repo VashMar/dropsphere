@@ -207,11 +207,11 @@ function Chat(){
                     
 
                     if(members < 2){
-                        $("#content").append("<p class='announcement'>Not that talking to yourself is weird or anything... but perhaps you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
+                        $("#content").append("<p class='announcement'>Not that talking to yourself is weird or anything... but perhaps you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
                      }
 
                 } else{
-                    $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
+                    $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
                 }         
                 
                 scrollBottom();
