@@ -155,4 +155,18 @@ input {
   margin-top: 52px; }
 
 #dropperControl {
-  margin-top: 10px; }
+  margin-top: 10px;
+  display: none; }
+
+h6 {
+  text-align: center;
+  color: #aaa; }
+
+.announcement {
+  font-size: 12px;
+  padding: 14px 12px;
+  margin-top: 6px;
+  border-top: 1px solid #ddd;
+  color: #999;
+  border-bottom: 1px solid #ddd;
+  text-align: center; }
