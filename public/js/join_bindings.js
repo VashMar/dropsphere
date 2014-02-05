@@ -1,5 +1,12 @@
 $(document).ready(function(){
 
+    $('#joinEmail, #joinPassword', '#username').bind('keypress', function(e) {
+        
+        if(e.keyCode==13 && !e.shiftKey){
+            e.preventDefault();
+            signup();
+        }
+    });
 
 });
 
@@ -7,8 +14,8 @@ $(document).ready(function(){
  function signup(){
 
     var name = $("#username").val();
-    var email = $("#email").val();
-    var password = $("#password").val();
+    var email = $("#joinEmail").val();
+    var password = $("#joinPassword").val();
 
     var submit = $.post( "/signup", {name: name, email: email, password: password});
 

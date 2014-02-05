@@ -7,7 +7,7 @@ $(document).ready(function(){
       });
     });  
 
-    $('#username, #password').bind('keypress', function(e) {
+    $('#loginEmail, #loginPassword').bind('keypress', function(e) {
         
         if(e.keyCode==13 && !e.shiftKey){
             e.preventDefault();
@@ -18,8 +18,8 @@ $(document).ready(function(){
 
 
  function login(){
-    var email = $("#email").val();
-    var password = $("#password").val();
+    var email = $("#loginEmail").val();
+    var password = $("#loginPassword").val();
    
     var login = $.post( "/login", {email: email, password: password});
 
