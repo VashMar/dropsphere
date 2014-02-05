@@ -75,20 +75,7 @@ javascript:(function() {
         targetWindow.postMessage('Hello World!', 'http://localhost:3500');
       }
       function showMsg() {
-        el.innerHTML=msg;
-        b.appendChild(el);
-        window.setTimeout(function() {
-          if (typeof jQuery=='undefined') {
-            b.removeChild(el);
-          } else {
-            jQuery(el).fadeOut('slow',function() {
-              jQuery(this).remove();
-            });
-            if (otherlib) {
-              $jq=jQuery.noConflict();
-            }
-          }
-        } ,2500);
+        console.log(msg);
       }
 
     function book(){
