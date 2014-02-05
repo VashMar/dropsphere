@@ -1,6 +1,7 @@
 var express = require("express");
 var cookie = require("cookie");
 var sass = require('node-sass');
+var moment = require('moment');
 var mongoose = require('mongoose'),
     User     = require('./models/user'),
     Sphere   = require('./models/sphere'),
@@ -22,10 +23,6 @@ mongoose.connect("mongodb://localhost:27017/dropsphere_dev");
 
 // demosphere for users testing the product 
 demosphere = new Demosphere();
-
-// messages and user stores -- temporary 
-var messages = [],
-    users = [];
 
 
 app.configure(function () {
@@ -332,12 +329,13 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link}; // build a sphereMap for the client 
-                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> Invite whomever you deem worthy with this link: " + sphere.link});
                   socket.emit('users', sphere.nicknames); 
 
 
                   // pass the client side all the info necessary to track sphere related information 
                   socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true});
+
+                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> <a data-toggle='modal' data-target='#shareModal'> Invite </a>  whomever you deem worthy to the group "});
 
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
                   user.save();
@@ -383,7 +381,7 @@ io.sockets.on('connection', function (socket) {
 
       data.msg = parser(data.msg);
     
-      var messageData = "<p>" + data.sender + " (" + data.time + ")" + ": " + data.msg  + "</p>";
+      var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
 
   	 io.sockets.in((String(data.sphere))).emit('message', data);
       console.log("emitted message");
@@ -420,7 +418,7 @@ io.sockets.on('connection', function (socket) {
                 else{
                   socket.join(sphere.id);
                   socket.emit('clearChat');
-                  socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/>Invite others to this sphere by sharing this link: " + sphere.link });
+                  socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/> <a data-toggle='modal' data-target='#shareModal'> Invite </a> your friends and start sharing the web!"});
                   socket.emit('users', sphere.nicknames); 
                    // pass the client side all the info necessary to track sphere related information 
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
@@ -490,19 +488,57 @@ io.sockets.on('connection', function (socket) {
                
                 if(targetSphere){ // lets only do a query if we know the sphere exists 
                     // find the requested sphere with all its messages after the user joined the sphere 
-                    console.log(targetSphere.joined);
+                
                     Sphere.findOne({_id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
                       if(err){console.log(err);}
 
                       if(!sphere){
                         console.log("User requested a sphere that magically doesn't exist!");
                       } else{
-                        var messages = [];
-                        for(var i = 0; i < sphere.messages.length; i++){
-                           messages.push(sphere.messages[i].full);
+                        var messages = {};
+                        var key; 
+                        for(var i = 0; i < sphere.messages.length - 1; i++){
+                            
+                             var msg1 = sphere.messages[i];
+                             var msg2 = sphere.messages[i+1];
+                             var time1 = moment(sphere.messages[i].date);
+                             var time2 = moment(sphere.messages[i+1].date);
+                            
+                              // create a hash key for the date of the first message that points to an array, and store the message in the array
+                            if(i == 0){
+                              key =  time1.format();
+                              messages[key] = [msg1.full];
+                            }
+
+                            // compare each message to the one after it
+                           if(time2.diff(time1, "minutes") <= 30 ){
+                              // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                              messages[key].push(msg2.full);
+                           }else{
+                               // if the difference is greater than 30 minutes create a new hash key for the message date
+                               key = time2.format();
+                               messages[key] = [msg2.full];
+                           }
+
+
+                            console.log(messages);
+
+
+                           //    console.log(now.format("ddd, MMM Do [at] h:mmA"));
+                           //    console.log(now.diff(a, 'hours'));
+                           //  console.log(a.format("ddd, MMM Do [at] h:mm a")); 
+
+
+
+
+                      
+                           
+                           // if the difference is greater than 30 minutes create a new hash key for the message date
+                           // repeat for all messages 
+                          // messages.push(sphere.messages[i].full); 
                         }
 
-                        fillMessages(messages);
+                     //   fillMessages(messages);
                       }
 
                     });

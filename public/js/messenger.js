@@ -26,11 +26,14 @@ function Chat(){
 
               socket.on('users', function(users){
 
+                    members = users.length;
                     $("#users").empty();
 
                     for(var i = 0; i < users.length; i++){
                         $("#users").append("<p>" + users[i] + "</p>");
                     }
+
+
                 });
 
               socket.on('sphereMap', function(data){
@@ -57,6 +60,8 @@ function Chat(){
                     sphereID = sphereMap[currentSphere].id;
                     sphereIndex = sphereNames.indexOf(currentSphere);
                     sphereLink = sphereMap[currentSphere].link;
+
+                    $("#inviteLink").val(sphereLink);
 
                     if(data.justmade === undefined){
                         requestMessages();
@@ -170,11 +175,21 @@ function Chat(){
 
                 $("#content").empty();
 
-                $("#content").append("<p> Sphere Link: " + sphereLink + "</p>");
-  
-                for(var i =0; i < 25; i++){
-                    $("#content").append(messages[i]);      
-                }             
+                $("#inviteLink").val(sphereLink);
+
+
+
+                if(messages.length > 0 ){
+                    for(var i =0; i < 25; i++){
+                        $("#content").append(messages[i]);      
+                    }
+                    if(members < 2){
+                        $("#content").append("Not that talking to yourself is weird or anything... but perhaps you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?");    
+                    }
+
+                } else{
+                    $("#content").append("It's pretty quiet in here... Maybe you should <a data-toggle='modal' data-target='#shareModal'> invite </a> some friends?");    
+                }                 
                 
                 scrollBottom();
          });

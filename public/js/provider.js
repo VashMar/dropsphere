@@ -3,7 +3,6 @@ $(document).ready(function(){
         onMessage: function(message, origin){
             
             console.log("Received '" + message + "' from '" + origin + "'");
-			$("textarea").append(message);
         },
         onReady : function() {
 			socketxdm.postMessage("testing");
@@ -12,7 +11,6 @@ $(document).ready(function(){
     });
     $("#dropperControl .btn").on('click',function() {
     	var index = $(this).index();
-    	alert("sending message");
     	if(index==0){
     		//text mode
     		 socketxdm.postMessage("#ds-text");

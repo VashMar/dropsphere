@@ -171,7 +171,6 @@ javascript:(function() {
             container:'dropsphere',
 
             onMessage: function(message, origin){
-              alert(message);
                 console.log('Received \'' + message + '\' from \'' + origin + '\'');
                 if(message=='#ds-img'){
                   draggify('img');

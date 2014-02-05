@@ -15,7 +15,8 @@
         "bookmarkletify": "*",
         "node-sass": "*",
         "bcrypt": "*",
-        "mongoose-validator" : "*"
+        "mongoose-validator" : "*",
+        "moment": "*"
     },
     "author": "developer"
 }
