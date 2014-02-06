@@ -16,7 +16,8 @@
         "node-sass": "*",
         "bcrypt": "*",
         "mongoose-validator" : "*",
-        "moment": "*"
+        "moment": "*",
+        "emailjs": "*"
     },
     "author": "developer"
 }

@@ -1,12 +1,13 @@
 var express = require("express");
 var cookie = require("cookie");
-var sass = require('node-sass');
-var moment = require('moment');
-var mongoose = require('mongoose'),
-    User     = require('./models/user'),
-    Sphere   = require('./models/sphere'),
-    Demosphere = require('./models/demo_sphere'),
-    Message   = require('./models/message');
+var sass = require("node-sass");
+var moment = require("moment");
+var email = require("emailjs/email")
+var mongoose = require("mongoose"),
+    User     = require("./models/user"),
+    Sphere   = require("./models/sphere"),
+    Demosphere = require("./models/demo_sphere"),
+    Message   = require("./models/message");
     
 
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
@@ -51,6 +52,7 @@ app.configure(function () {
     app.engine('jade', require('jade').__express);
 
 });
+
 
 
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -364,7 +366,6 @@ io.sockets.on('connection', function (socket) {
             // default sphere will be the users first sphere so send them that list of members
             socket.emit('users', user.spheres[index].object.nicknames); 
           
-
             // pass the client side all the info necessary to track sphere related information 
             socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
 
@@ -407,7 +408,7 @@ io.sockets.on('connection', function (socket) {
           if(err){console.log(err);}
 
           if(user){
-            if(user.spheres.length < 30){
+            if(user.spheres.length < 5){
               // create the sphere 
               var sphere = new Sphere({name: data.sphereName, owner: user._id });
               // add user as sphere member
@@ -437,7 +438,7 @@ io.sockets.on('connection', function (socket) {
                 }
               }); 
             }else{
-              console.log("user has too many spheres");
+              socket.emit("error", "You've reached the 5 sphere limit! Delete a sphere to create a new one.");
             }
           } else{
             console.log("User not found");
@@ -535,7 +536,7 @@ io.sockets.on('connection', function (socket) {
 
                     });
                   }else{
-                     console.log("Sphere: " + data.sphereID + " doesn't belong to user");
+                      socket.emit("error", "It seems you're not a member of this sphere..");
                   }
                  
             }

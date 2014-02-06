@@ -112,7 +112,10 @@ function Chat(){
                  $("#content").empty();
             });
 
-
+            socket.on('error', function(data){
+    
+                  alertIssue(data);
+            });
 
         };
    
@@ -219,6 +222,13 @@ function Chat(){
 
         }
 
+        function alertIssue(msg){
+            $("#content").prepend("<div class='alert'>" +  msg +  "</div>");
+            $('.alert').delay(5000).fadeOut(400);
+            $('.alert').click(function(){
+                $(this).fadeOut();
+            });
+        }
 
     } // end chat
 

@@ -29,7 +29,6 @@ var userSchema = new Schema({
 });
 
 
-
 userSchema.pre('save', function(next) {
     var user = this;
 
