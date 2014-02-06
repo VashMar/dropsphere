@@ -1,20 +1,15 @@
 javascript:(function() {
+  var socketxdm;
+  if(typeof dropsphere === 'undefined' || dropsphere==false){
+    dropsphere=true;
       var el=document.createElement('div'),
           b=document.getElementsByTagName('body')[0],
           otherlib=false,
           msg='';
-      el.style.position='fixed';
-      el.style.height='32px';
-      el.style.width='220px';
-      el.style.marginLeft='-110px';
-      el.style.top='0';
-      el.style.left='50%';
-      el.style.padding='5px 10px';
-      el.style.zIndex = 1001;
-      el.style.fontSize='12px';
-      el.style.color='#222';
-      el.style.backgroundColor='#f99';
-     
+
+      var img=new Image();
+      img.src='http://localhost:3500/img/close_hover.png';
+
       if(typeof jQuery!='undefined') {
         msg='This page already using jQuery v'+jQuery.fn.jquery;
       } else if (typeof $=='function') {
@@ -41,7 +36,7 @@ javascript:(function() {
       }
       getScript('http://code.jquery.com/jquery.min.js',function() {
         if (typeof jQuery=='undefined') {
-          msg='Sorry, but jQuery wasn\'t able to load';
+          msg='Sorry, but jQuery wasnt able to load';
         } else {
           msg='This page is now jQuerified with v' + jQuery.fn.jquery;
           if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
@@ -53,16 +48,16 @@ javascript:(function() {
       function uiLoader(){
         getScript('http://code.jquery.com/ui/1.10.4/jquery-ui.js',function() {
           if (typeof jQuery=='undefined') {
-            msg='Sorry, but jQuery wasn\'t able to load';
+            msg='Sorry, but jQuery wasnt able to load';
           } else {
             msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
             if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
           }
-          getScript("http://localhost:3500/easyxdm/easyxdm.debug.js", function(){
-            console.log("xdm loaded");
+          getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
+            console.log('xdm loaded');
             book();
             book2();
-            console.log("bookmarklet loaded");
+            console.log('bookmarklet loaded');
           });
           return showMsg();
 
@@ -72,53 +67,43 @@ javascript:(function() {
         targetWindow.postMessage('Hello World!', 'http://localhost:3500');
       }
       function showMsg() {
-        el.innerHTML=msg;
-        b.appendChild(el);
-        window.setTimeout(function() {
-          if (typeof jQuery=='undefined') {
-            b.removeChild(el);
-          } else {
-            jQuery(el).fadeOut('slow',function() {
-              jQuery(this).remove();
-            });
-            if (otherlib) {
-              $jq=jQuery.noConflict();
-            }
-          }
-        } ,2500);
+        console.log(msg);
       }
-
-
-
-
 
     function book(){
       dropsphere=true;
-      var d = document.createElement("div");
-      d.setAttribute("id", "dropsphere");
-      d.style.width = "300px";
-      d.style.height = "100%";
-      d.style.background="#f6f6f6";
-      d.style.position = "fixed";
-      d.style.top="0";
-      d.style.right="0";
-      d.style.zIndex="9999999";
-      d.style.borderLeft="1px solid #ddd";
+      var d = document.createElement('div');
+      d.setAttribute('id', 'dropsphere');
+      d.style.width = '300px';
+      d.style.height = '100%';
+      d.style.position = 'fixed';
+      d.style.top='0';
+      d.style.right='0';
+      d.style.zIndex='9999999';
+      d.style.borderLeft='1px solid #ddd';
       document.body.appendChild(d);
-      var close = document.createElement("div");
-      close.setAttribute("id", "close");
+      var close = document.createElement('div');
+      close.setAttribute('id', 'close');
       close.onclick = function() { 
-                var ds=document.getElementById("dropsphere");
+                var ds=document.getElementById('dropsphere');
           ds.parentNode.removeChild(ds);
           dropsphere=false;
             };
       d.appendChild(close);
-      var css = document.createElement("style");
-      css.type = "text/css";
-      css.innerHTML = "#dropsphere
+
+      var dropper = document.createElement('div');
+      dropper.setAttribute('id', 'dropper');
+      dropper.style.width = '300px';
+      dropper.style.height = '100%';
+      d.appendChild(dropper);
+
+      var css = document.createElement('style');
+      css.type = 'text/css';
+      css.innerHTML = '#dropsphere
       {
         animation:slide .5s;
         -webkit-animation:slide .5s;
+        background: #f6f6f6 no-repeat center center; 
       }
       @keyframes slide
       {
@@ -143,25 +128,70 @@ javascript:(function() {
       #close:hover{
       background:url(http://localhost:3500/img/close_hover.png) no-repeat;
       }
+      #dropsphere{
+         }
       #dropsphere iframe{
+        border:none;
         height:100%;
       }
-      ";
+      #dropper{
+        position:absolute;
+        top:0;
+         pointer-events:none;
+      }
+      ';
       document.body.appendChild(css);
-
-        }
+    }
 
     function book2(){
-      transport = new easyXDM.Socket(/** The configuration */{
-                remote: "http://localhost:3500/bookmark",
-                container:"dropsphere",
-                onMessage: function(message, origin){
-                    alert(message);
-                }
-            });
-    }
+          socketxdm = new easyXDM.Socket({
+            remote: 'http://localhost:3500/bookmark',
+            container:'dropsphere',
 
-    function draggify(){
-      $("p,a,h1,h2,h3").draggable({stack: "div"})
+            onMessage: function(message, origin){
+                if(message=='#ds-img'){
+                  draggify('img');
+                }else if(message=='#ds-text'){
+                  draggify('text');
+                }else if(message=='#ds-link'){
+                }
+            },
+            onReady : function() {
+
+                    socketxdm.postMessage('Yay, it works!');
+            }
+          });
     }
+    function draggify(selector){
+      alert('drag called');
+      if(selector == 'text'){
+        selector = 'p, a, h1, h2, h3, h4';
+      }else if(selector == 'img'){
+        selector = 'img';
+      }else{
+      }
+      $(selector).draggable({
+          stack: 'div',
+          zIndex:99999999,
+          cursor: 'move', 
+          cursorAt: { top: 56, left: 56 },
+          start: function() {
+            $(this).height(100).width(100);   
+          },
+      });
+      $( '#dropper' ).droppable({
+        drop: function( event, ui ) {
+          $( this )
+          .addClass( 'ui-state-highlight' )
+          .find( 'p' )
+          .html( 'Dropped!' );
+
+        socketxdm.postMessage(ui.draggable.html());
+        }
+      });
+    }
+    function imgParse(img){
+      return img.find('img').attr('src');
+    }
+  }
 })();
