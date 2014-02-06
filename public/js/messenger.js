@@ -28,10 +28,9 @@ function Chat(){
         
 
         this.Connect = function(user){ 
-            
+
             socket =  io.connect();  
             username = user;
-            name = username;    // user's name on sphere (username by default)
             moment().format();
         
 
@@ -52,7 +51,7 @@ function Chat(){
                    sphereMap = data.sphereMap;
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
-        
+                   name = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
 
                    $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                    $(".sphere").parent().remove();
@@ -184,7 +183,7 @@ function Chat(){
         };
 
          function requestMessages(){
-                      alert("requestmessages");
+            
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();

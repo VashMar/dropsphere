@@ -390,9 +390,9 @@ io.sockets.on('connection', function (socket) {
       data.msg = parser(data.msg);
     
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
-      console.log(io.sockets.manager.roomClients[socket.id]);
-  	 io.sockets.in((String(data.sphere))).emit('message', data);
-      console.log("emitted message");
+      
+  	  io.sockets.in((String(data.sphere))).emit('message', data);
+
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){
 
