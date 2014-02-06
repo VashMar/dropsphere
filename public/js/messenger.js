@@ -20,17 +20,16 @@ moment.lang('en', {
     }
 });
 
-
+socket = null;
 
 function Chat(){
 
-        this.socket = null;
-        this.name = "";
-       
+   
         
 
         this.Connect = function(user){ 
-            socket =  io.connect();      
+            
+            socket =  io.connect();  
             username = user;
             name = username;    // user's name on sphere (username by default)
             moment().format();
@@ -82,15 +81,6 @@ function Chat(){
                    
               });
 
-                socket.on('fillMessages', function(messages){
-                   for(var i =0; i < 25; i++){
-                        $("#content").append(messages[i]);      
-                    }             
-                    scrollBottom();
-                }); 
-
-
-            // 
             socket.on('message', function(data){
                    
                     if(data.msg) {    
@@ -113,15 +103,24 @@ function Chat(){
             });
 
             socket.on('error', function(data){
-    
+
                   alertIssue(data);
             });
 
         };
+
+        this.Disconnect = function(){
+            var sphereIDs = [];
+            for(var i = 0; i< sphereNames.length; i++){
+                sphereIDs.push(sphereMap[sphereNames[i]].id);
+            }
+            socket.emit('leaveRooms', {spheres: sphereIDs} );
+            socket.disconnect();
+        }
    
         
         this.Send = function Send(msg) {
-
+         
             socket.emit("send", {sphere: sphereID, msg: msg, sender: name, time: new Date().timeNow()}); 
             
         };
@@ -185,7 +184,7 @@ function Chat(){
         };
 
          function requestMessages(){
-             
+                      alert("requestmessages");
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();

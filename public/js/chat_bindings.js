@@ -8,7 +8,7 @@ $(document).ready(function(){
         }
     });
     
-    $("#send").click(function()
+    $("#send").on("click", function()
     {
         sendMsg();
     });
@@ -58,6 +58,7 @@ $(document).ready(function(){
         }
     }); 
 
+
 });
 
       function sendMsg(){
@@ -68,4 +69,11 @@ $(document).ready(function(){
         $("#messageInput").val("");
         chat.Send(msg);
 
+    }
+
+    function logout(){
+       $.get("/logout", function(data){
+            chat.Disconnect();
+           $("body").html(data);
+       });
     }

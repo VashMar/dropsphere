@@ -25,9 +25,13 @@ $(document).ready(function(){
 
     login.done(function( data ) {
         $("body").html(data);
-
-        chat = new Chat;
-        chat.Connect(name);
+        if(!socket){ 
+            chat = new Chat; 
+            chat.Connect(name);
+        }else{
+             socket.socket.connect();
+        }
+    
      
     });
 

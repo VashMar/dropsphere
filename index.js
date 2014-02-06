@@ -125,6 +125,12 @@ app.post('/login', function (req, res) {
 });
 
 
+app.get("/logout", function(req, res){
+   req.session.destroy();
+   console.log("Session ended");
+   res.render("includes/login");
+})
+
 // data sent to bookmarklet 
 app.get("/bookmark", function(req, res){
 	 if(req.session.isLogged == true){ 
@@ -298,7 +304,8 @@ io.set('authorization', function (data, callback) {
 /////////// socket listeners and chat events -- a lot of code needs transferring to models //////////////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
-   console.log("Server Connection: " + new Date().getTime());
+   console.log("Server Connection: " + moment().format("hh:mm:ssA") );
+
   var sessionID = socket.handshake.sessionID;
   var sessionData = socket.handshake.session;
   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
@@ -348,7 +355,7 @@ io.sockets.on('connection', function (socket) {
           } else{
            
           
-            console.log(user.spheres);
+           
             for(var i = 0; i < user.spheres.length ; i++){
                //makes sure the user first lands in the invite sphere 
               if(sessionData.invite == true && sessionData.inviteID == user.spheres[i].object.id){
@@ -383,7 +390,7 @@ io.sockets.on('connection', function (socket) {
       data.msg = parser(data.msg);
     
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
-
+      console.log(io.sockets.manager.roomClients[socket.id]);
   	 io.sockets.in((String(data.sphere))).emit('message', data);
       console.log("emitted message");
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
@@ -391,10 +398,8 @@ io.sockets.on('connection', function (socket) {
 
           var message = new Message({full: messageData, text: data.msg, sender: data.sender});
           message.save();
-          console.log(message);
           sphere.messages.push(message);
           sphere.save();
-          console.log(sphere);
         }
       });
 
@@ -521,14 +526,6 @@ io.sockets.on('connection', function (socket) {
                                messages[key] = [msg2.full];
                            }
 
-
-                            console.log(messages);
-
-
-                           //    console.log(now.format("ddd, MMM Do [at] h:mmA"));
-                           //    console.log(now.diff(a, 'hours'));
-                           //  console.log(a.format("ddd, MMM Do [at] h:mm a")); 
-
                         }
 
                         fillMessages(messages);
@@ -612,6 +609,22 @@ io.sockets.on('connection', function (socket) {
 
       });
  
+  });
+
+
+  socket.on('leaveRooms', function(data){
+    console.log("leaving  rooms");
+    var spheres = data.spheres;
+    console.log(spheres);
+
+    for(var i = 0; i < spheres.length; i++){
+
+        var sphereID = spheres[i];
+        console.log(sphereID);
+        socket.leave((String(sphereID)));
+    }
+
+    console.log(io.sockets.manager.roomClients[socket.id]);
   });
 
 }); // end connection 
