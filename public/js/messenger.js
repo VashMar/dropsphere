@@ -52,13 +52,26 @@ function Chat(){
                    sphereNames = Object.keys(sphereMap);
                    currentSphere = sphereNames[data.index];
                    name = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
+                   totalUpdates = data.totalUpdates;
+
+                   
 
                    $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                    $(".sphere").parent().remove();
 
+                  
+                  
                    for(var i = 0; i < sphereNames.length; i++){
-                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + sphereNames[i] + "</a></li>")
+
+                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
+                      sphereNames[i] + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
                      .insertBefore("#sphereDivider");
+
+                     // post the updates next to their appropriate sphere dropdown item, ignore the current sphere because thats already being viewed
+                    if(sphereMap[sphereNames[i]].updates > 0 && sphereNames[i] !== currentSphere){
+                        $("#updates-" + i ).html(sphereMap[sphereNames[i]].updates);
+                    }
+
                    }
                    
                    // if the user has a different name on the sphere specify it 
@@ -82,7 +95,7 @@ function Chat(){
 
             socket.on('message', function(data){
                    
-                    if(data.msg) {    
+                    if(data.msg && sphereMap[currentSphere].id == data.sphere) {    
                         $("#content").append("<p>" + data.sender + ": " + data.msg  + "</p>");
                         scrollBottom();
 
@@ -183,7 +196,19 @@ function Chat(){
         };
 
          function requestMessages(){
-            
+
+             // the user will see the updates of their current sphere, so no need to post them 
+             totalUpdates -= sphereMap[currentSphere].updates;
+
+             // if there are still remaining spheres with notifications show them 
+             if(totalUpdates > 0){ $("#notifications").html(totalUpdates); }
+
+             // since were getting all the latest the messages in the sphere the updates can go away
+             sphereMap[currentSphere].updates = 0; 
+
+             //also clear them on the db
+             socket.emit('clearUpdates', {sphere: sphereID});
+
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();

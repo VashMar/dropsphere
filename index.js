@@ -310,6 +310,7 @@ io.sockets.on('connection', function (socket) {
   var sessionData = socket.handshake.session;
   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
   var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
+  var totalUpdates = 0; // total number of sphere notifications for user 
 
   // on connection find out who the user is using the sessionID;
   User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
@@ -337,12 +338,12 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
-                  sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link}; // build a sphereMap for the client 
+                  sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link, updates: 0}; // build a sphereMap for the client 
                   socket.emit('users', sphere.nicknames); 
 
 
                   // pass the client side all the info necessary to track sphere related information 
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true});
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true, totalUpdates: totalUpdates});
 
                   socket.emit('announcement', {msg: "Welcome to your sphere!<br/> <a href='#' data-toggle='modal' data-target='#shareModal'> Invite </a>  whomever you deem worthy to the group "});
 
@@ -367,14 +368,24 @@ io.sockets.on('connection', function (socket) {
               }
 
               socket.join(user.spheres[i].object.id);  // connect to all the users spheres 
-              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, nickname: user.spheres[i].nickname, link: user.spheres[i].object.link};
+
+              totalUpdates += user.spheres[i].updates;
+
+              console.log(user.spheres[i].updates);
+              // build the spheremap of the users spheres 
+              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, 
+                                                        nickname: user.spheres[i].nickname, 
+                                                        link: user.spheres[i].object.link,
+                                                        updates: user.spheres[i].updates
+                                                      };
+
             }
 
             // default sphere will be the users first sphere so send them that list of members
             socket.emit('users', user.spheres[index].object.nicknames); 
           
             // pass the client side all the info necessary to track sphere related information 
-            socket.emit('sphereMap', {sphereMap: sphereMap, index: index});     
+            socket.emit('sphereMap', {sphereMap: sphereMap, index: index, totalUpdates: totalUpdates});     
 
           if(sessionData.justAdded == true){
             io.sockets.in(user.spheres[index].object.id).emit('announcement', {msg: userSphere.nickname + " joined the sphere"}); 
@@ -388,10 +399,11 @@ io.sockets.on('connection', function (socket) {
 	 socket.on('send', function (data) {
 
       data.msg = parser(data.msg);
-    
+      var sphereString = (String(data.sphere)); 
+
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
-      
-  	  io.sockets.in((String(data.sphere))).emit('message', data);
+      console.log(io.sockets.clients(sphereString));
+  	  io.sockets.in(sphereString).emit('message', data);
 
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){
@@ -400,6 +412,16 @@ io.sockets.on('connection', function (socket) {
           message.save();
           sphere.messages.push(message);
           sphere.save();
+
+          for(var i = 0; i < sphere.members.length; i++){
+             var member = sphere.members[i].id;
+              User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
+                  if(err){console.log(err);}
+                  else{
+                    console.log("notifications updated");
+                  }
+              });
+          } 
         }
       });
 
@@ -431,13 +453,22 @@ io.sockets.on('connection', function (socket) {
       
                   /////////////////////////////////Modularize//////////////////////////////
                   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+                  totalUpdates = 0;
+
                   for(var i = 0; i < user.spheres.length ; i++){
-                    sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, nickname: user.spheres[i].nickname, link: user.spheres[i].object.link};
+
+                    totalUpdates += user.spheres[i].updates;
+
+                    sphereMap[user.spheres[i].object.name] = { id: user.spheres[i].object._id, 
+                                                               nickname: user.spheres[i].nickname, 
+                                                               link: user.spheres[i].object.link,
+                                                               updates: user.spheres[i].updates          
+                                                             };
                   }
                   //////////////////////////////////////////////////////////////////////////
 
                   //send the updated sphereMap new sphere should be the last in list
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1, justmade: true}); 
+                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1, justmade: true, totalUpdates: totalUpdates}); 
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
@@ -460,8 +491,6 @@ io.sockets.on('connection', function (socket) {
           if(err|!sphere){ console.log("Error finding sphere");}
 
           else{
-            console.log("Sphere:" + sphere);
-            console.log("Sphere Members:" + sphere.members);
             socket.emit('users', sphere.nicknames);
           }
       });
@@ -528,10 +557,25 @@ io.sockets.on('connection', function (socket) {
 
                         }
 
+                        //  send the hash back for the front end to make sense of 
                         fillMessages(messages);
+
+                        // resets the notifcations in a sphere to 0 once the user has accessed it 
+                        targetSphere.updates = 0;
+
+                        user.save(function(err){
+                          if(err){console.log(err);}
+
+                          else{
+                            console.log("user updates reset on requested sphere");
+                          }
+
+                        });
+
                       }
 
-                    });
+                    }); // end sphere hunt
+
                   }else{
                       socket.emit("error", "It seems you're not a member of this sphere..");
                   }
@@ -539,10 +583,12 @@ io.sockets.on('connection', function (socket) {
             }
 
 
-        });
+        }); // end user hunt 
 
   
   }); // end request messages 
+
+
 
 
   socket.on('changeName', function(data){
@@ -623,8 +669,6 @@ io.sockets.on('connection', function (socket) {
         console.log(sphereID);
         socket.leave((String(sphereID)));
     }
-
-    console.log(io.sockets.manager.roomClients[socket.id]);
   });
 
 }); // end connection 

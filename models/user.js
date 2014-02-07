@@ -21,9 +21,10 @@ var userSchema = new Schema({
 	email: { type: String, required: true, index: { unique: true }, validate: isEmail }, 
 	session: String, 
     spheres: [{
-        object: {type: ObjectId, ref: 'Sphere'},        // references the sphere object user belongs to              
+        object: {type: ObjectId, ref: 'Sphere'},      // references the sphere object user belongs to              
         nickname: {type: String},                    // references the users name in that sphere 
-        joined: {type: Date, default: Date.now}
+        joined: {type: Date, default: Date.now},    // when the user joined the sphere
+        updates: {type: Number, default: 0}        // notification counter for each sphere 
         }]
 
 });
