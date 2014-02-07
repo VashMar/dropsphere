@@ -427,6 +427,16 @@ io.sockets.on('connection', function (socket) {
 
   	}); // end send 
 
+  socket.on('seen', function(data){
+    User.update({$and: [{session: sessionID} , {'spheres.object': data.sphere}]}, {'$inc': {'spheres.$.updates' : -1}}, function(err){
+          if(err){console.log(err);}
+
+          else{
+            console.log("message seen");
+          }
+    });
+  });
+
    socket.on('createSphere', function(data){
     console.log("Started sphere creation");
       // find the user and make sure they're under the sphere limit 

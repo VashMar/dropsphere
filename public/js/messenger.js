@@ -34,74 +34,89 @@ function Chat(){
             moment().format();
         
 
-              socket.on('users', function(users){
+            socket.on('users', function(users){
 
-                    members = users.length;
-                    $("#users").empty();
+                members = users.length;
+                $("#users").empty();
 
-                    for(var i = 0; i < users.length; i++){
-                        $("#users").append("<p>" + users[i] + "</p>");
-                    }
+                for(var i = 0; i < users.length; i++){
+                    $("#users").append("<p>" + users[i] + "</p>");
+                }
 
 
-                });
+            });
 
-              socket.on('sphereMap', function(data){
+            socket.on('sphereMap', function(data){
                
-                   sphereMap = data.sphereMap;
-                   sphereNames = Object.keys(sphereMap);
-                   currentSphere = sphereNames[data.index];
-                   name = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
-                   totalUpdates = data.totalUpdates;
+                sphereMap = data.sphereMap;
+                sphereNames = Object.keys(sphereMap);
+                currentSphere = sphereNames[data.index];
+                name = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
+                totalUpdates = data.totalUpdates;
 
                    
 
-                   $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
-                   $(".sphere").parent().remove();
+                $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
+                $(".sphere").parent().remove();
 
                   
                   
-                   for(var i = 0; i < sphereNames.length; i++){
+                for(var i = 0; i < sphereNames.length; i++){
 
-                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
-                      sphereNames[i] + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
-                     .insertBefore("#sphereDivider");
+                    $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
+                    sphereNames[i] + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
+                    .insertBefore("#sphereDivider");
 
-                     // post the updates next to their appropriate sphere dropdown item, ignore the current sphere because thats already being viewed
+                    // post the updates next to their appropriate sphere dropdown item, ignore the current sphere because thats already being viewed
                     if(sphereMap[sphereNames[i]].updates > 0 && sphereNames[i] !== currentSphere){
                         $("#updates-" + i ).html(sphereMap[sphereNames[i]].updates);
                     }
 
-                   }
+                }
                    
-                   // if the user has a different name on the sphere specify it 
-                    if(sphereMap[currentSphere].nickname !== name){
-                        name = sphereMap[currentSphere].nickname;
-                    }
+                // if the user has a different name on the sphere specify it 
+                if(sphereMap[currentSphere].nickname !== name){
+                    name = sphereMap[currentSphere].nickname;
+                 }
 
-                    // track sphere data 
-                    sphereID = sphereMap[currentSphere].id;
-                    sphereIndex = sphereNames.indexOf(currentSphere);
-                    sphereLink = sphereMap[currentSphere].link;
+                // track sphere data 
+                sphereID = sphereMap[currentSphere].id;
+                sphereIndex = sphereNames.indexOf(currentSphere);
+                sphereLink = sphereMap[currentSphere].link;
 
-                    $("#inviteLink").val(sphereLink);
+                $("#inviteLink").val(sphereLink);
 
-                    if(data.justmade === undefined){
-                        requestMessages();
-                    }
+                if(data.justmade === undefined){
+                    requestMessages();
+                }
                 
                    
-              });
+            });
 
             socket.on('message', function(data){
                    
-                    if(data.msg && sphereMap[currentSphere].id == data.sphere) {    
-                        $("#content").append("<p>" + data.sender + ": " + data.msg  + "</p>");
-                        scrollBottom();
+                if(data.msg){
+                    if(sphereMap[currentSphere].id == data.sphere) {    
+                        // if the message is being sent to the current sphere being looked at, add it to the chat 
+                         $("#content").append("<p>" + data.sender + ": " + data.msg  + "</p>");
+                         scrollBottom();
+                         socket.emit("seen", {sphere: data.sphere});
 
                     } else {
-                         console.log("There is a problem:", data); 
-                    }           
+                         // find the sphere the message is meant for and send the user an update notification
+                        for(var i = 0; i < sphereNames.length; i++){
+                            if(sphereMap[sphereNames[i]].id == data.sphere){
+                                sphereMap[sphereNames[i]].updates++;            // increment this spheres updates on client side 
+                                var updates = sphereMap[sphereNames[i]].updates;
+                                totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
+                                $("#notifications").html(totalUpdates);         
+                                $("#updates-" + i ).html(updates);
+                            }
+                             
+                        } 
+
+                    }
+                }           
             });
 
             socket.on('announcement', function(data){
@@ -197,17 +212,7 @@ function Chat(){
 
          function requestMessages(){
 
-             // the user will see the updates of their current sphere, so no need to post them 
-             totalUpdates -= sphereMap[currentSphere].updates;
-
-             // if there are still remaining spheres with notifications show them 
-             if(totalUpdates > 0){ $("#notifications").html(totalUpdates); }
-
-             // since were getting all the latest the messages in the sphere the updates can go away
-             sphereMap[currentSphere].updates = 0; 
-
-             //also clear them on the db
-             socket.emit('clearUpdates', {sphere: sphereID});
+             clearUpdates(); // get rid of notifications for the sphere being accessed 
 
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
@@ -245,9 +250,34 @@ function Chat(){
 
         }
 
+    
+        function clearUpdates(){
+
+            // lets remove the update notifier next to the sphere dropdown 
+            var i = sphereNames.indexOf(currentSphere);
+            $("#updates-" + i ).html("");  
+
+            // the user will see the updates of their current sphere, so no need to post them 
+            totalUpdates -= sphereMap[currentSphere].updates;
+
+            // if there are still remaining spheres with notifications show them 
+            if(totalUpdates > 0){ $("#notifications").html(totalUpdates); }
+
+            else{
+                $("#notifications").html("");
+            }
+
+            // reset updates
+            sphereMap[currentSphere].updates = 0; 
+
+        }
+
+
         function alertIssue(msg){
+
             $("#content").prepend("<div class='alert'>" +  msg +  "</div>");
             $('.alert').delay(5000).fadeOut(400);
+
             $('.alert').click(function(){
                 $(this).fadeOut();
             });
