@@ -498,7 +498,7 @@ io.sockets.on('connection', function (socket) {
                 }
               }); 
             }else{
-              socket.emit("error", "You've reached the 5 sphere limit! Delete a sphere to create a new one.");
+              socket.emit("chatError", "You've reached the 5 sphere limit! Delete a sphere to create a new one.");
             }
           } else{
             console.log("User not found");
@@ -601,7 +601,7 @@ io.sockets.on('connection', function (socket) {
                     }); // end sphere hunt
 
                   }else{
-                      socket.emit("error", "It seems you're not a member of this sphere..");
+                      socket.emit("chatError", "It seems you're not a member of this sphere..");
                   }
                  
             }

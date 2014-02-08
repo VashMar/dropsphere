@@ -129,8 +129,7 @@ function Chat(){
                  $("#content").empty();
             });
 
-            socket.on('error', function(data){
-
+            socket.on('chatError', function(data){
                   alertIssue(data);
             });
 
