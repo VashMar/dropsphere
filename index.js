@@ -35,7 +35,7 @@ mongoose.connect(database, function(err, res){
 // demosphere for users testing the product 
 demosphere = new Demosphere();
 
-console.log(app.settings.env);
+console.log(process.env.NODE_ENV);
 
 app.configure(function () {
 	 app.use(
