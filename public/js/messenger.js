@@ -29,7 +29,7 @@ function Chat(){
 
         this.Connect = function(user){ 
 
-            socket =  io.connect();  
+            socket =  io.connect(window.location.hostname);  
             username = user;
             moment().format();
         
