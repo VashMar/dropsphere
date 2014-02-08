@@ -19,16 +19,17 @@ var app = express();
 var sessionStore = new express.session.MemoryStore();
 var port = process.env.PORT || 3500; 
 var ENV = process.env.NODE_ENV;
+
 var database = process.env.MONGOLAB_URI || 
                process.env.MONGOHQ_URL  ||
                "mongodb://localhost:27017/dropsphere_dev";
 
 // db connection
 mongoose.connect(database, function(err, res){
-  if(err){console.log('ERROR connecting to: ' + database + ': ' + err);}
+  if(err){console.log('ERROR connecting to: ' + database + ': ' + err + "in " + ENV);}
 
   else{
-    console.log("Connection to " + database + " successful.")
+    console.log("Connection to " + database + " successful in" + ENV);
   }
 });
 
