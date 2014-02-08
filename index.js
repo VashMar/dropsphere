@@ -17,14 +17,25 @@ var EXPRESS_SID_KEY = 't3stk3y'
 
 var app = express();
 var sessionStore = new express.session.MemoryStore();
-var port = 3500; 
+var port = process.env.PORT || 3500; 
+
+var database = process.env.MONGOLAB_URI || 
+               process.env.MONGOHQ_URL  ||
+               "mongodb://localhost:27017/dropsphere_dev";
 
 // db connection
-mongoose.connect("mongodb://localhost:27017/dropsphere_dev");
+mongoose.connect(database, function(err, res){
+  if(err){console.log('ERROR connecting to: ' + database + ': ' + err);}
+
+  else{
+    console.log("Connection to " + database + " successful.")
+  }
+});
 
 // demosphere for users testing the product 
 demosphere = new Demosphere();
 
+console.log(app.settings.env);
 
 app.configure(function () {
 	 app.use(
@@ -57,7 +68,11 @@ app.configure(function () {
 
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
-   res.render("home");
+  if(app.settings.env == 'development'){
+      res.render("dev_home");
+  } else {
+      res.render("home");
+  }    
 });
 
 // renders a demo login page 
@@ -182,7 +197,11 @@ app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
   var url = "bookmark/invite/" + inviteID;
 
-  res.render("invite", {url: url});
+  if(app.settings.env == 'development'){
+     res.render("dev_invite", {url: url});
+  } else {
+     res.render("invite", {url: url});
+  }
 });
 
 app.get("/bookmark/invite/:id", function(req, res){
@@ -235,26 +254,7 @@ app.get("/bookmark/invite/:id", function(req, res){
 
 });
 
-app.get("/test/:id", function(req, res){
-    var inviteID = req.param('id');
- 
-      User.findOne({name: 'bart'},function(err,user){
-        if(err|!user){
-          console.log("User not found");
-        } else{
-           Sphere.findOne({_id: inviteID}, function(err,sphere){
-              if(sphere){
-                console.log(user.isMember(sphere));
-              }
-           });
 
-        }
-     });
-
-     res.render("home");
-
-
-});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -60,7 +60,7 @@ function launchBookmark(inviteURL){
             msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
             if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
           }
-          getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
+          getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
             console.log('xdm loaded');
             book();
             book2();
@@ -71,7 +71,7 @@ function launchBookmark(inviteURL){
         });
       }
       function testMsg(){
-        targetWindow.postMessage('Hello World!', 'http://localhost:3500');
+        targetWindow.postMessage('Hello World!', 'http://dropsphere.herokuapp.com');
       }
       function showMsg() {
         el.innerHTML=msg;
@@ -147,10 +147,10 @@ function launchBookmark(inviteURL){
       margin:2px 6px 0 0;
       height:30px;
       width:30px;
-      background:url(http://localhost:3500/img/close.png) no-repeat;
+      background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;
       }
       #close:hover{
-      background:url(http://localhost:3500/img/close_hover.png) no-repeat;
+      background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;
       }
       #dropsphere iframe{
         border:none;
@@ -168,7 +168,7 @@ function launchBookmark(inviteURL){
 
     function book2(){
           socketxdm = new easyXDM.Socket({
-            remote: "http://localhost:3500/" + inviteURL,
+            remote: "http://dropsphere.herokuapp.com/" + inviteURL,
             container:"dropsphere",
 
             onMessage: function(message, origin){

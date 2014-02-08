@@ -14,7 +14,7 @@ $(document).ready(function(){
     });
 
 
-            // get and display the new current sphere when the user chooses to switch
+    // get and display the new current sphere when the user chooses to switch
     $("#sphereList").on("click", "a.sphere", function(e){
        
         var current = $(this).text().trim();
