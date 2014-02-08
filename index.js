@@ -82,6 +82,7 @@ app.get("/", function(req, res){
   console.log("ENVIRONMENT IS: " + ENV);
   console.log(ENV == 'production');
   if(ENV == 'production'){
+      console.log("rendering heroku bookmarklet");
       res.render("home");
   } else {
      res.render("dev_home");
