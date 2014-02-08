@@ -79,10 +79,12 @@ app.configure(function () {
 
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
+  console.log("ENVIRONMENT IS: " + ENV);
+  console.log(ENV == 'production');
   if(ENV == 'production'){
-      res.render("dev_home");
-  } else {
       res.render("home");
+  } else {
+     res.render("dev_home");
   }    
 });
 
