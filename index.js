@@ -488,7 +488,7 @@ io.sockets.on('connection', function (socket) {
 
                     sphereMap[user.spheres[i].object.name] = { id: user.spheres[i].object._id, 
                                                                nickname: user.spheres[i].nickname, 
-                                                               link: user.spheres[i].object.link(EMV),
+                                                               link: user.spheres[i].object.link(ENV),
                                                                updates: user.spheres[i].updates          
                                                              };
                   }
