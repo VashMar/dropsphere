@@ -29,7 +29,7 @@ mongoose.connect(database, function(err, res){
   if(err){console.log('ERROR connecting to: ' + database + ': ' + err + "in " + ENV);}
 
   else{
-    console.log("Connection to " + database + " successful in" + ENV);
+    console.log("Connection to " + database + " successful in " + ENV);
   }
 });
 
@@ -49,11 +49,22 @@ app.configure(function () {
 
     app.use(cookieParser);
 
+ /*   app.use(express.session({
+      store : new RedisStore({
+        host: 'localhost',
+        port: 6380
+
+      })
+      secret: 'Dr0p5ph3r3z'
+    })); */
+
+
+
     app.use(express.session({
       store : sessionStore,
       key   : EXPRESS_SID_KEY,
       cookie: {httpOnly: true}
-    }));
+    })); 
 
     app.use(express.static(__dirname + '/public'));
     app.use(express.bodyParser());
@@ -68,7 +79,7 @@ app.configure(function () {
 
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
-  if(app.settings.env == 'production'){
+  if(ENV == 'production'){
       res.render("dev_home");
   } else {
       res.render("home");
@@ -197,10 +208,10 @@ app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
   var url = "bookmark/invite/" + inviteID;
 
-  if(app.settings.env == 'production'){
+  if(ENV == 'production'){
      res.render("invite", {url: url});
   } else {
-     res.render("dev_sinvite", {url: url});
+     res.render("dev_invite", {url: url});
   }
 });
 
