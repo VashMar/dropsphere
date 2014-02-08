@@ -403,6 +403,7 @@ io.sockets.on('connection', function (socket) {
 
           if(sessionData.justAdded == true){
             io.sockets.in(user.spheres[index].object.id).emit('announcement', {msg: userSphere.nickname + " joined the sphere"}); 
+            socket.broadcast.to(user.spheres[index].object.id).emit('users',  user.spheres[index].object.nicknames) //emit to 'room' except this socket
             sessionData.justAdded == false
           }
 
