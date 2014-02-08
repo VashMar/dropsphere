@@ -352,7 +352,7 @@ io.sockets.on('connection', function (socket) {
 
                 else{
                   socket.join(sphere.id);
-                  sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link, updates: 0}; // build a sphereMap for the client 
+                  sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link(ENV) , updates: 0}; // build a sphereMap for the client 
                   socket.emit('users', sphere.nicknames); 
 
 
@@ -389,7 +389,7 @@ io.sockets.on('connection', function (socket) {
               // build the spheremap of the users spheres 
               sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, 
                                                         nickname: user.spheres[i].nickname, 
-                                                        link: user.spheres[i].object.link,
+                                                        link: user.spheres[i].object.link(ENV),
                                                         updates: user.spheres[i].updates
                                                       };
 
@@ -485,7 +485,7 @@ io.sockets.on('connection', function (socket) {
 
                     sphereMap[user.spheres[i].object.name] = { id: user.spheres[i].object._id, 
                                                                nickname: user.spheres[i].nickname, 
-                                                               link: user.spheres[i].object.link,
+                                                               link: user.spheres[i].object.link(EMV),
                                                                updates: user.spheres[i].updates          
                                                              };
                   }

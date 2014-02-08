@@ -14,10 +14,6 @@ var sphereSchema = mongoose.Schema({
 	owner: {type: ObjectId, ref: 'User'},
 });
 
-sphereSchema.virtual('link').get(function(){
-	return "http://localhost:3500/invite/" + this.id;
-});
-
 sphereSchema.virtual('nicknames').get(function(){
 	var nicknames = [];
 	for(var i = 0; i< this.members.length ; i++){
@@ -32,5 +28,16 @@ sphereSchema.virtual('nicknames').get(function(){
 	return nicknames;
 
 });
+
+
+sphereSchema.methods.link = function(ENV){
+	if(ENV == "production"){
+	  return "http://dropsphere.herokuapp.com/invite/" + this.id;	
+	}
+
+	return "http://localhost:3500/invite/" + this.id;
+};
+
+
 
 module.exports = mongoose.model('Sphere', sphereSchema);
