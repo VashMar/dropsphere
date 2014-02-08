@@ -18,7 +18,7 @@ var EXPRESS_SID_KEY = 't3stk3y'
 var app = express();
 var sessionStore = new express.session.MemoryStore();
 var port = process.env.PORT || 3500; 
-
+var ENV = process.env.NODE_ENV;
 var database = process.env.MONGOLAB_URI || 
                process.env.MONGOHQ_URL  ||
                "mongodb://localhost:27017/dropsphere_dev";
@@ -35,7 +35,6 @@ mongoose.connect(database, function(err, res){
 // demosphere for users testing the product 
 demosphere = new Demosphere();
 
-console.log(process.env.NODE_ENV);
 
 app.configure(function () {
 	 app.use(
@@ -68,7 +67,7 @@ app.configure(function () {
 
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
-  if(app.settings.env == 'development'){
+  if(app.settings.env == 'production'){
       res.render("dev_home");
   } else {
       res.render("home");
@@ -197,10 +196,10 @@ app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
   var url = "bookmark/invite/" + inviteID;
 
-  if(app.settings.env == 'development'){
-     res.render("dev_invite", {url: url});
-  } else {
+  if(app.settings.env == 'production'){
      res.render("invite", {url: url});
+  } else {
+     res.render("dev_sinvite", {url: url});
   }
 });
 
