@@ -18,6 +18,9 @@ var EXPRESS_SID_KEY = 't3stk3y'
 var app = express();
 var sessionStore = new express.session.MemoryStore();
 var port = process.env.PORT || 3500; 
+// connect websockets to our server 
+var io = require('socket.io').listen(app.listen(port));
+
 var ENV = process.env.NODE_ENV;
 
 var database = process.env.MONGOLAB_URI || 
@@ -272,8 +275,7 @@ app.get("/bookmark/invite/:id", function(req, res){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// connect websockets to our server 
-var io = require('socket.io').listen(app.listen(port));
+
 
 console.log("Listening on port " + port);
 
