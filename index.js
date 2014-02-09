@@ -341,6 +341,7 @@ io.sockets.on('connection', function (socket) {
           io.sockets.in('demosphere').emit('users', demosphere.members); // update the member list of everyone in the sphere 
           io.sockets.in('demosphere').emit('announcement', { msg: demouser + " joined the Sphere" }); // tell everyone who joined 
       } else{  // get all the users spheres and connect to them 
+          index = user.currentSphere;
 
           if(user.spheres.length == 0){
 
@@ -588,7 +589,7 @@ io.sockets.on('connection', function (socket) {
 
                         // resets the notifcations in a sphere to 0 once the user has accessed it 
                         targetSphere.updates = 0;
-
+                        user.currentSphere = data.sphereIndex;
                         user.save(function(err){
                           if(err){console.log(err);}
 

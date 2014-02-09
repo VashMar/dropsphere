@@ -25,7 +25,8 @@ var userSchema = new Schema({
         nickname: {type: String},                    // references the users name in that sphere 
         joined: {type: Date, default: Date.now},    // when the user joined the sphere
         updates: {type: Number, default: 0}        // notification counter for each sphere 
-        }]
+        }],
+    currentSphere: {type: Number, default: 0} 
 
 });
 
