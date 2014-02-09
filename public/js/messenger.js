@@ -242,9 +242,13 @@ function Chat(){
 
                 } else{
                     $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
-                }         
+                }        
+                
+                 
                 
                 scrollBottom();
+
+
             });
 
         }

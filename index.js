@@ -13,7 +13,6 @@ var mongoose = require("mongoose"),
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
 var EXPRESS_SID_KEY = 't3stk3y'
-//var RedisStore = require('connect-redis')(express);
 
 var app = express();
 var sessionStore = new express.session.MemoryStore();
