@@ -93,7 +93,10 @@ script.
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js');
-        $.getScript('/js/lib/jquery.slimscroll.min.js'); 
-        setTimeout(function(){$.getScript('/js/main.js')}, 50); // needs to load second
+        $.getScript('/js/lib/jquery.slimscroll.min.js')
+            .done(function(){
+               $.getScript('/js/main.js'); 
+            }); 
+      //  setTimeout(function(){$.getScript('/js/main.js')}, 50); // needs to load second
     });
   
