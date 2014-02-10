@@ -69,8 +69,8 @@ app.configure(function () {
     })); 
 
     app.use(express.static(__dirname + '/public'));
-    app.use(express.bodyParser());
-
+    app.use(express.urlencoded());
+    app.use(express.json());
     app.set('views', __dirname + '/layouts');
     app.set('view engine', "jade");
     app.engine('jade', require('jade').__express);
@@ -110,7 +110,8 @@ app.post('/login', function (req, res) {
     var email = req.body.email,
         password = req.body.password;
 
-    User.findOne({email: email}, function(err, user){
+   // pull the user and his spheres 
+    User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
       if(!user || err){ 
         console.log("Invalid Email"); 
         res.json(400, {message: "The entered email doesn't exist", type: "email"});
@@ -128,16 +129,6 @@ app.post('/login', function (req, res) {
              req.session.username = user.name;
 
 
-             user.session = req.sessionID;
-             user.save(function(err){
-                if(err){console.log(err);}
-
-                else{
-                  console.log("new user session saved");
-                }
-             });
-
-
              console.log(req.session.username + " is logged in");
 
              if(req.session.invite == true){
@@ -147,6 +138,14 @@ app.post('/login', function (req, res) {
                 res.render("includes/chat", {name: user.name});
              }
 
+             user.session = req.sessionID;
+             user.save(function(err){
+                if(err){console.log(err);}
+
+                else{
+                  console.log("new user session saved");
+                }
+             });
             
           }
         });
@@ -426,6 +425,7 @@ io.sockets.on('connection', function (socket) {
         if(sphere){
 
           var message = new Message({full: messageData, text: data.msg, sender: data.sender});
+          //clean up code /////////////////////////////////////////////////////////////////////////////////////////////////
           message.save();
           sphere.messages.push(message);
           sphere.save();
