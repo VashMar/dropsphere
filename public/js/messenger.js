@@ -8,6 +8,8 @@ function scrollBottom(){
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+moment().format();
+
 
 moment.lang('en', {
     calendar : {
@@ -31,7 +33,7 @@ function Chat(){
 
             socket =  io.connect(window.location.hostname);  
             username = user;
-            moment().format();
+            
         
 
             socket.on('users', function(users){
@@ -51,7 +53,7 @@ function Chat(){
                 sphereMap = data.sphereMap;
                 sphereNames = Object.keys(sphereMap);
                 currentSphere = sphereNames[data.index];
-                name = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
+                nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
                 totalUpdates = data.totalUpdates;
 
                    
@@ -76,7 +78,7 @@ function Chat(){
                    
                 // if the user has a different name on the sphere specify it 
                 if(sphereMap[currentSphere].nickname !== name){
-                    name = sphereMap[currentSphere].nickname;
+                    nickname = sphereMap[currentSphere].nickname;
                  }
 
                 // track sphere data 
@@ -147,14 +149,14 @@ function Chat(){
         
         this.Send = function Send(msg) {
          
-            socket.emit("send", {sphere: sphereID, msg: msg, sender: name, time: new Date().timeNow()}); 
+            socket.emit("send", {sphere: sphereID, msg: msg, sender: nickname, time: new Date().timeNow()}); 
             
         };
 
         this.SwitchSphere = function SwitchSphere(current){
+        
             // set the user's name to their name in the new sphere 
-            
-            name = sphereMap[current].nickname;
+            nickname = sphereMap[current].nickname;
             sphereID = sphereMap[current].id;
             sphereIndex = sphereNames.indexOf(current);   
             sphereLink = sphereMap[current].link;
@@ -194,8 +196,8 @@ function Chat(){
              // just update the name in this sphere  
              sphereMap[currentSphere].nickname = newName;   
            }
-           // the user's name in the sphere changes in both scenarios  
-           name = newName;
+           // the user's sphere nickname changes in both scenarios  
+           nickname = newName;
 
            socket.emit("changeName", {newName: name, sphereWide: sphereWide, sphereIndex: sphereIndex});
                
@@ -243,10 +245,11 @@ function Chat(){
                 } else{
                     $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
                 }        
-                
-                 
+
+
                 
                 scrollBottom();
+
 
 
             });
@@ -258,7 +261,7 @@ function Chat(){
 
             // lets remove the update notifier next to the sphere dropdown 
             var i = sphereNames.indexOf(currentSphere);
-            $("#updates-" + i ).html("");  
+            $("#updates-" + i ).replaceWith("<span class='glyphicon glyphicon-ok-circle'></span> &nbsp;");
 
             // the user will see the updates of their current sphere, so no need to post them 
             totalUpdates -= sphereMap[currentSphere].updates;

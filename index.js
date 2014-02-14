@@ -2,13 +2,18 @@ var express = require("express");
 var cookie = require("cookie");
 var sass = require("node-sass");
 var moment = require("moment");
-var email = require("emailjs/email")
+var email = require("emailjs/email");
+
+// models 
 var mongoose = require("mongoose"),
     User     = require("./models/user"),
     Sphere   = require("./models/sphere"),
     Demosphere = require("./models/demo_sphere"),
     Message   = require("./models/message");
     
+
+//controllers 
+var chat = require("./controllers/chat");
 
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
@@ -38,6 +43,7 @@ mongoose.connect(database, function(err, res){
 // demosphere for users testing the product 
 demosphere = new Demosphere();
 
+app.locals.moment = require('moment');
 
 app.configure(function () {
 	 app.use(
@@ -105,79 +111,21 @@ app.post('/demologin', function (req, res) {
     res.redirect('/bookmark');
 });
 
-app.post('/login', function (req, res) {
-    
-    var email = req.body.email,
-        password = req.body.password;
+app.post('/login', chat.login);
 
-   // pull the user and his spheres 
-    User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
-      if(!user || err){ 
-        console.log("Invalid Email"); 
-        res.json(400, {message: "The entered email doesn't exist", type: "email"});
-      }
+app.get('/bookmark', chat.bookmark);
 
-      else{
-        user.comparePassword(password, function(err, isMatch){
-          if(!isMatch || err){ 
-             console.log("Incorred Login Credentials");
-             res.json(400, {message: "The email or password you entered is incorrect"});
-          }
-
-          else{
-             req.session.isLogged = true;
-             req.session.username = user.name;
-
-
-             console.log(req.session.username + " is logged in");
-
-             if(req.session.invite == true){
-                req.session.isNew = true;     // flag for user who just logged in 
-                res.redirect('/bookmark/invite/' + req.session.inviteID);
-             }else{
-                res.render("includes/chat", {name: user.name});
-             }
-
-             user.session = req.sessionID;
-             user.save(function(err){
-                if(err){console.log(err);}
-
-                else{
-                  console.log("new user session saved");
-                }
-             });
-            
-          }
-        });
-      }
-    }); // end query 
-   
-});
-
-
-app.get("/logout", function(req, res){
-   req.session.destroy();
-   console.log("Session ended");
-   res.render("includes/login");
-})
-
-// data sent to bookmarklet 
-app.get("/bookmark", function(req, res){
-	 if(req.session.isLogged == true){ 
-        res.render("template_chat", {name: req.session.username});
-      
-   }else{
-        res.render("template_login");
-   } 
-});
+app.get('/logout', chat.logout);
 
 // issue sign up form
-app.get("/join", function(req, res){
+app.get('/join', function(req, res){
      res.render("includes/join");
 });
 
+app.post('/signup', chat.signup);
+
 //signup 
-app.post("/signup", function(req, res, next){
+/*app.post("/signup", function(req, res, next){
   console.log("signing up user with credentials: " + req.body);
    // get parameters 
     var name = req.body.name,
@@ -206,7 +154,7 @@ app.post("/signup", function(req, res, next){
           }
         }
     });
-});      
+});      */
  
 app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
@@ -318,11 +266,23 @@ io.set('authorization', function (data, callback) {
 /////////// socket listeners and chat events -- a lot of code needs transferring to models //////////////////////////////////////////////////////////
 
 io.sockets.on('connection', function (socket) {
-   console.log("Server Connection: " + moment().format("hh:mm:ssA") );
+  console.log("Server Connection: " + moment().format("hh:mm:ssA") );
 
   var sessionID = socket.handshake.sessionID;
   var sessionData = socket.handshake.session;
-  var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+  var sphereMap = sessionData.sphereMap;
+  var sphereNames = sessionData.sphereNames;  
+
+  console.log("Joining Spheres..");
+
+  for(var i = 0; i < sphereNames.length; i++){
+      var sphere = sphereMap[sphereNames[i]].id;
+      sphere = String(sphere);
+      socket.join(sphere);
+      console.log("Joined " + sphere);
+  }
+
+/*   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
   var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
   var totalUpdates = 0; // total number of sphere notifications for user 
 
@@ -410,7 +370,7 @@ io.sockets.on('connection', function (socket) {
 
           }
         }
-  });
+  }); */
 
 	 socket.on('send', function (data) {
 

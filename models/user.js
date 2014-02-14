@@ -26,7 +26,7 @@ var userSchema = new Schema({
         joined: {type: Date, default: Date.now},    // when the user joined the sphere
         updates: {type: Number, default: 0}        // notification counter for each sphere 
         }],
-    currentSphere: {type: Number, default: 0} 
+    currentSphere: {type: Number, default: 0} // index of the user's current sphere 
 
 });
 
@@ -53,6 +53,7 @@ userSchema.pre('save', function(next) {
 });
 
 
+// compares user submitted pass to saved salted one
 userSchema.methods.comparePassword = function(sentPassword, callback) {
     bcrypt.compare(sentPassword, this.password, function(err, isMatch) {
         if (err) return cb(err);
@@ -60,6 +61,7 @@ userSchema.methods.comparePassword = function(sentPassword, callback) {
     });
 };
 
+// checks if user is a member of a given sphere 
 userSchema.methods.isMember = function(sphere){
  
     var isMember = false;
@@ -71,6 +73,49 @@ userSchema.methods.isMember = function(sphere){
     }
 
     return isMember; 
+}
+
+// returns the information about all clients spheres with one loop
+userSchema.methods.sphereData = function(ENV){
+
+    var sphereData = {},
+        sphereMap = {};
+        sphereNames = [];
+        totalUpdates = 0;
+        index = this.currentSphere;
+
+
+    for(var i = 0; i < this.spheres.length ; i++){
+
+        var sphere = this.spheres[i];             
+        var sphereName = this.spheres[i].object.name;
+
+        // get the updates on all spheres       
+        totalUpdates += sphere.updates;
+
+        // build the spheremap of the users spheres 
+         sphereMap[sphereName] = { id: sphere.object._id, 
+                                    nickname: sphere.nickname, 
+                                    link: sphere.object.link(ENV),
+                                    updates: sphere.updates
+                                };
+
+        sphereNames.push(sphereName);
+
+    }
+
+    sphereData["sphereMap"] = sphereMap;
+    sphereData["sphereNames"] = sphereNames;
+    sphereData["totalUpdates"] = totalUpdates;
+
+
+    return sphereData; 
+
+}
+
+
+userSchema.methods.chatData = function(){
+    
 }
 
 module.exports = mongoose.model('User', userSchema);

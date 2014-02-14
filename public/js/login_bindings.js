@@ -29,7 +29,7 @@ $(document).ready(function(){
         // if the page is freshly loaded create the chat object 
         if(!socket){ 
             chat = new Chat; 
-            chat.Connect(name);
+            chat.Connect(username);
         }else{
             // otherwise the socket and listeners already exist
              socket.socket.connect();

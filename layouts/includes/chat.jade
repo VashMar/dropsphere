@@ -1,3 +1,8 @@
+- var nicknames = data.nicknames;
+- var sphereNames = data.sphereNames;
+- var currentSphere = data.currentSphere;
+- var conversations = Object.keys(data.messages);
+- var sphereMap = data.sphereMap;
 
 #container
     #chat
@@ -18,16 +23,42 @@
         .dropdown
             a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
                 span#notifications.badge.badge-success
-                span#currentSphere 
+                span#currentSphere
+                    =currentSphere 
                     span.caret 
             ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
                 li.dropdown-header(role="presentation") My Spheres
+                each sphereName, i in sphereNames 
+                    - var updates = sphereMap[sphereName].updates;
+                    li(role="presentation")
+                        a(class = "sphere" role="menuitem" tabindex="-1" data-toggle="modal" href="#")
+                            if updates > 0
+                                span.sphereUpdates(id="updates-" + i)
+                                    =updates
+                                &nbsp;
+                            else 
+                                <span class="glyphicon glyphicon-ok-circle"></span> &nbsp;
+                            span.sphereName
+                                =sphereName
                 li#sphereDivider.divider(role="presentation" )
                 li(role="presentation")
                     a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
         #users
+            each nickname in nicknames
+                p=nickname
         #content(class="form-control")
-            
+            if conversations.length > 0 
+                each convoTime in conversations
+                    if convoTime === "welcome"
+                        p.announcement
+                            =data.messages[convoTime]
+                            <br />
+                            #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] whomever you deem worthy to share the web with 
+                    else
+                        h6=moment(convoTime).calendar()
+                        - var convos = data.messages[convoTime];
+                        each convo in convos
+                            p=convo
         .controls
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -47,7 +78,7 @@
               
               .modal-body
                 label Copy and Paste the link below
-                input#inviteLink(class="form-control" placeholder="New Name" value="" readonly="readonly")
+                input#inviteLink(class="form-control" placeholder="New Name" value= sphereMap[currentSphere].link readonly="readonly")              
 
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
@@ -89,7 +120,16 @@
     img(src="/img/settings_hover.png")
     img(src="/img/settings_hover.png")
 script.
-  var name = !{JSON.stringify(name)};
+    // harvest all sphere related data for client tracking/use 
+    sphereData = !{JSON.stringify(data)};
+    username = sphereData.username;
+    nickname = sphereData.nickname;
+    sphereMap = sphereData.sphereMap;
+    currentSphere = sphereData.currentSphere;
+    totalUpdates = sphereData.totalUpdates;
+    sphereNames = sphereData.sphereNames;
+    sphereID = sphereMap[currentSphere].id;
+    sphereLink = sphereMap[currentSphere].link;
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js');
