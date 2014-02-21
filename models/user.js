@@ -83,7 +83,7 @@ userSchema.methods.sphereData = function(ENV){
         sphereNames = [];
         totalUpdates = 0;
         index = this.currentSphere;
-
+        link = "";
 
     for(var i = 0; i < this.spheres.length ; i++){
 
@@ -93,10 +93,18 @@ userSchema.methods.sphereData = function(ENV){
         // get the updates on all spheres       
         totalUpdates += sphere.updates;
 
+        // set invite link depending on environment (cannot call sphere.link on an objectid so code had to go in here)
+        if(ENV == "production"){
+            link = "http://dropsphere.herokuapp.com/invite/" + sphere.object.id; 
+        }else{
+            link = "http://localhost:3500/invite/" + sphere.object.id;
+        }
+       
+
         // build the spheremap of the users spheres 
          sphereMap[sphereName] = { id: sphere.object._id, 
                                     nickname: sphere.nickname, 
-                                    link: sphere.object.link(ENV),
+                                    link: link,
                                     updates: sphere.updates
                                 };
 

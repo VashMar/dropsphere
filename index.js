@@ -25,6 +25,10 @@ var port = process.env.PORT || 3500;
 // connect websockets to our server 
 var io = require('socket.io').listen(app.listen(port));
 
+var SessionSockets = require('session.socket.io'),
+    sessionSockets = new SessionSockets(io, sessionStore, cookieParser, EXPRESS_SID_KEY); 
+
+
 var ENV = process.env.NODE_ENV;
 
 var database = process.env.MONGOLAB_URI || 
@@ -124,38 +128,7 @@ app.get('/join', function(req, res){
 
 app.post('/signup', chat.signup);
 
-//signup 
-/*app.post("/signup", function(req, res, next){
-  console.log("signing up user with credentials: " + req.body);
-   // get parameters 
-    var name = req.body.name,
-        password = req.body.password,
-        email = req.body.email,
-        session = req.sessionID;
 
-    //try to create
-    var user = new User({name: name, email: email, password: password, session: session});
-
-    user.save( function(err, user){
-        // respond with validation errors here
-        if(err){ 
-          console.log("validation errors:" + err); 
-          res.json(400,  err);
-        } else{
-          console.log("created user: " + name);
-          // log the user in
-          req.session.isLogged = true;
-          req.session.username = name;
-          if(req.session.invite == true){
-             req.session.isNew = true;     // flag for user who just logged in 
-             res.redirect('/bookmark/invite/' + req.session.inviteID);
-          } else{
-            res.render("includes/chat", {name: name});
-          }
-        }
-    });
-});      */
- 
 app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
   var url = "bookmark/invite/" + inviteID;
@@ -265,13 +238,13 @@ io.set('authorization', function (data, callback) {
 
 /////////// socket listeners and chat events -- a lot of code needs transferring to models //////////////////////////////////////////////////////////
 
-io.sockets.on('connection', function (socket) {
+sessionSockets.on('connection', function (err, socket, session) {
   console.log("Server Connection: " + moment().format("hh:mm:ssA") );
-
   var sessionID = socket.handshake.sessionID;
-  var sessionData = socket.handshake.session;
-  var sphereMap = sessionData.sphereMap;
-  var sphereNames = sessionData.sphereNames;  
+  console.log(sessionID);
+  var sphereMap = session.sphereMap;
+  var sphereNames = session.sphereNames;  
+  var nickname = session.nickname;
 
   console.log("Joining Spheres..");
 
@@ -282,7 +255,16 @@ io.sockets.on('connection', function (socket) {
       console.log("Joined " + sphere);
   }
 
-/*   var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
+  // if the user has newly joined a sphere update the member list for everyone currently on
+  if(session.newMember == true){  
+      var sphere = sphereMap[sphereNames[sphereNames.length - 1]].id; // the new sphere will be the last one on the list
+      sphere = String(sphere);
+      io.sockets.in(sphere).emit('users', session.nicknames);
+      socket.broadcast.to(sphere).emit('announcement', {msg: nickname +  " joined the sphere" });
+      session.newMember = false; 
+  }
+
+/*var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
   var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
   var totalUpdates = 0; // total number of sphere notifications for user 
 
@@ -378,17 +360,20 @@ io.sockets.on('connection', function (socket) {
       var sphereString = (String(data.sphere)); 
 
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
-      console.log(io.sockets.clients(sphereString));
+
   	  io.sockets.in(sphereString).emit('message', data);
 
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){
-
-          var message = new Message({full: messageData, text: data.msg, sender: data.sender});
+          console.log("sphere found")
+          var message = new Message({text: data.msg, sender: data.sender});
           //clean up code /////////////////////////////////////////////////////////////////////////////////////////////////
           message.save();
           sphere.messages.push(message);
-          sphere.save();
+          sphere.save(function(err, sphere){
+            console.log(sphere.messages.length);
+
+          });
 
           for(var i = 0; i < sphere.members.length; i++){
              var member = sphere.members[i].id;
@@ -510,36 +495,38 @@ io.sockets.on('connection', function (socket) {
                
                 if(targetSphere){ // lets only do a query if we know the sphere exists 
                     // find the requested sphere with all its messages after the user joined the sphere 
-                
+                console.log(targetSphere.joined);
+
                     Sphere.findOne({_id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
                       if(err){console.log(err);}
 
                       if(!sphere){
                         console.log("User requested a sphere that magically doesn't exist!");
                       } else{
+                        console.log(sphere.messages);
                         var messages = {};
                         var key; 
                         for(var i = 0; i < sphere.messages.length - 1; i++){
                             
-                             var msg1 = sphere.messages[i];
-                             var msg2 = sphere.messages[i+1];
+                             var msg1 = sphere.messages[i].sender + ": " + sphere.messages[i].text;
+                             var msg2 = sphere.messages[i+1].sender + ": " + sphere.messages[i+1].text;
                              var time1 = moment(sphere.messages[i].date);
                              var time2 = moment(sphere.messages[i+1].date);
                             
                               // create a hash key for the date of the first message that points to an array, and store the message in the array
                             if(i == 0){
                               key =  time1.format();
-                              messages[key] = [msg1.full];
+                              messages[key] = [msg1];
                             }
 
                             // compare each message to the one after it
                            if(time2.diff(time1, "minutes") <= 30 ){
                               // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-                              messages[key].push(msg2.full);
+                              messages[key].push(msg2);
                            }else{
                                // if the difference is greater than 30 minutes create a new hash key for the message date
                                key = time2.format();
-                               messages[key] = [msg2.full];
+                               messages[key] = [msg2];
                            }
 
                         }
@@ -550,6 +537,12 @@ io.sockets.on('connection', function (socket) {
                         // resets the notifcations in a sphere to 0 once the user has accessed it 
                         targetSphere.updates = 0;
                         user.currentSphere = data.sphereIndex;
+
+                        // update the currentSphere session info 
+                        session.currentSphere = sphere.name;     
+                        session.messages = messages;
+                        session.save();
+
                         user.save(function(err){
                           if(err){console.log(err);}
 

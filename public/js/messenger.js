@@ -177,7 +177,6 @@ function Chat(){
         
            $("#users").children('p').each(function(){
                 if($(this).text() == name){
-                    alert("found it");
                     $(this).text(newName);
                    
                 }
@@ -214,7 +213,6 @@ function Chat(){
          function requestMessages(){
 
              clearUpdates(); // get rid of notifications for the sphere being accessed 
-
              socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();
@@ -233,14 +231,14 @@ function Chat(){
                        $("#content").append("<h6>" + moment(convoTime).calendar() + "</h6>");
 
                         for(var msg = 0; msg < convo.length; msg++){
-                            $("#content").append(convo[msg]);
+                            $("#content").append("<p>" + convo[msg] + "</p>");
                         }
                     }
                     
 
                     if(members < 2){
                         $("#content").append("<p class='announcement'>Not that talking to yourself is weird or anything... but perhaps you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
-                     }
+                    }
 
                 } else{
                     $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    

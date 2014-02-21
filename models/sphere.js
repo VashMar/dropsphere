@@ -7,8 +7,8 @@ var sphereSchema = mongoose.Schema({
 	name: String,
 	members: [{ 					// list of all the member names in a sphere 
 			  id: {type: String },
-			  nickname: {type: String , default: ""},
-			  name:  {type: String} 			
+			  nickname: {type: String , default: ""}, //members nickname on the sphere
+			  name:  {type: String} 			// username
 			 }],								
 	messages: [{type: ObjectId, ref: 'Message'}],
 	owner: {type: ObjectId, ref: 'User'},

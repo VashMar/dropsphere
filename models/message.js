@@ -5,7 +5,6 @@ var Schema = mongoose.Schema,
 
 
 var messageSchema = mongoose.Schema({
-	full: String, 
 	text: String,
 	date: {type: Date, default: Date.now },
 	sender: String

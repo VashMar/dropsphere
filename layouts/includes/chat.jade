@@ -49,16 +49,20 @@
         #content(class="form-control")
             if conversations.length > 0 
                 each convoTime in conversations
-                    if convoTime === "welcome"
-                        p.announcement
-                            =data.messages[convoTime]
-                            <br />
-                            #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] whomever you deem worthy to share the web with 
-                    else
-                        h6=moment(convoTime).calendar()
-                        - var convos = data.messages[convoTime];
-                        each convo in convos
-                            p=convo
+                    case convoTime
+                        when "welcome"
+                            p.announcement
+                                =data.messages[convoTime]
+                                <br />
+                                #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] whomever you deem worthy to share the web with
+                        when "joined"
+                            p.announcement 
+                                =data.messages[convoTime]
+                        default
+                            h6=moment(convoTime).calendar()
+                            - var convos = data.messages[convoTime];
+                            each convo in convos
+                                p=convo
         .controls
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
