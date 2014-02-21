@@ -2,73 +2,66 @@ javascript:(function() {
   var socketxdm;
   if(typeof dropsphere === 'undefined' || dropsphere==false){
     dropsphere=true;
-      var el=document.createElement('div'),
-          b=document.getElementsByTagName('body')[0],
-          otherlib=false,
-          msg='';
+    var el=document.createElement('div'),
+        b=document.getElementsByTagName('body')[0],
+        otherlib=false,
+        msg='';
 
-      var img=new Image();
-      img.src='http://localhost:3500/img/close_hover.png';
+    var img=new Image();
+    img.src='http://dropsphere.herokuapp.com/img/close_hover.png';
 
-      if(typeof jQuery!='undefined') {
-        msg='This page already using jQuery v'+jQuery.fn.jquery;
-      } else if (typeof $=='function') {
-        otherlib=true;
+    if(typeof jQuery!='undefined') {
+      msg='This page already using jQuery v'+jQuery.fn.jquery;
+    } else if (typeof $=='function') {
+      otherlib=true;
+    }
+    
+    function getScript(url,success){
+      var script=document.createElement('script');
+      script.src=url;
+      var head=document.getElementsByTagName('head')[0],
+          done=false;
+      script.onload=script.onreadystatechange = function(){
+        if ( !done && (!this.readyState
+             || this.readyState == 'loaded'
+             || this.readyState == 'complete') ) {
+          done=true;
+          success();
+          script.onload = script.onreadystatechange = null;
+          head.removeChild(script);
+        }
+      };
+      head.appendChild(script);
+    }
+    getScript('http://code.jquery.com/jquery.min.js',function() {
+      if (typeof jQuery=='undefined') {
+        msg='Sorry, but jQuery wasnt able to load';
+      } else {
+        msg='This page is now jQuerified with v' + jQuery.fn.jquery;
+        if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
       }
-      
+      uiLoader();
 
-      function getScript(url,success){
-        var script=document.createElement('script');
-        script.src=url;
-        var head=document.getElementsByTagName('head')[0],
-            done=false;
-        script.onload=script.onreadystatechange = function(){
-          if ( !done && (!this.readyState
-               || this.readyState == 'loaded'
-               || this.readyState == 'complete') ) {
-            done=true;
-            success();
-            script.onload = script.onreadystatechange = null;
-            head.removeChild(script);
-          }
-        };
-        head.appendChild(script);
-      }
-      getScript('http://code.jquery.com/jquery.min.js',function() {
+    });
+
+    function uiLoader(){
+      getScript('http://code.jquery.com/ui/1.10.4/jquery-ui.js',function() {
         if (typeof jQuery=='undefined') {
           msg='Sorry, but jQuery wasnt able to load';
         } else {
-          msg='This page is now jQuerified with v' + jQuery.fn.jquery;
+          msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
           if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
         }
-        uiLoader();
+        getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
+          console.log('xdm loaded');
+          book();
+          book2();
+          console.log('bookmarklet loaded');
+        });
+        return showMsg();
 
       });
-
-      function uiLoader(){
-        getScript('http://code.jquery.com/ui/1.10.4/jquery-ui.js',function() {
-          if (typeof jQuery=='undefined') {
-            msg='Sorry, but jQuery wasnt able to load';
-          } else {
-            msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
-            if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
-          }
-          getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
-            console.log('xdm loaded');
-            book();
-            book2();
-            console.log('bookmarklet loaded');
-          });
-          return showMsg();
-
-        });
-      }
-      function testMsg(){
-        targetWindow.postMessage('Hello World!', 'http://localhost:3500');
-      }
-      function showMsg() {
-        console.log(msg);
-      }
+    }
 
     function book(){
       dropsphere=true;
@@ -123,10 +116,10 @@ javascript:(function() {
       margin:2px 6px 0 0;
       height:30px;
       width:30px;
-      background:url(http://localhost:3500/img/close.png) no-repeat;
+      background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;
       }
       #close:hover{
-      background:url(http://localhost:3500/img/close_hover.png) no-repeat;
+      background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;
       }
       #dropsphere{
          }
@@ -145,7 +138,7 @@ javascript:(function() {
 
     function book2(){
           socketxdm = new easyXDM.Socket({
-            remote: 'http://localhost:3500/bookmark',
+            remote: 'http://dropsphere.herokuapp.com/bookmark',
             container:'dropsphere',
 
             onMessage: function(message, origin){
