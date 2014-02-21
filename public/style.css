@@ -1,3 +1,4 @@
+/* General Rules */
 body {
   height: 100%;
   font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important;
@@ -8,33 +9,34 @@ body {
 p {
   font-size: 14px; }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important; }
-
 h1 {
   font-size: 48px;
   font-weight: 200;
   margin: 6px; }
+
+h6 {
+  text-align: center;
+  color: #aaa; }
 
 #preload {
   position: absolute;
   left: -99999px;
   top: -99999px; }
 
-#bookmarklet {
-  color: white;
-  font-weight: bold;
-  margin-top: 20px;
-  padding: 12px 30px;
-  width: 30px;
-  background: #4186cc;
-  border: 1px solid #3980c3;
-  border-radius: 3px; }
+/* bootstrap overides */
+.btn-primary {
+  width: 80%; }
+  .btn-primary :hover {
+    color: white; }
 
-a#bookmarklet {
-  background: #3980c3;
-  text-decoration: none; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif !important; }
 
+input {
+  margin: auto;
+  margin-bottom: 2px; }
+
+/* containers */
 #container {
   position: absolute;
   width: 94%;
@@ -42,34 +44,36 @@ a#bookmarklet {
   margin: auto;
   margin-left: 3%; }
 
-#content {
-  position: relative;
-  height: 76%;
-  width: 100%;
-  margin: auto;
-  text-align: left; }
-  #content p {
-    margin-bottom: 2px; }
-
-.alert {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: #4186cc;
-  text-align: center;
-  padding: 4px;
-  color: white; }
-
 #chat {
-  height: 72%; }
+  height: 68%; }
 
-textarea {
-  margin: 9px 0 6px 0;
-  resize: none; }
+/* Account management */
+#name, #join, #login {
+  position: absolute;
+  width: 100%;
+  top: 30%; }
 
-.controls .slimScrollDiv, .controls .slimScrollBar {
-  background: none !important; }
+#join #chatLogo, #login #chatLogo {
+  margin-bottom: 14px; }
+
+#joinSet, #loginSet {
+  margin-top: 10px; }
+
+#account {
+  clear: both;
+  float: right;
+  margin-right: 10%; }
+
+/* Chat Header */
+#chatLogo {
+  margin: 3px; }
+
+#currentInfo {
+  width: auto;
+  padding: 0 4px;
+  margin-bottom: 3px; }
+  #currentInfo .caret {
+    margin-left: 6px; }
 
 #users h3 {
   margin-top: 0;
@@ -87,51 +91,17 @@ textarea {
 #users p:first-child {
   margin-left: 0; }
 
-#name, #join, #login {
-  position: absolute;
-  width: 100%;
-  top: 30%; }
+/* Menus */
+.dropdown a {
+  text-align: left; }
 
-#join #chatLogo, #login #chatLogo {
-  margin-bottom: 14px; }
+.modal-dialog {
+  margin-top: 52px; }
 
-#joinSet, #loginSet {
-  margin-top: 10px; }
+#inviteLink {
+  cursor: text; }
 
-input {
-  margin: auto;
-  margin-bottom: 2px; }
-
-#logo {
-  margin-top: 200px; }
-
-#chatLogo {
-  margin: 3px; }
-
-.bold {
-  font-weight: 700; }
-
-#account {
-  clear: both;
-  float: right;
-  margin-right: 10%; }
-
-#send {
-  width: 80%; }
-
-#currentInfo {
-  width: auto;
-  padding: 0 4px;
-  margin-bottom: 3px; }
-
-.btn-primary {
-  width: 80%; }
-  .btn-primary :hover {
-    color: white; }
-
-.gray {
-  color: #666; }
-
+/* Buttons */
 #navButtons {
   position: absolute;
   top: 0;
@@ -159,19 +129,49 @@ input {
 #share:hover {
   background: url("/img/share_hover.png") no-repeat; }
 
-.dropdown a {
+/* Chat Body */
+#content {
+  position: relative;
+  height: 76%;
+  width: 100%;
+  margin: auto;
   text-align: left; }
+  #content p {
+    margin-bottom: 2px; }
 
-.modal-dialog {
-  margin-top: 52px; }
+/* Controls */
+.controls .slimScrollDiv, .controls .slimScrollBar {
+  background: none !important; }
 
-#dropperControl {
-  margin-top: 10px;
-  display: none; }
+textarea {
+  margin: 9px 0 6px 0;
+  resize: none; }
 
-h6 {
-  text-align: center;
-  color: #aaa; }
+#send {
+  width: 80%; }
+
+/* Homepage */
+#bookmarklet {
+  color: white;
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 12px 30px;
+  width: 30px;
+  background: #4186cc;
+  border: 1px solid #3980c3;
+  border-radius: 3px; }
+
+a#bookmarklet {
+  background: #3980c3;
+  text-decoration: none; }
+
+#logo {
+  margin-top: 200px; }
+
+/* Generic Classes */
+.error {
+  font-size: 12px;
+  color: #666; }
 
 .announcement {
   font-size: 12px;
@@ -182,9 +182,21 @@ h6 {
   color: #999;
   text-align: center; }
 
-#inviteLink {
-  cursor: text; }
+.alert {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #4186cc;
+  text-align: center;
+  padding: 4px;
+  color: white; }
 
-.error {
-  font-size: 12px;
+.gray {
   color: #666; }
+
+.bold {
+  font-weight: 700; }
+
+#dropperControl {
+  display: none; }
