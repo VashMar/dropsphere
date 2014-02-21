@@ -141,9 +141,10 @@ input{
 		float:left;
 		display:block;
 		cursor:pointer;
+		margin-top:1px;
 		background:url("/img/share.png") no-repeat;
-		width:32px;
-		height:32px;
+		width:30px;
+		height:30px;
 	}
 	#share:hover{
 		background:url("/img/share_hover.png") no-repeat;
