@@ -3,7 +3,9 @@ $theme-dark:#3980c3;
 $font-stack: 'Source Sans Pro', Helvetica, Arial, sans-serif;
 $txt-color: #222;
 $bg-color:#f6f6f6;
+$txt-light: #666;
 
+/* General Rules */
 body {
 	height:100%;
 	font-family:$font-stack !important;
@@ -14,33 +16,37 @@ body {
 p{
 	font-size:14px;
 }
-h1,h2,h3,h4,h5,h6{
-	font-family:$font-stack !important;
-}
 h1{
 	font-size:48px;
 	font-weight:200;
 	margin:6px;
+}
+h6{
+	text-align:center;
+	color:#aaa;
 }
 #preload{
 	position:absolute;
 	left:-99999px;
 	top:-99999px;
 }
-#bookmarklet{
-	color:white;
-	font-weight:bold;
-	margin-top:20px;
-	padding:12px 30px;
-	width:30px;
-	background:$theme;
-	border:1px solid $theme-dark;
-	border-radius:3px;
+
+/* bootstrap overides */
+.btn-primary{
+	width:80%;
+	:hover{
+		color:white;
+	}
 }
-a#bookmarklet{
-	background:$theme-dark;
-	text-decoration:none;
+h1,h2,h3,h4,h5,h6{
+	font-family:$font-stack !important;
 }
+input{
+	margin:auto;
+	margin-bottom:2px;
+}
+
+/* containers */
 #container{
 	position:absolute;
 	width:94%;
@@ -48,39 +54,41 @@ a#bookmarklet{
 	margin:auto;
 	margin-left:3%;
 }
+#chat{
+	height:68%;
+}
 
-#content{
-	position:relative;
-	height:76%;
-	width: 100%; 
-	margin:auto;
-	text-align:left;
-	p{
-		margin-bottom:2px;
+
+/* Account management */
+#name, #join, #login{
+	position:absolute;
+	width:100%;
+	top:30%;
+}
+#join, #login{
+	#chatLogo{
+		margin-bottom:14px;
 	}
 }
-.alert{
-	position:absolute;
-	top:0;
-	left:0;
-	width:100%;
-	background:$theme;
-	text-align:center;
-	padding:4px;
-	color:white;
+#joinSet, #loginSet{
+	margin-top:10px;
 }
-#chat{
-	height:72%;
+#account{
+	clear:both;
+	float:right;
+	margin-right:10%;
 }
-textarea{
-	margin:9px 0 6px 0;
-	resize: none;
 
-
+/* Chat Header */
+#chatLogo{
+	margin:3px;
 }
-.controls{
-	.slimScrollDiv,.slimScrollBar{
-		background:none !important;
+#currentInfo{
+	width:auto;
+	padding:0 4px;
+	margin-bottom:3px;
+	.caret{
+		margin-left:6px;
 	}
 }
 #users{
@@ -102,99 +110,97 @@ textarea{
 #users p:first-child{
 	margin-left:0;
 }
-#name, #join, #login{
-	position:absolute;
-	width:100%;
-	top:30%;
-}
-#join, #login{
-	#chatLogo{
-		margin-bottom:14px;
+	/* Menus */
+	.dropdown a{
+		text-align:left;
+	}
+	.modal-dialog{
+		margin-top: 52px;
+	}
+	#inviteLink{
+		cursor:text;
+	}
+	/* Buttons */
+	#navButtons{
+		position:absolute;
+		top:0;
+		left:0;
+	}
+	#settings{
+		float:left;
+		display:block;
+		cursor:pointer;
+		background:url("/img/settings.png") no-repeat;
+		width:32px;
+		height:32px;
+	}
+	#settings:hover{
+		background:url("/img/settings_hover.png") no-repeat;
+	}
+	#share{
+		float:left;
+		display:block;
+		cursor:pointer;
+		margin-top:1px;
+		background:url("/img/share.png") no-repeat;
+		width:30px;
+		height:30px;
+	}
+	#share:hover{
+		background:url("/img/share_hover.png") no-repeat;
 	}
 
 
-}
-#joinSet, #loginSet{
-	margin-top:10px;
-}
-input{
+/* Chat Body */
+#content{
+	position:relative;
+	height:76%;
+	width: 100%; 
 	margin:auto;
-	margin-bottom:2px;
+	text-align:left;
+	p{
+		margin-bottom:2px;
+	}
 }
-#logo{
-	margin-top:200px;
+
+
+/* Controls */
+.controls{
+	.slimScrollDiv,.slimScrollBar{
+		background:none !important;
+	}
 }
-#chatLogo{
-	margin:3px;
-}
-.bold{
-	font-weight:700;
-}
-#account{
-	clear:both;
-	float:right;
-	margin-right:10%;
+textarea{
+	margin:9px 0 6px 0;
+	resize: none;
 }
 #send{
 	width: 80%;
 }
-#currentInfo{
-	width:auto;
-	padding:0 4px;
-	margin-bottom:3px;
 
+/* Homepage */
+#bookmarklet{
+	color:white;
+	font-weight:bold;
+	margin-top:20px;
+	padding:12px 30px;
+	width:30px;
+	background:$theme;
+	border:1px solid $theme-dark;
+	border-radius:3px;
 }
-.btn-primary{
-	
-	width:80%;
-	:hover{
-		color:white;
-	}
+a#bookmarklet{
+	background:$theme-dark;
+	text-decoration:none;
 }
-.gray{
-	color:#666;
+#logo{
+	margin-top:200px;
 }
-#navButtons{
-	position:absolute;
-	top:0;
-	left:0;
-}
-#settings{
-	float:left;
-	display:block;
-	cursor:pointer;
-	background:url("/img/settings.png") no-repeat;
-	width:32px;
-	height:32px;
-}
-#settings:hover{
-	background:url("/img/settings_hover.png") no-repeat;
-}
-#share{
-	float:left;
-	display:block;
-	cursor:pointer;
-	background:url("/img/share.png") no-repeat;
-	width:32px;
-	height:32px;
-}
-#share:hover{
-	background:url("/img/share_hover.png") no-repeat;
-}
-.dropdown a{
-	text-align:left;
-}
-.modal-dialog{
-	margin-top: 52px;
 
-}
-#dropperControl{
-	margin-top:10px;
-	display:none;
-}
-h6{
-	text-align:center;
-	color:#aaa;
+/* Generic Classes */
+.error{
+	font-size:12px;
+	color:$txt-light;
 }
 .announcement{
 	font-size:12px;
@@ -205,6 +211,22 @@ h6{
 	color:#999;
 	text-align:center;
 }
-#inviteLink{
-	cursor:text;
+.alert{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	background:$theme;
+	text-align:center;
+	padding:4px;
+	color:white;
+}
+.gray{
+	color:$txt-light;
+}
+.bold{
+	font-weight:700;
+}
+#dropperControl{
+	display:none;
 }

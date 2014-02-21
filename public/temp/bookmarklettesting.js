@@ -7,7 +7,7 @@ javascript:(function() {
         msg='';
 
     var img=new Image();
-    img.src='http://dropsphere.herokuapp.com/img/close_hover.png';
+    img.src='http://localhost:3500/img/close_hover.png';
     
     function getScript(url,success){
       var script=document.createElement('script');
@@ -27,7 +27,7 @@ javascript:(function() {
       head.appendChild(script);
     }
     getScript('http://code.jquery.com/jquery.min.js',function() {
-      getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
+      getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
         dropsphereLaunch();
         dropsphereXDM();
       });
@@ -80,11 +80,11 @@ javascript:(function() {
       margin:2px 6px 0 0;
       height:30px;
       width:30px;
-      background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;
+      background:url(http://localhost:3500/img/close.png) no-repeat;
       z-index:99999999;
       }
       #close:hover{
-      background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;
+      background:url(http://localhost:3500/img/close_hover.png) no-repeat;
       }
       #dropsphere{
          }
@@ -103,7 +103,7 @@ javascript:(function() {
 
     function dropsphereXDM(){
           socketxdm = new easyXDM.Socket({
-            remote: 'http://dropsphere.herokuapp.com/bookmark',
+            remote: 'http://localhost:3500/bookmark',
             container:'dropsphere',
 
             onMessage: function(message, origin){
