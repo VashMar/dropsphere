@@ -4,17 +4,10 @@ javascript:(function() {
     dropsphere=true;
     var el=document.createElement('div'),
         b=document.getElementsByTagName('body')[0],
-        otherlib=false,
         msg='';
 
     var img=new Image();
     img.src='http://localhost:3500/img/close_hover.png';
-
-    if(typeof jQuery!='undefined') {
-      msg='This page already using jQuery v'+jQuery.fn.jquery;
-    } else if (typeof $=='function') {
-      otherlib=true;
-    }
     
     function getScript(url,success){
       var script=document.createElement('script');
@@ -34,34 +27,12 @@ javascript:(function() {
       head.appendChild(script);
     }
     getScript('http://code.jquery.com/jquery.min.js',function() {
-      if (typeof jQuery=='undefined') {
-        msg='Sorry, but jQuery wasnt able to load';
-      } else {
-        msg='This page is now jQuerified with v' + jQuery.fn.jquery;
-        if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
-      }
-      uiLoader();
+      getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
+        dropsphereLaunch();
+        dropsphereXDM();
+      });
 
     });
-
-    function uiLoader(){
-      getScript('http://code.jquery.com/ui/1.10.4/jquery-ui.js',function() {
-        if (typeof jQuery=='undefined') {
-          msg='Sorry, but jQuery wasnt able to load';
-        } else {
-          msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
-          if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
-        }
-        getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
-          console.log('xdm loaded');
-          dropsphereLaunch();
-          dropsphereXDM();
-          console.log('bookmarklet loaded');
-        });
-        return showMsg();
-
-      });
-    }
     function dropsphereLaunch(){
       dropsphere=true;
       var d = document.createElement('div');
@@ -82,12 +53,6 @@ javascript:(function() {
           dropsphere=false;
             };
       d.appendChild(close);
-
-      var dropper = document.createElement('div');
-      dropper.setAttribute('id', 'dropper');
-      dropper.style.width = '300px';
-      dropper.style.height = '100%';
-      d.appendChild(dropper);
 
       var css = document.createElement('style');
       css.type = 'text/css';
@@ -142,49 +107,11 @@ javascript:(function() {
             container:'dropsphere',
 
             onMessage: function(message, origin){
-                if(message=='#ds-img'){
-                  draggify('img');
-                }else if(message=='#ds-text'){
-                  draggify('text');
-                }else if(message=='#ds-link'){
-                }
             },
             onReady : function() {
-
-                    socketxdm.postMessage('Yay, it works!');
+                    socketxdm.postMessage('xdm working in bookmarklet');
             }
           });
-    }
-    function draggify(selector){
-      alert('drag called');
-      if(selector == 'text'){
-        selector = 'p, a, h1, h2, h3, h4';
-      }else if(selector == 'img'){
-        selector = 'img';
-      }else{
-      }
-      $(selector).draggable({
-          stack: 'div',
-          zIndex:99999999,
-          cursor: 'move', 
-          cursorAt: { top: 56, left: 56 },
-          start: function() {
-            $(this).height(100).width(100);   
-          },
-      });
-      $( '#dropper' ).droppable({
-        drop: function( event, ui ) {
-          $( this )
-          .addClass( 'ui-state-highlight' )
-          .find( 'p' )
-          .html( 'Dropped!' );
-
-        socketxdm.postMessage(ui.draggable.html());
-        }
-      });
-    }
-    function imgParse(img){
-      return img.find('img').attr('src');
     }
   }
 })();
