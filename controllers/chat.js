@@ -15,7 +15,7 @@ var ENV = process.env.NODE_ENV;
 exports.bookmark = function(req, res){
 
 	var sesh = req.session;
-	console.log(sesh);
+
 	if(sesh.isLogged == true){ 
         res.render("template_chat", { data: {
                                     nickname:  sesh.nickname,
@@ -99,11 +99,11 @@ exports.signup = function(req, res){
 				
 
          } else {	// create the user a sphere and plop them inside 
-         	console.log("Creating sphere for new user..");
-         	 newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id });
-         	 // create a welcome message 
-			 messages["welcome"] = "Welcome to your sphere!";
-			 add_and_render(newSphere);
+         	  console.log("Creating sphere for new user..");
+         	  newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id });
+         	  // create a welcome message 
+    			  messages["welcome"] = "Welcome to your sphere!";
+    			  add_and_render(newSphere);
          }
 
 
@@ -119,11 +119,11 @@ exports.signup = function(req, res){
          			user.spheres.push({object: newSphere, nickname: user.name }); // add the sphere to user's sphere list 
 
 
-         			// build chat data for client side 
-					sphereNames = [sphere.name],
-					nicknames = sphere.nicknames,
-					nickname = user.name,
-					currentSphere = sphere.name,
+             	// build chat data for client side 
+    					sphereNames = [sphere.name],
+    					nicknames = sphere.nicknames,
+    					nickname = user.name,
+    					currentSphere = sphere.name,
 		
 
 			      	// build a map of sphere data for the client 
@@ -147,8 +147,8 @@ exports.signup = function(req, res){
 
 
 
-                    // store session data 
-			        req.session.sphereMap = sphereMap;
+                // store session data 
+			          req.session.sphereMap = sphereMap;
 		            req.session.sphereNames = sphereNames;
 		            req.session.username = username;
 		            req.session.name = nickname;
@@ -157,7 +157,8 @@ exports.signup = function(req, res){
 		            req.session.currentSphere = currentSphere;
 		            req.session.totalUpdates = totalUpdates;
 		            req.session.newMember = true;
-					// flag user as logged in 
+
+					    // flag user as logged in 
 		        	req.session.isLogged = true;
 
 		        	user.save(function(err,user){
@@ -212,11 +213,11 @@ exports.login = function(req, res){
 
           	// data about current user and their current sphere
           	var username = user.name,
-          		nicknames,
-          		nickname,
-          		currentSphere,
-          		joined,
-          		sphereID;
+          		  nicknames,
+          		  nickname,
+          		  currentSphere,
+          		  joined,
+          		  sphereID;
 
 
           	// if the user is being invited to a sphere just track the nickname and sphere id for now
@@ -226,24 +227,24 @@ exports.login = function(req, res){
           		joined = moment(); // track the time the user joined the sphere as now 
           	} else{	// otherwise we already have the target sphere so track its data 
           	 	var targetSphere = user.spheres[user.currentSphere];
+              targetSphere.updates = 0; // served sphere doesn't need update notifications
+      			 	nicknames = targetSphere.object.nicknames;
+              nickname = targetSphere.nickname;
+              currentSphere = targetSphere.object.name;
+    				  sphereID = targetSphere.object._id;
+    				  joined = targetSphere.joined;
+    	  	  }
 
-  			 	nicknames = targetSphere.object.nicknames;
-            	nickname = targetSphere.nickname;
-            	currentSphere = targetSphere.object.name;
-				sphereID = targetSphere.object._id;
-				joined = targetSphere.joined;
-    	  	}
+      	  	console.log(moment(String));
+      	  	console.log(user.spheres[user.currentSphere].joined);
+    		
 
-    	  	console.log(moment(String));
-    	  	console.log(user.spheres[user.currentSphere].joined);
-  		
+                // data about all of the current user's spheres 
+      			var sphereData = user.sphereData(ENV);
 
-            // data about all of the current user's spheres 
-  			var sphereData = user.sphereData(ENV);
-
-  			var	sphereMap = sphereData["sphereMap"],
-  				sphereNames = sphereData["sphereNames"],
-  				totalUpdates = sphereData["totalUpdates"];
+      			var	sphereMap = sphereData["sphereMap"],
+      				  sphereNames = sphereData["sphereNames"],
+      				  totalUpdates = sphereData["totalUpdates"];
   			 	
 
             Sphere.findOne({_id: sphereID}).populate('messages', null, {date: {$gte: joined }}).exec(function(err, sphere){ 
@@ -279,8 +280,8 @@ exports.login = function(req, res){
 	                 
 	                    for(var i = 0; i < sphere.messages.length - 1; i++){
 	                            
-	                        var msg1 = sphere.messages[i].sender + ": " + sphere.messages[i].text;
-	                        var msg2 = sphere.messages[i+1].sender + ": " + sphere.messages[i+1].text;
+	                        var msg1 = [sphere.messages[i].sender , sphere.messages[i].text];
+	                        var msg2 = [sphere.messages[i+1].sender , sphere.messages[i+1].text];
 	                        var time1 = moment(sphere.messages[i].date);
 	                        var time2 = moment(sphere.messages[i+1].date);
 	                            
@@ -345,16 +346,6 @@ exports.login = function(req, res){
             	}
             });
 
-         /*    console.log(req.session.username + " is logged in");
-
-             if(req.session.invite == true){
-                req.session.isNew = true;     // flag for user who just logged in 
-                res.redirect('/bookmark/invite/' + req.session.inviteID);
-             }else{
-                res.render("includes/chat", {name: user.name});
-             }
-
-             */
             
           }
         });
@@ -370,5 +361,145 @@ exports.logout = function(req, res){
 	res.render("includes/login");
 }
 
+exports.invite = function(req,res){
+   var inviteID = req.param('id');
+
+   req.session.inviteID = inviteID;
+   req.session.invite = true; 
+   var sesh = req.session;
+
+   var username = sesh.username,
+       nicknames = [],
+       nickname =  username,
+       currentSphere = "",
+       sphereMap = sesh.sphereMap,
+       sphereNames = sesh.sphereNames, 
+       totalUpdates = sesh.totalUpdates,
+       messages = {};
 
 
+   if(req.session.isLogged == true){
+    User.findOne({session: req.sessionID}, function(err, user){
+      if(user){
+
+      Sphere.findOne({_id: inviteID}, function(err,sphere){
+          if(!sphere){
+            console.log("Invited Sphere doesn't exist");
+           } else{
+              console.log("The user:" + user);
+              console.log("The sphere:" + sphere);
+              if(sphere.members.length < 6){
+                if(!user.isMember(sphere)){         // if the user isn't already  member plop them in 
+          
+                  // update both tracking lists and the users current sphere index 
+                  user.spheres.push({object: sphere._id, nickname: user.name}); 
+                  sphere.members.push({id: user.id , name: user.name});
+                  user.currentSphere = sphere.members.length - 1;
+
+
+
+                  // update the client side session data to contain info on this sphere 
+                  currentSphere = sphere.name;
+                  nicknames = sphere.nicknames;
+                  sphereNames.push(currentSphere);
+                  sphereMap[currentSphere] = {id: sphere._id, nickname: nickname, link: sphere.link(ENV) , updates: 0}; 
+
+                  // show the joined message 
+                  messages["joined"] = username + " joined the sphere";
+
+                  req.session.newMember = true;   // flag to show the user was just added to sphere
+
+                  user.save(function(err){console.log(err);});
+                  sphere.save(function(err){console.log(err);});
+
+                }else{
+                  console.log("already in sphere");
+                }
+              }else{
+                 console.log("sphere is full")
+              } 
+            }
+         
+        });
+
+           res.render("template_chat", { data: {
+                                    nickname:  nickname,
+                                    username:  username,
+                                    nicknames: nicknames,
+                                    messages:  messages,
+                                    sphereMap: sphereMap,
+                                    sphereNames: sphereNames,
+                                    currentSphere: currentSphere,
+                                    totalUpdates: totalUpdates
+                                    }
+
+                                  });       
+          
+          // store session data 
+          req.session.sphereMap = sphereMap;
+          req.session.sphereNames = sphereNames;
+          req.session.username = username;
+          req.session.nickname = nickname;
+          req.session.nicknames = nicknames;
+          req.session.messages = messages;
+          req.session.currentSphere = currentSphere;
+          req.session.totalUpdates = totalUpdates;
+      
+      }
+    });
+
+  } else{
+    res.render("template_login");
+  }
+
+}
+
+/*app.get("/bookmark/invite/:id", function(req, res){
+  var inviteID = req.param('id');
+
+   req.session.inviteID = inviteID;
+   req.session.invite = true; 
+
+   if(req.session.isLogged == true){
+    User.findOne({session: req.sessionID}, function(err, user){
+      if(user){
+        // due to easy xdm persistence new session gets ajax response, existing one gets new template
+        if(req.session.isNew == true){
+            console.log("user just logged in");
+            res.render('includes/chat', {name: user.name});
+            req.session.isNew = false;
+        } else{
+            console.log("user is already logged in");
+            res.render("template_chat", {name: user.name});
+        }
+      
+        Sphere.findOne({_id: inviteID}, function(err,sphere){
+          if(!sphere){
+            console.log("Invited Sphere doesn't exist");
+          } else{
+              console.log("The user:" + user);
+              console.log("The sphere:" + sphere);
+              if(!user.isMember(sphere)){         // if user is already a member of this sphere we don't have to do anything 
+                if(sphere.members.length < 6){    // if the sphere isn't full add it's new member 
+                  user.spheres.push({object: sphere._id, nickname: user.name}); 
+                  sphere.members.push({id: user.id , name: user.name});
+                  req.session.justAdded = true;   // flag to show the user was just added to sphere
+                  user.save(function(err){console.log(err);});
+                  sphere.save(function(err){console.log(err);});
+                }else{
+                  console.log("sphere is full");
+                }
+              }else{
+                 console.log("already in sphere");
+              } 
+          }
+         
+        });
+      }
+    });
+
+  } else{
+    res.render("template_login");
+  }
+
+});*/

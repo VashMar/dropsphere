@@ -62,7 +62,13 @@
                             h6=moment(convoTime).calendar()
                             - var convos = data.messages[convoTime];
                             each convo in convos
-                                p=convo
+                                - var sender = convo[0];
+                                - var text = convo[1];
+                                - var memberNum = nicknames.indexOf(sender);
+                                p
+                                    span(class='user'+ memberNum)
+                                        =sender + ': '
+                                    =text
         .controls
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -128,6 +134,7 @@ script.
     sphereData = !{JSON.stringify(data)};
     username = sphereData.username;
     nickname = sphereData.nickname;
+    nicknames = sphereData.nicknames;
     sphereMap = sphereData.sphereMap;
     currentSphere = sphereData.currentSphere;
     totalUpdates = sphereData.totalUpdates;

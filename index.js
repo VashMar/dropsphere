@@ -140,56 +140,7 @@ app.get("/invite/:id", function(req, res){
   }
 });
 
-app.get("/bookmark/invite/:id", function(req, res){
-  var inviteID = req.param('id');
-
-   req.session.inviteID = inviteID;
-   req.session.invite = true; 
-
-   if(req.session.isLogged == true){
-    User.findOne({session: req.sessionID}, function(err, user){
-      if(user){
-        // due to easy xdm persistence new session gets ajax response, existing one gets new template
-        if(req.session.isNew == true){
-            console.log("user just logged in");
-            res.render('includes/chat', {name: user.name});
-            req.session.isNew = false;
-        } else{
-            console.log("user is already logged in");
-            res.render("template_chat", {name: user.name});
-        }
-      
-        Sphere.findOne({_id: inviteID}, function(err,sphere){
-          if(!sphere){
-            console.log("Invited Sphere doesn't exist");
-          } else{
-              console.log("The user:" + user);
-              console.log("The sphere:" + sphere);
-              if(!user.isMember(sphere)){         // if user is already a member of this sphere we don't have to do anything 
-                if(sphere.members.length < 6){    // if the sphere isn't full add it's new member 
-                  user.spheres.push({object: sphere._id, nickname: user.name}); 
-                  sphere.members.push({id: user.id , name: user.name});
-                  req.session.justAdded = true;   // flag to show the user was just added to sphere
-                  user.save(function(err){console.log(err);});
-                  sphere.save(function(err){console.log(err);});
-                }else{
-                  console.log("sphere is full");
-                }
-              }else{
-                 console.log("already in sphere");
-              } 
-          }
-         
-        });
-      }
-    });
-
-  } else{
-    res.render("template_login");
-  }
-
-});
-
+app.get("/bookmark/invite/:id", chat.invite);
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -508,8 +459,8 @@ sessionSockets.on('connection', function (err, socket, session) {
                         var key; 
                         for(var i = 0; i < sphere.messages.length - 1; i++){
                             
-                             var msg1 = sphere.messages[i].sender + ": " + sphere.messages[i].text;
-                             var msg2 = sphere.messages[i+1].sender + ": " + sphere.messages[i+1].text;
+                             var msg1 = [sphere.messages[i].sender, sphere.messages[i].text];
+                             var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text];
                              var time1 = moment(sphere.messages[i].date);
                              var time2 = moment(sphere.messages[i+1].date);
                             

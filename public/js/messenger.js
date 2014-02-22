@@ -38,6 +38,7 @@ function Chat(){
 
             socket.on('users', function(users){
 
+                nicknames = users; // store array of all user nicknames in sphere 
                 members = users.length;
                 $("#users").empty();
 
@@ -99,8 +100,9 @@ function Chat(){
                    
                 if(data.msg){
                     if(sphereMap[currentSphere].id == data.sphere) {    
+                        var memberNum = nicknames.indexOf(data.sender);
                         // if the message is being sent to the current sphere being looked at, add it to the chat 
-                         $("#content").append("<p>" + data.sender + ": " + data.msg  + "</p>");
+                         $("#content").append("<p><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                          scrollBottom();
                          socket.emit("seen", {sphere: data.sphere});
 
@@ -230,8 +232,14 @@ function Chat(){
 
                        $("#content").append("<h6>" + moment(convoTime).calendar() + "</h6>");
 
-                        for(var msg = 0; msg < convo.length; msg++){
-                            $("#content").append("<p>" + convo[msg] + "</p>");
+                        for(var m = 0; m < convo.length; m++){
+                            var msg = convo[m];
+
+                            var sender = msg[0],
+                                text = msg[1], 
+                                memberNum = nicknames.indexOf(sender);
+
+                            $("#content").append("<p><span class='user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
                         }
                     }
                     
