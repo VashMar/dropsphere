@@ -113,8 +113,14 @@ function Chat(){
                                 sphereMap[sphereNames[i]].updates++;            // increment this spheres updates on client side 
                                 var updates = sphereMap[sphereNames[i]].updates;
                                 totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
-                                $("#notifications").html(totalUpdates);         
-                                $("#updates-" + i ).html(updates);
+                                $("#notifications").html(totalUpdates); 
+
+                                if($("#updates-" + i ).length){
+                                  $("#updates-" + i ).html(updates);
+                                } else {
+                                  var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
+                                  $("#okcircle-" + i).replaceWith(updateIcon);
+                                } 
                             }
                              
                         } 
@@ -272,7 +278,9 @@ function Chat(){
 
             // lets remove the update notifier next to the sphere dropdown 
             var i = sphereNames.indexOf(currentSphere);
-            $("#updates-" + i ).replaceWith("<span class='glyphicon glyphicon-ok-circle'></span> &nbsp;");
+            var okIcon = "<span id='okcircle-"+ i + "' class='glyphicon glyphicon-ok-circle'></span>";
+
+            $("#updates-" + i ).replaceWith(okIcon);
 
             // the user will see the updates of their current sphere, so no need to post them 
             totalUpdates -= sphereMap[currentSphere].updates;

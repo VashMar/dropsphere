@@ -36,8 +36,9 @@
                                 span.sphereUpdates(id="updates-" + i)
                                     =updates
                                 &nbsp;
-                            else 
-                                <span class="glyphicon glyphicon-ok-circle"></span> &nbsp;
+                            else
+                                span(id ="okcircle-" + i class="glyphicon glyphicon-ok-circle") 
+                                &nbsp;
                             span.sphereName
                                 =sphereName
                 li#sphereDivider.divider(role="presentation" )
