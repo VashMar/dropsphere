@@ -43,6 +43,7 @@
                 li#sphereDivider.divider(role="presentation" )
                 li(role="presentation")
                     a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
+        audio#notifySound(src="/sounds/waterDrop.ogg" preload="auto")
         #users
             each nickname in nicknames
                 p=nickname

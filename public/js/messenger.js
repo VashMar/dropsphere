@@ -137,6 +137,11 @@ function Chat(){
                   alertIssue(data);
             });
 
+
+            socket.on('notifySound', function(){
+                notifySound();
+            });
+
         };
 
         this.Disconnect = function(){

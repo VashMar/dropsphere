@@ -308,11 +308,12 @@ sessionSockets.on('connection', function (err, socket, session) {
 	 socket.on('send', function (data) {
 
       data.msg = parser(data.msg);
-      var sphereString = (String(data.sphere)); 
+      var sphereString = String(data.sphere); 
 
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
 
   	  io.sockets.in(sphereString).emit('message', data);
+      socket.broadcast.to(sphereString).emit('notifySound');
 
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){

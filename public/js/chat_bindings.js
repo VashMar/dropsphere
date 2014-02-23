@@ -59,9 +59,13 @@ $(document).ready(function(){
     }); 
 
 
+
 });
 
-      function sendMsg(){
+    
+
+
+    function sendMsg(){
         
         
         var msg = $("#messageInput").val();  
@@ -69,6 +73,11 @@ $(document).ready(function(){
         $("#messageInput").val("");
         chat.Send(msg);
 
+    }
+
+
+    function notifySound(){
+        document.getElementById('notifySound').play();
     }
 
     function logout(){
