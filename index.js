@@ -319,8 +319,17 @@ sessionSockets.on('connection', function (err, socket, session) {
         if(sphere){
           console.log("sphere found")
           var message = new Message({text: data.msg, sender: data.sender});
+          console.log(message);
           //clean up code /////////////////////////////////////////////////////////////////////////////////////////////////
-          message.save();
+          message.save(function(err, msg){
+            if(err){
+              console.log(err);
+            }
+
+            if(msg){
+              console.log("Message Saved: " + msg);
+            }
+          });
           sphere.messages.push(message);
           sphere.save(function(err, sphere){
             console.log(sphere.messages.length);
@@ -447,7 +456,6 @@ sessionSockets.on('connection', function (err, socket, session) {
                
                 if(targetSphere){ // lets only do a query if we know the sphere exists 
                     // find the requested sphere with all its messages after the user joined the sphere 
-                console.log(targetSphere.joined);
 
                     Sphere.findOne({_id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
                       if(err){console.log(err);}
@@ -455,7 +463,7 @@ sessionSockets.on('connection', function (err, socket, session) {
                       if(!sphere){
                         console.log("User requested a sphere that magically doesn't exist!");
                       } else{
-                        console.log(sphere.messages);
+                        console.log(sphere.messages[sphere.messages.length - 1]);
                         var messages = {};
                         var key; 
                         for(var i = 0; i < sphere.messages.length - 1; i++){
@@ -612,10 +620,6 @@ sessionSockets.on('connection', function (err, socket, session) {
  function parser(msg) { 
     var res = msg;
     var hasProtocol = msg.indexOf("http://") == 0;
-
-
-    
-
 
     if( hasProtocol || msg.indexOf("www.") == 0 ){
        

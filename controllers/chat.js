@@ -222,17 +222,17 @@ exports.login = function(req, res){
 
           	// if the user is being invited to a sphere just track the nickname and sphere id for now
             if(req.session.invite == true){
-            	nickname = user.name;
-          		sphereID = req.session.inviteID;
-          		joined = moment(); // track the time the user joined the sphere as now 
+              	nickname = user.name;
+            		sphereID = req.session.inviteID;
+            		joined = moment(); // track the time the user joined the sphere as now 
           	} else{	// otherwise we already have the target sphere so track its data 
-          	 	var targetSphere = user.spheres[user.currentSphere];
-              targetSphere.updates = 0; // served sphere doesn't need update notifications
-      			 	nicknames = targetSphere.object.nicknames;
-              nickname = targetSphere.nickname;
-              currentSphere = targetSphere.object.name;
-    				  sphereID = targetSphere.object._id;
-    				  joined = targetSphere.joined;
+            	 	var targetSphere = user.spheres[user.currentSphere];
+                targetSphere.updates = 0; // served sphere doesn't need update notifications
+        			 	nicknames = targetSphere.object.nicknames;
+                nickname = targetSphere.nickname;
+                currentSphere = targetSphere.object.name;
+      				  sphereID = targetSphere.object._id;
+      				  joined = targetSphere.joined;
     	  	  }
 
     		
@@ -278,13 +278,13 @@ exports.login = function(req, res){
                 }
         		 	 // otherwise just get all the recorded messages since the user has joined the sphere 
         		 	} else {
-        		 		 console.log(sphere.messages);
+        		 		 console.log(sphere.messages[sphere.messages.length-1]);
 	                    var key; 
 	                 
 	                    for(var i = 0; i < sphere.messages.length - 1; i++){
 	                            
-	                        var msg1 = [sphere.messages[i].sender , sphere.messages[i].text];
-	                        var msg2 = [sphere.messages[i+1].sender , sphere.messages[i+1].text];
+	                        var msg1 = [sphere.messages[i].sender , sphere.messages[i].text, sphere.messages[i].isLink];
+	                        var msg2 = [sphere.messages[i+1].sender , sphere.messages[i+1].text, sphere.messages[i+1].isLink];
 	                        var time1 = moment(sphere.messages[i].date);
 	                        var time2 = moment(sphere.messages[i+1].date);
 	                            
@@ -306,20 +306,22 @@ exports.login = function(req, res){
 
 	                    }
 
+                      console.log(messages);
+
 	                }
 
-                    res.render("includes/chat", { data: {
-                   									nickname:  nickname,
-                    								username: username,
-                    								nicknames: nicknames,
-                    								messages: messages,
-                    								sphereMap: sphereMap,
-                    								sphereNames: sphereNames,
-                    								currentSphere: currentSphere,
-                    								totalUpdates: totalUpdates
-                    								}
+                  res.render("includes/chat", { data: {
+                   								nickname:  nickname,
+                    							username: username,
+                    							nicknames: nicknames,
+                    							messages: messages,
+                    							sphereMap: sphereMap,
+                    							sphereNames: sphereNames,
+                    							currentSphere: currentSphere,
+                    							totalUpdates: totalUpdates
+                    						}
 
-                    							}); 
+                    						}); 
 
 
 	                // store session data 

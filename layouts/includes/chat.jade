@@ -66,11 +66,15 @@
                             each convo in convos
                                 - var sender = convo[0];
                                 - var text = convo[1];
+                                - var isLink = convo[2];
                                 - var memberNum = nicknames.indexOf(sender);
                                 p
                                     span(class='user'+ memberNum)
                                         =sender + ': '
-                                    =text
+                                    if isLink === true
+                                        !=text
+                                    else
+                                        =text
         .controls
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
