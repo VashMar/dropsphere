@@ -490,8 +490,8 @@ sessionSockets.on('connection', function (err, socket, session) {
                         var key; 
                         for(var i = 0; i < sphere.messages.length - 1; i++){
                             
-                             var msg1 = [sphere.messages[i].sender, sphere.messages[i].text];
-                             var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text];
+                             var msg1 = [sphere.messages[i].sender, sphere.messages[i].text, sphere.messages[i].isLink];
+                             var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text, sphere.messages[i+1].isLink];
                              var time1 = moment(sphere.messages[i].date);
                              var time2 = moment(sphere.messages[i+1].date);
                             

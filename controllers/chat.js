@@ -17,6 +17,7 @@ exports.bookmark = function(req, res){
 	var sesh = req.session;
 
 	if(sesh.isLogged == true){ 
+       console.log(sesh.messages);
         res.render("template_chat", { data: {
                                     nickname:  sesh.nickname,
                                     username: sesh.username,
