@@ -189,13 +189,26 @@ io.set('authorization', function (data, callback) {
 
 /////////// socket listeners and chat events -- a lot of code needs transferring to models //////////////////////////////////////////////////////////
 
+
+clients = {}; // tracks sessions and associated sockets 
+
 sessionSockets.on('connection', function (err, socket, session) {
-  console.log("Server Connection: " + moment().format("hh:mm:ssA") );
-  var sessionID = socket.handshake.sessionID;
-  console.log(sessionID);
+ 
+  console.log("Server connection created for socket: " + socket.id + "at " + moment().format("hh:mm:ssA") );
+
+  var sessionID = session.id;
+  var socketID = socket.id;
   var sphereMap = session.sphereMap;
   var sphereNames = session.sphereNames;  
   var nickname = session.nickname;
+
+  if(clients[sessionID]){
+    clients[sessionID].push(socketID);
+  }else{
+    clients[sessionID] = [socketID];
+  }
+
+
 
   console.log("Joining Spheres..");
 
@@ -205,6 +218,8 @@ sessionSockets.on('connection', function (err, socket, session) {
       socket.join(sphere);
       console.log("Joined " + sphere);
   }
+
+
 
   // if the user has newly joined a sphere update the member list for everyone currently on
   if(session.newMember == true){  
@@ -308,12 +323,19 @@ sessionSockets.on('connection', function (err, socket, session) {
 	 socket.on('send', function (data) {
 
       data.msg = parser(data.msg);
-      var sphereString = String(data.sphere); 
-
+      var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
+      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
 
   	  io.sockets.in(sphereString).emit('message', data);
-      socket.broadcast.to(sphereString).emit('notifySound');
+
+      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+      for(var i = 0; i< sphereClients.length; i++){
+        if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
+          console.log(sphereClients[i].id);
+          sphereClients[i].emit('notifySound');
+        }
+      }
 
        Sphere.findOne({_id: data.sphere}, function(err, sphere){
         if(sphere){

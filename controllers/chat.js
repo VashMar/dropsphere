@@ -209,7 +209,6 @@ exports.login = function(req, res){
 
           else{
 
-          	console.log(user.spheres);
 
           	// data about current user and their current sphere
           	var username = user.name,
@@ -305,8 +304,6 @@ exports.login = function(req, res){
 	                        }
 
 	                    }
-
-                      console.log(messages);
 
 	                }
 
