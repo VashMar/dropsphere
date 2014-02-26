@@ -646,7 +646,12 @@ sessionSockets.on('connection', function (err, socket, session) {
     if( hasProtocol || msg.indexOf("www.") == 0 ){
       if(msg.indexOf("http://www.youtube.com/watch?") == 0 || msg.indexOf("www.youtube.com/watch?") == 0){
         var video = msg.split('v=')[1];
-        res = "<iframe width='250' height='200' frameborder='0' allowfullscreen src='//www.youtube.com/embed/" + video + "'/>";
+
+        if(video.indexOf('&') > -1){
+          video = video.split('&')[0];
+        }
+
+        res = "<iframe width='250' height='200' frameborder='0' src='//www.youtube.com/embed/" + video + "' allowfullscreen></iframe>";
       }else{
 
        res = "<a target='_blank' href='";
