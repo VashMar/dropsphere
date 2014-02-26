@@ -322,7 +322,7 @@ sessionSockets.on('connection', function (err, socket, session) {
 
 	 socket.on('send', function (data) {
 
-      data.msg = parser(data.msg);
+      data.msg = linkParser(data.msg);
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
@@ -639,32 +639,36 @@ sessionSockets.on('connection', function (err, socket, session) {
 
 
 // parser to discover if the message is a link or not
- function parser(msg) { 
+ function linkParser(msg) { 
     var res = msg;
     var hasProtocol = msg.indexOf("http://") == 0;
 
     if( hasProtocol || msg.indexOf("www.") == 0 ){
+      if(msg.indexOf("http://www.youtube.com/watch?") == 0 || msg.indexOf("www.youtube.com/watch?") == 0){
+        var video = msg.split('v=')[1];
+        res = "<iframe width='250' height='200' frameborder='0' allowfullscreen src='//www.youtube.com/embed/" + video + "'/>";
+      }else{
 
        res = "<a target='_blank' href='";
 
-       if(hasProtocol){
-        var suffix = /[^.]+$/.exec(msg);
+        if(hasProtocol){
+          var suffix = /[^.]+$/.exec(msg);
 
-        if(suffix == "jpg" || suffix == "jpeg" || suffix == "gif" || suffix == "png"){
-          res += msg +"'>" ;
-          msg = "<img style='max-width:200px; max-height: 200px;' src='" + msg + "'/>";
+          if(suffix == "jpg" || suffix == "jpeg" || suffix == "gif" || suffix == "png"){
+            res += msg +"'>" ;
+            msg = "<img style='max-width:200px; max-height: 200px;' src='" + msg + "'/>";
+
+          }else{
+            res += msg +"'>" ;
+            msg = msg.substr(7);
+           } 
 
         }else{
-          res += msg +"'>" ;
-          msg = msg.substr(7);
-         } 
-
-       }else{
           res += "http://"+ msg +"'>" ;
           msg = msg.substr(4);
-        
-       }  
+        }  
          res += msg + "</a>";
+      } 
     }
     res = res.replace(/\n/g, '<br />');
     return res;

@@ -16,7 +16,7 @@ var messageSchema = mongoose.Schema({
 messageSchema.pre('save', function(next){
 	var message = this.text;
 
-	if(message.indexOf("<a") == 0 || message.indexOf("<img") == 0){
+	if(message.indexOf("<a") == 0 || message.indexOf("<img") == 0 || message.indexOf("<iframe") == 0){
 		this.isLink = true;
 	}
 	
