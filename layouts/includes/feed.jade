@@ -49,6 +49,10 @@
             each nickname in nicknames
                 p=nickname
         #content(class="form-control")
+            .alert
+                 textarea#postInput(class="form-control" placeholder="Enter a message...")
+                 input#drop(type='button' class="btn btn-primary" value='drop')
+                 input#post(type='button' class="btn btn-primary" value='post')
             if conversations.length > 0 
                 each convoTime in conversations
                     case convoTime
@@ -68,7 +72,7 @@
                                 - var text = convo[1];
                                 - var isLink = convo[2];
                                 - var memberNum = nicknames.indexOf(sender);
-                                p
+                                p.announcement
                                     span(class='user'+ memberNum)
                                         =sender + ': '
                                     if isLink === true
@@ -82,7 +86,7 @@
                 else
                     p.announcement It's pretty quiet in here...Maybe you should &nbsp;
                         #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] some friends?
-        .controls
+        .controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
         #dropperControl.btn-group

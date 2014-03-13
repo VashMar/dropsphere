@@ -1,15 +1,23 @@
 $(document).ready(function(){   
 
-    $('textarea#messageInput').bind('keypress', function(e) {
+    $("textarea#messageInput").bind('keypress', function(e) {
         
         if(e.keyCode==13 && !e.shiftKey){
             e.preventDefault();
             sendMsg();
         }
     });
+
+    $("#drop").on("click", function(){
+        var link = document.referrer;
+        $("#postInput").html(link);
+    });
+
+    $("#post").on("click", function(){
+        postMsg();
+    });
     
-    $("#send").on("click", function()
-    {
+    $("#send").on("click", function(){
         sendMsg();
     });
 
@@ -58,23 +66,42 @@ $(document).ready(function(){
         }
     }); 
 
+    $("#postInput").on('paste', function(){
+
+        var self = $(this);
+        setTimeout(function(e) {
+            checkLink(self.val());
+        }, 0);
+
+    });
+
 
 
 });
 
+    function checkLink(text){
+
+    }
     
+    
+    function postMsg(){
+        var post = $("postInput").val();  
+        if(msg != ""){
+            $("#postInput").val("");
+            chat.Post(post);
+        };    
+    }
 
 
     function sendMsg(){
         
-        
         var msg = $("#messageInput").val();  
-        if(msg==""){msg=document.referrer};    
-        $("#messageInput").val("");
-        chat.Send(msg);
-
+        if(msg != ""){
+            $("#messageInput").val("");
+            chat.Send(msg);
+        };    
+       
     }
-
 
     function notifySound(){
         document.getElementById('notifySound').play();

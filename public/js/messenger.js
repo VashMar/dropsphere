@@ -102,7 +102,7 @@ function Chat(){
                     if(sphereMap[currentSphere].id == data.sphere) {    
                         var memberNum = nicknames.indexOf(data.sender);
                         // if the message is being sent to the current sphere being looked at, add it to the chat 
-                         $("#content").append("<p><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
+                         $("#content").append("<p class='announcement'><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                          scrollBottom();
                          socket.emit("seen", {sphere: data.sphere});
 
@@ -160,6 +160,10 @@ function Chat(){
         }
    
         
+        this.Post = function Post(post){
+            socket.emit("post", {sphere: sphereID, post:post, sender: nickname time: new Date().timeNow()})
+        }
+
         this.Send = function Send(msg) {
          
             socket.emit("send", {sphere: sphereID, msg: msg, sender: nickname, time: new Date().timeNow()}); 
@@ -167,7 +171,7 @@ function Chat(){
         };
 
         this.SwitchSphere = function SwitchSphere(current){
-        
+     
             // set the user's name to their name in the new sphere 
             nickname = sphereMap[current].nickname;
             sphereID = sphereMap[current].id;
@@ -182,7 +186,29 @@ function Chat(){
  
 
         this.CreateSphere = function CreateSphere(sphereName){
-            socket.emit('createSphere', {sphereName: sphereName});
+            // create a new sphere and return the updated sphereMap with the sphere's data  
+            socket.emit('createSphere', {sphereName: sphereName}, function(newMap){
+
+                // track sphere data 
+                sphereMap = newMap;
+                sphereNames = Object.keys(sphereMap);
+                sphereIndex = sphereNames.length - 1;
+                currentSphere = sphereNames[sphereIndex];
+                sphereID = sphereMap[currentSphere].id;
+                sphereLink = sphereMap[currentSphere].link;
+                nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
+    
+                   
+
+                // the current sphere is the newly created one 
+                $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
+
+                $("#sphereNames").append("<a class='sphere' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
+                  sphereIndex + "' class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
+                  "<span class='sphereName'>" + currentSphere + "</span>");
+
+                $("#inviteLink").val(sphereLink); 
+            });
         }
 
         this.ChangeName = function ChangeName(newName, sphereWide){
@@ -223,25 +249,35 @@ function Chat(){
             + ((this.getMinutes() < 10)?"0":"") + this.getMinutes() + ((this.getHours()>12)?('PM'):'AM'); 
         };
 
-         function requestMessages(){
 
-             clearUpdates(); // get rid of notifications for the sphere being accessed 
-             socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
+        function requestFeed(){
+            clearUpdates(); // get rid of notifications for the sphere being accessed 
+
+            socket.emit('requestFeed',  {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
+
+            }
+        }
+
+
+        function requestMessages(){
+
+            clearUpdates(); // get rid of notifications for the sphere being accessed 
+
+            socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
 
                 $("#content").empty();
-
                 $("#inviteLink").val(sphereLink);
-
+          
                 var conversations = Object.keys(messages);
-
+             
                 if(conversations.length > 0 ){
 
                     for(var i =0; i < conversations.length; i++){
                     
-                       var convoTime = conversations[i];
-                       var convo = messages[convoTime];
+                        var convoTime = conversations[i];
+                        var convo = messages[convoTime];
 
-                       $("#content").append("<h6>" + moment(convoTime).calendar() + "</h6>");
+                        $("#content").append("<h6>" + moment(convoTime).calendar() + "</h6>");
 
                         for(var m = 0; m < convo.length; m++){
                             var msg = convo[m];
@@ -267,10 +303,7 @@ function Chat(){
                 
                 scrollBottom();
 
-
-
             });
-
         }
 
     

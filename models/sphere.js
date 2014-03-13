@@ -10,7 +10,7 @@ var sphereSchema = mongoose.Schema({
 			  nickname: {type: String , default: ""}, //members nickname on the sphere
 			  name:  {type: String} 			// username
 			 }],								
-	messages: [{type: ObjectId, ref: 'Message'}],
+	messages: [{type: ObjectId, ref: 'Post'}],
 	owner: {type: ObjectId, ref: 'User'},
 });
 

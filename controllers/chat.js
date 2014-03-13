@@ -132,7 +132,7 @@ exports.signup = function(req, res){
 
 			      	console.log(sphereMap);
 
-                    res.render("includes/chat", { data: {
+                    res.render("includes/feed", { data: {
                    									nickname:  nickname,
                     								username: username,
                     								nicknames: nicknames,
@@ -281,34 +281,37 @@ exports.login = function(req, res){
         		 		 console.log(sphere.messages[sphere.messages.length-1]);
 	                    var key; 
 	                 
-	                    for(var i = 0; i < sphere.messages.length - 1; i++){
-	                            
-	                        var msg1 = [sphere.messages[i].sender , sphere.messages[i].text, sphere.messages[i].isLink];
-	                        var msg2 = [sphere.messages[i+1].sender , sphere.messages[i+1].text, sphere.messages[i+1].isLink];
-	                        var time1 = moment(sphere.messages[i].date);
-	                        var time2 = moment(sphere.messages[i+1].date);
-	                            
-	                        // create a hash key for the date of the first message that points to an array, and store the message in the array
-	                        if(i == 0){
-	                           key =  time1.format();
-	                           messages[key] = [msg1];
-	                        }
+	        for(var i = 0; i <= sphere.messages.length - 1; i++){
+                            
+                            var msg1 = [sphere.messages[i].sender, sphere.messages[i].text, sphere.messages[i].isLink];
+                            var time1 = moment(sphere.messages[i].date);
 
-	                        // compare each message to the one after it
-	                        if(time2.diff(time1, "minutes") <= 30 ){
-	                           // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-	                           messages[key].push(msg2);
-	                        }else{
-	                           // if the difference is greater than 30 minutes create a new hash key for the message date
-	                           key = time2.format();
-	                           messages[key] = [msg2];
-	                        }
+                            // create a hash key for the date of the first message that points to an array, and store the message in the array
+                            if(i == 0){
+                              key =  time1.format();
+                              messages[key] = [msg1];
+                            }
 
-	                    }
+                            if( sphere.messages.length > 1 && i < sphere.messages.length - 1){
+                              var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text, sphere.messages[i+1].isLink];
+                              var time2 = moment(sphere.messages[i+1].date);
+
+                              // compare each message to the one after it
+                              if(time2.diff(time1, "minutes") <= 30 ){
+                                // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                                messages[key].push(msg2);
+                              }else{
+                                // if the difference is greater than 30 minutes create a new hash key for the message date
+                                key = time2.format();
+                                messages[key] = [msg2];
+                              }
+                            }
+                        } // end for 
+
 
 	                }
 
-                  res.render("includes/chat", { data: {
+                  res.render("includes/feed", { data: {
                    								nickname:  nickname,
                     							username: username,
                     							nicknames: nicknames,

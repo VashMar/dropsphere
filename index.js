@@ -4,20 +4,23 @@ var sass = require("node-sass");
 var moment = require("moment");
 var email = require("emailjs/email");
 
+// load URI.js
+var URI = require('URIjs');
+
 // models 
 var mongoose = require("mongoose"),
     User     = require("./models/user"),
     Sphere   = require("./models/sphere"),
     Demosphere = require("./models/demo_sphere"),
     Message   = require("./models/message");
-    
+    Post      = require("./models/post");
 
 //controllers 
 var chat = require("./controllers/chat");
 
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
-var EXPRESS_SID_KEY = 't3stk3y'
+var EXPRESS_SID_KEY = 't3stk3y';
 
 var app = express();
 var sessionStore = new express.session.MemoryStore();
@@ -320,7 +323,16 @@ sessionSockets.on('connection', function (err, socket, session) {
         }
   }); */
 
-	 socket.on('send', function (data) {
+    socket.on('post', function(data){
+      data.msg = linkParser(data.msg);
+      var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
+      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
+      var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
+
+
+    });
+    
+    socket.on('send', function (data) {
 
       data.msg = linkParser(data.msg);
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
@@ -380,9 +392,9 @@ sessionSockets.on('connection', function (err, socket, session) {
             console.log("message seen");
           }
     });
-  });
+  }); // end seen  
 
-   socket.on('createSphere', function(data){
+   socket.on('createSphere', function(data, sphereMap){
     console.log("Started sphere creation");
       // find the user and make sure they're under the sphere limit 
       User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
@@ -390,7 +402,7 @@ sessionSockets.on('connection', function (err, socket, session) {
           if(err){console.log(err);}
 
           if(user){
-            if(user.spheres.length < 5){
+            if(user.spheres.length < 6){
               // create the sphere 
               var sphere = new Sphere({name: data.sphereName, owner: user._id });
               // add user as sphere member
@@ -405,25 +417,28 @@ sessionSockets.on('connection', function (err, socket, session) {
                   socket.emit('users', sphere.nicknames); 
                    // pass the client side all the info necessary to track sphere related information 
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
-      
-                  /////////////////////////////////Modularize//////////////////////////////
-                  var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
-                  totalUpdates = 0;
 
-                  for(var i = 0; i < user.spheres.length ; i++){
+                  var addedSphere =  user.spheres[user.spheres.length - 1];
 
-                    totalUpdates += user.spheres[i].updates;
+               
 
-                    sphereMap[user.spheres[i].object.name] = { id: user.spheres[i].object._id, 
-                                                               nickname: user.spheres[i].nickname, 
-                                                               link: user.spheres[i].object.link(ENV),
-                                                               updates: user.spheres[i].updates          
-                                                             };
-                  }
-                  //////////////////////////////////////////////////////////////////////////
+                  session.sphereMap[sphere.name] = { id: addedSphere.object._id, 
+                                                     nickname: addedSphere.nickname, 
+                                                     link: addedSphere.object.link(ENV),
+                                                     updates: addedSphere.updates          
+                                                    };
 
-                  //send the updated sphereMap new sphere should be the last in list
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: user.spheres.length - 1, justmade: true, totalUpdates: totalUpdates}); 
+                  session.sphereNames.push(sphere.name);
+
+                  sphereMap(session.sphereMap);
+                  session.nicknames = sphere.nicknames;
+                  session.currentSphere = sphere.name;
+                  session.messages = {};
+                  session.nickname = user.name;
+                  console.log(session);
+
+                  session.save();
+
                   user.save();
                   console.log(user.name + " and " + sphere.name + "sync'd");
                 }
@@ -447,6 +462,8 @@ sessionSockets.on('connection', function (err, socket, session) {
 
           else{
             socket.emit('users', sphere.nicknames);
+            session.nicknames = sphere.nicknames;
+            session.save();
           }
       });
   }); // end request users 
@@ -488,31 +505,34 @@ sessionSockets.on('connection', function (err, socket, session) {
                         console.log(sphere.messages[sphere.messages.length - 1]);
                         var messages = {};
                         var key; 
-                        for(var i = 0; i < sphere.messages.length - 1; i++){
+                        for(var i = 0; i <= sphere.messages.length - 1; i++){
                             
-                             var msg1 = [sphere.messages[i].sender, sphere.messages[i].text, sphere.messages[i].isLink];
-                             var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text, sphere.messages[i+1].isLink];
-                             var time1 = moment(sphere.messages[i].date);
-                             var time2 = moment(sphere.messages[i+1].date);
-                            
-                              // create a hash key for the date of the first message that points to an array, and store the message in the array
+                            var msg1 = [sphere.messages[i].sender, sphere.messages[i].text, sphere.messages[i].isLink];
+                            var time1 = moment(sphere.messages[i].date);
+
+                            // create a hash key for the date of the first message that points to an array, and store the message in the array
                             if(i == 0){
                               key =  time1.format();
                               messages[key] = [msg1];
                             }
 
-                            // compare each message to the one after it
-                           if(time2.diff(time1, "minutes") <= 30 ){
-                              // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-                              messages[key].push(msg2);
-                           }else{
-                               // if the difference is greater than 30 minutes create a new hash key for the message date
-                               key = time2.format();
-                               messages[key] = [msg2];
-                           }
+                            if( sphere.messages.length > 1 && i < sphere.messages.length - 1){
+                              var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text, sphere.messages[i+1].isLink];
+                              var time2 = moment(sphere.messages[i+1].date);
 
-                        }
+                              // compare each message to the one after it
+                              if(time2.diff(time1, "minutes") <= 30 ){
+                                // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                                messages[key].push(msg2);
+                              }else{
+                                // if the difference is greater than 30 minutes create a new hash key for the message date
+                                key = time2.format();
+                                messages[key] = [msg2];
+                              }
+                            }
+                        } // end for 
 
+                        console.log(messages);
                         //  send the hash back for the front end to make sense of 
                         fillMessages(messages);
 
@@ -638,13 +658,13 @@ sessionSockets.on('connection', function (err, socket, session) {
 
 
 
-// parser to discover if the message is a link or not
+// parser to discover if the post or message contains a link 
  function linkParser(msg) { 
     var res = msg;
-    var hasProtocol = msg.indexOf("http://") == 0;
+    var hasProtocol = msg.indexOf("http://") > -1;
 
-    if( hasProtocol || msg.indexOf("www.") == 0 ){
-      if(msg.indexOf("http://www.youtube.com/watch?") == 0 || msg.indexOf("www.youtube.com/watch?") == 0){
+    if( hasProtocol || msg.indexOf("www.") > -1  ){
+      if(msg.indexOf("http://www.youtube.com/watch?") > -1 || msg.indexOf("www.youtube.com/watch?") > -1){
         var video = msg.split('v=')[1];
 
         if(video.indexOf('&') > -1){
