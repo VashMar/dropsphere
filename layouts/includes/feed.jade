@@ -1,7 +1,8 @@
 - var nicknames = data.nicknames;
 - var sphereNames = data.sphereNames;
 - var currentSphere = data.currentSphere;
-- var conversations = Object.keys(data.messages);
+- var feed = data.feed;
+- var announcements = Object.keys(data.announcements);
 - var sphereMap = data.sphereMap;
 
 #container
@@ -49,43 +50,47 @@
             each nickname in nicknames
                 p=nickname
         #content(class="form-control")
-            .alert
+            .postBox
                  textarea#postInput(class="form-control" placeholder="Enter a message...")
-                 input#drop(type='button' class="btn btn-primary" value='drop')
-                 input#post(type='button' class="btn btn-primary" value='post')
-            if conversations.length > 0 
-                each convoTime in conversations
-                    case convoTime
-                        when "welcome"
-                            p.announcement
-                                =data.messages[convoTime]
-                                <br />
-                                #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] whomever you deem worthy to share the web with
-                        when "joined"
-                            p.announcement 
-                                =data.messages[convoTime]
-                        default
-                            h6=moment(convoTime).calendar()
-                            - var convos = data.messages[convoTime];
-                            each convo in convos
-                                - var sender = convo[0];
-                                - var text = convo[1];
-                                - var isLink = convo[2];
-                                - var memberNum = nicknames.indexOf(sender);
+                 input#drop(type='button' class="btn btn-primary" value='drop' onclick='dropLink();')
+                 input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
+            #feed 
+                if announcements.length > 0
+                    each announcement in announcements
+                        case announcement
+                            when "welcome"
                                 p.announcement
-                                    span(class='user'+ memberNum)
-                                        =sender + ': '
-                                    if isLink === true
-                                        !=text
-                                    else
-                                        =text
-            else
-                if nicknames.length < 2 
-                    p.announcement Not that talking to yourself is weird or anything... but perhaps you should &nbsp;
-                        #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] some friends?
+                                    =data.posts[postTime]
+                                    <br />
+                                    #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] whomever you deem worthy to share the web with
+                            when "joined"
+                                p.announcement 
+                                    =data.posts[postTime]
+                if feed.length > 0 
+                    each postTime in feed
+                        - var post = data.posts[postTime];
+                        - var sender = post[0];
+                        - var content = post[1];
+                        - var isOwner = post[2];
+                        - var isLink = post[3];
+                        - var postID = post[4];
+                        - var memberNum = nicknames.indexOf(sender);
+                            p.post(data= postID)
+                                span(class="time")
+                                    =moment(postTime).calendar() 
+                                span(class='user'+ memberNum)
+                                    =sender + ': '
+                                if isLink === true
+                                    !=content
+                                else
+                                    =content 
                 else
-                    p.announcement It's pretty quiet in here...Maybe you should &nbsp;
-                        #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] some friends?
+                    if nicknames.length < 2 
+                        p.announcement Not that talking to yourself is weird or anything... but perhaps you should &nbsp;
+                            #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] some friends?
+                    else
+                        p.announcement It's pretty quiet in here...Maybe you should &nbsp;
+                            #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] some friends?
         .controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -158,6 +163,7 @@ script.
     sphereNames = sphereData.sphereNames;
     sphereID = sphereMap[currentSphere].id;
     sphereLink = sphereMap[currentSphere].link;
+    feed = sphereData.posts; 
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js');

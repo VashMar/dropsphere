@@ -130,16 +130,52 @@ input {
 #share:hover {
   background: url("/img/share_hover.png") no-repeat; }
 
+#drop, #post {
+  width: 50%; }
+
 /* Chat Body */
 #content {
   position: relative;
-  height: 76%;
+  height: 100%;
+  /* maxed out height because div was too short */
   width: 100%;
   margin: auto;
-  text-align: left; }
+  text-align: left;
+  padding: 0px 0px;
+  /* removed padding on form control so postBox can lock to top */ }
   #content p {
     word-wrap: break-word;
     margin-bottom: 2px; }
+
+#feed {
+  height: 100%; }
+
+.postBox {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #4186cc;
+  text-align: center;
+  padding: 4px;
+  color: white; }
+
+.postBox p.post {
+  color: white; }
+
+.postBox a {
+  color: #E0E0E0; }
+
+p.post span {
+  display: block;
+  padding: 5px; }
+
+p.post span a {
+  float: right; }
+
+p.post span img {
+  float: left;
+  padding: 5px; }
 
 /* Controls */
 .controls .slimScrollDiv, .controls .slimScrollBar {
@@ -151,6 +187,9 @@ textarea {
 
 #send {
   width: 80%; }
+
+#feedReturn {
+  color: white; }
 
 /* Homepage */
 #bookmarklet {
@@ -176,6 +215,18 @@ a#bookmarklet {
   color: #666; }
 
 .announcement {
+  font-size: 12px;
+  padding: 14px 12px;
+  margin-top: 6px;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  color: #999;
+  text-align: center; }
+
+.message {
+  margin-left: 4px; }
+
+.post {
   font-size: 12px;
   padding: 14px 12px;
   margin-top: 6px;

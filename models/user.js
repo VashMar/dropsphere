@@ -121,9 +121,31 @@ userSchema.methods.sphereData = function(ENV){
 
 }
 
+// check if post belongs to user
+userSchema.methods.isOwner = function(post){
+    if(post.creator === this._id){
+        console.log("Post belongs to current user");
+        return true;
+    }
 
-userSchema.methods.chatData = function(){
-    
+    return false; 
 }
+
+// retrieves the date user joined the current sphere 
+userSchema.methods.joinedCurrent = function(){
+  return this.spheres[this.currentSphere].joined;    
+}
+
+userSchema.statics.load = function(sessionID, next){
+    this.findOne({session: sessionID}, function(err, user){
+        if(err || !user){
+            next(err);
+        } else{
+            next(false, user);
+        }
+    });
+}
+
+
 
 module.exports = mongoose.model('User', userSchema);

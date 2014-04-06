@@ -4,7 +4,7 @@
 
 
 function scrollBottom(){
-    var chatBox = document.getElementById("content");
+    var chatBox = document.getElementById("feed");
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
@@ -26,15 +26,14 @@ socket = null;
 
 function Chat(){
 
-   
-        
+        var currentPost = null;
+        var postInput = null;
 
         this.Connect = function(user){ 
 
             socket =  io.connect(window.location.hostname);  
             username = user;
-            
-        
+    
 
             socket.on('users', function(users){
 
@@ -99,13 +98,12 @@ function Chat(){
             socket.on('message', function(data){
                    
                 if(data.msg){
-                    if(sphereMap[currentSphere].id == data.sphere) {    
-                        var memberNum = nicknames.indexOf(data.sender);
-                        // if the message is being sent to the current sphere being looked at, add it to the chat 
-                         $("#content").append("<p class='announcement'><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
+                    // if the message is being sent to the current sphere being looked at, add it to the chat 
+                    if(sphereMap[currentSphere].id == data.sphere && currentPost == data.postID) {    
+                         var memberNum = nicknames.indexOf(data.sender);         
+                         $("#feed").append("<p class='message'><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                          scrollBottom();
                          socket.emit("seen", {sphere: data.sphere});
-
                     } else {
                          // find the sphere the message is meant for and send the user an update notification
                         for(var i = 0; i < sphereNames.length; i++){
@@ -129,14 +127,45 @@ function Chat(){
                 }           
             });
 
+            socket.on('post', function(data){
+                if(data.post){
+                    // if the message is being sent to the current sphere being looked at, add it to the chat 
+                    if(sphereMap[currentSphere].id == data.sphere && currentPost == null) {    
+                         var memberNum = nicknames.indexOf(data.sender);  
+                         var time = moment().calendar();       
+                         $("#feed").prepend("<p class='post'>" + time + "<br /><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.post + "</p>");
+                         socket.emit("seen", {sphere: data.sphere});
+                    } else {
+                         // find the sphere the message is meant for and send the user an update notification
+                        for(var i = 0; i < sphereNames.length; i++){
+                            if(sphereMap[sphereNames[i]].id == data.sphere){
+                                sphereMap[sphereNames[i]].updates++;            // increment this spheres updates on client side 
+                                var updates = sphereMap[sphereNames[i]].updates;
+                                totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
+                                $("#notifications").html(totalUpdates); 
+
+                                if($("#updates-" + i ).length){
+                                  $("#updates-" + i ).html(updates);
+                                } else {
+                                  var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
+                                  $("#okcircle-" + i).replaceWith(updateIcon);
+                                } 
+                            }
+                             
+                        } 
+
+                    }
+                }        
+            });
+
             socket.on('announcement', function(data){
         
-                $("#content").append("<p class='announcement'>" + data.msg + "</p>"); // announces the new entrant to others in the sphere
+                $("#feed").append("<p class='announcement'>" + data.msg + "</p>"); // announces the new entrant to others in the sphere
             });
 
 
             socket.on('clearChat', function(){
-                 $("#content").empty();
+                 $("#feed").empty();
             });
 
             socket.on('chatError', function(data){
@@ -157,20 +186,44 @@ function Chat(){
             }
             socket.emit('leaveRooms', {spheres: sphereIDs} );
             socket.disconnect();
-        }
+        };
    
         
         this.Post = function Post(post){
-            socket.emit("post", {sphere: sphereID, post:post, sender: nickname time: new Date().timeNow()})
-        }
+            socket.emit("post", {sphere: sphereID, post: post, sender: nickname});
+        };
 
-        this.Send = function Send(msg) {
+        this.Send = function Send(msg){
          
-            socket.emit("send", {sphere: sphereID, msg: msg, sender: nickname, time: new Date().timeNow()}); 
+            socket.emit("send", {postID: currentPost, sphere: sphereID, msg: msg, sender: nickname}); 
             
         };
 
+
+        this.SelectPost = function SelectPost(selected){
+            currentPost = selected.attr('data');
+            postInput = $(".postBox").html();
+            $(".postBox").html(selected);
+            $(".postBox").prepend("<a id='feedReturn' href='#' onclick='feedReturn();'> Return to Feed </a>");
+            $(".controls").show();
+            $("#feed").empty();
+            requestMessages();
+        };
+
+        this.FeedReturn = function FeedReturn(){
+            $(".controls").hide();
+            $(".postBox").html(postInput);
+            currentPost = null;
+            viewFeed();
+        };
+
         this.SwitchSphere = function SwitchSphere(current){
+
+            if(currentPost){
+                $(".controls").hide();
+                $(".postBox").html(postInput);
+                currentPost = null;
+            }
      
             // set the user's name to their name in the new sphere 
             nickname = sphereMap[current].nickname;
@@ -179,9 +232,9 @@ function Chat(){
             sphereLink = sphereMap[current].link;
             currentSphere = current;
             socket.emit('requestUsers', {sphereID : sphereID});
-            requestMessages();
+            requestFeed();
 
-        }
+        };
 
  
 
@@ -209,11 +262,10 @@ function Chat(){
 
                 $("#inviteLink").val(sphereLink); 
             });
-        }
+        };
 
         this.ChangeName = function ChangeName(newName, sphereWide){
-             // update name on client side first  
-        
+             // update name on client side first   
            $("#users").children('p').each(function(){
                 if($(this).text() == name){
                     $(this).text(newName);
@@ -239,45 +291,52 @@ function Chat(){
 
            socket.emit("changeName", {newName: name, sphereWide: sphereWide, sphereIndex: sphereIndex});
                
-        }
+        };
 
+        var requestFeed = function(){
+            clearUpdates(); // get rid of notifications for the sphere being accessed 
+            socket.emit('requestFeed',  {sphereID: sphereID, sphereIndex: sphereIndex}, function(posts){  
+                feed = posts; 
+                viewFeed();
+            });
+        };
 
-        Date.prototype.timeNow = function(){ 
+        var viewFeed = function(){
+            $("#feed").empty();
+            var posts = Object.keys(feed);
+            if(posts.length > 0){
+                for(var i = 0; i < posts.length; i++){
+                    var time = posts[i];
+                    var post = feed[time];
+                    var sender = post[0];
+                    var content = post[1];
+                    var isOwner = post[2];
+                    var isLink = post[3];
+                    var postID = post[4];
+                    var memberNum = nicknames.indexOf(sender);
 
-            return ((this.getHours() < 10)?"0":"") + 
-            ((this.getHours()>12)?(this.getHours()-12):this.getHours()) +":"
-            + ((this.getMinutes() < 10)?"0":"") + this.getMinutes() + ((this.getHours()>12)?('PM'):'AM'); 
+                    time = moment(time).calendar();
+
+                    $("#feed").append("<p class='post' data='"+ postID + "'>" + time + "<br /><span class='user" + memberNum + "'>" + sender + ": </span> " + content + "</p>");
+                }
+            }
         };
 
 
-        function requestFeed(){
+        var requestMessages = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
+            socket.emit('requestMessages', {postID: currentPost}, function(messages){
 
-            socket.emit('requestFeed',  {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
-
-            }
-        }
-
-
-        function requestMessages(){
-
-            clearUpdates(); // get rid of notifications for the sphere being accessed 
-
-            socket.emit('requestMessages', {sphereID: sphereID, sphereIndex: sphereIndex}, function(messages){
-
-                $("#content").empty();
-                $("#inviteLink").val(sphereLink);
-          
+                $("#feed").empty();
                 var conversations = Object.keys(messages);
-             
-                if(conversations.length > 0 ){
 
+                if(conversations.length > 0 ){
                     for(var i =0; i < conversations.length; i++){
                     
                         var convoTime = conversations[i];
                         var convo = messages[convoTime];
 
-                        $("#content").append("<h6>" + moment(convoTime).calendar() + "</h6>");
+                        $("#feed").append("<h6>" + moment(convoTime).calendar() + "</h6>");
 
                         for(var m = 0; m < convo.length; m++){
                             var msg = convo[m];
@@ -286,25 +345,13 @@ function Chat(){
                                 text = msg[1], 
                                 memberNum = nicknames.indexOf(sender);
 
-                            $("#content").append("<p><span class='user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
+                            $("#feed").append("<p class='message'><span class='user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
                         }
-                    }
-                    
-
-                    if(members < 2){
-                        $("#content").append("<p class='announcement'>Not that talking to yourself is weird or anything... but perhaps you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
-                    }
-
-                } else{
-                    $("#content").append("<p class='announcement'>It's pretty quiet in here... Maybe you should <a href='#' data-toggle='modal' data-target='#shareModal'> invite </a> some friends?</p>");    
-                }        
-
-
-                
+                    }       
+                } 
                 scrollBottom();
-
             });
-        }
+        };
 
     
         function clearUpdates(){

@@ -10,7 +10,7 @@ var sphereSchema = mongoose.Schema({
 			  nickname: {type: String , default: ""}, //members nickname on the sphere
 			  name:  {type: String} 			// username
 			 }],								
-	messages: [{type: ObjectId, ref: 'Post'}],
+	posts: [{type: ObjectId, ref: 'Post'}],
 	owner: {type: ObjectId, ref: 'User'},
 });
 
@@ -38,6 +38,44 @@ sphereSchema.methods.link = function(ENV){
 	return "http://localhost:3500/invite/" + this.id;
 };
 
+// saves post for all users in a sphere 
+sphereSchema.statics.savePost = function(User, sphereID, post, next){
+	this.findOne({_id: sphereID}, function(err, sphere){
+		 if(sphere){
+          console.log("sphere found")
+          console.log(post);
+   
+          post.save(function(err, msg){
+            if(err){
+              console.log(err);
+            }
 
+            if(msg){
+              console.log("Post Saved: " + msg);
+              next(msg);
+            }
+          });
+
+          sphere.posts.push(post);
+          sphere.save(function(err, sphere){
+            console.log(sphere.posts.length);
+
+          });
+
+          for(var i = 0; i < sphere.members.length; i++){
+             var member = sphere.members[i].id;
+              User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
+                  if(err){console.log(err);}
+                  else{
+                    console.log("notifications updated");
+                  }
+              });
+          } 
+        } else{
+        	console.log("Sphere not found");
+        }
+
+	});
+};
 
 module.exports = mongoose.model('Sphere', sphereSchema);

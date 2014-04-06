@@ -7,7 +7,10 @@ var Schema = mongoose.Schema,
 var postSchema = mongoose.Schema({
 	content: String,
 	date: {type: Date, default: Date.now },
-	creator: {type: ObjectId, ref: 'User'},
+	creator: {
+		object: {type: ObjectId, ref: 'User'},
+		name: {type: String}
+		},
 	isLink: {type: Boolean, default: false},
 	messages: [{type: ObjectId, ref: 'Message'}]
 });
@@ -17,12 +20,17 @@ var postSchema = mongoose.Schema({
 postSchema.pre('save', function(next){
 	var message = this.content;
 
-	if(message.indexOf("<a") == 0 || message.indexOf("<img") == 0 || message.indexOf("<iframe") == 0){
+	if(message.indexOf("<a") > -1 || message.indexOf("<img") > -1 || message.indexOf("<iframe") > -1){
 		this.isLink = true;
 	}
 	
 	next();
 });
+
+
+postSchema.methods.creatorName = function(){
+	return this.creator.name; 
+}
 
 
 

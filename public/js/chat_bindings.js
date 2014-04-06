@@ -8,15 +8,6 @@ $(document).ready(function(){
         }
     });
 
-    $("#drop").on("click", function(){
-        var link = document.referrer;
-        $("#postInput").html(link);
-    });
-
-    $("#post").on("click", function(){
-        postMsg();
-    });
-    
     $("#send").on("click", function(){
         sendMsg();
     });
@@ -66,27 +57,39 @@ $(document).ready(function(){
         }
     }); 
 
-    $("#postInput").on('paste', function(){
+ /*   $("#postInput").on('paste', function(){
 
         var self = $(this);
         setTimeout(function(e) {
             checkLink(self.val());
         }, 0);
 
-    });
+    }); */
 
+    $("#feed").on("click", "p.post", function(){
+        chat.SelectPost($(this));
+    });
 
 
 });
 
-    function checkLink(text){
+    function feedReturn(){
+         chat.FeedReturn();
 
     }
-    
-    
+
+    function dropLink(){
+        var link = document.referrer;
+        if($("#postInput").val() == ""){
+            $("#postInput").val(link);
+        } else{
+            $("#postInput").val($("#postInput").val() + "\n" + link);
+        }    
+    }
+
     function postMsg(){
-        var post = $("postInput").val();  
-        if(msg != ""){
+        var post = $("#postInput").val();  
+        if(post != ""){
             $("#postInput").val("");
             chat.Post(post);
         };    

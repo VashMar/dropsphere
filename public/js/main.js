@@ -1,7 +1,7 @@
 $(document).ready(function(){
-    $('#content').slimScroll({
-    	height: '100%',
-    	start: 'bottom'
+    $('#feed').slimScroll({
+    	height: '86%',
+    	start: 'top'
     });
     $('textarea').slimScroll({
     	width:'100%'

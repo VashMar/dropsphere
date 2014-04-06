@@ -4,8 +4,6 @@ var sass = require("node-sass");
 var moment = require("moment");
 var email = require("emailjs/email");
 
-// load URI.js
-var URI = require('URIjs');
 
 // models 
 var mongoose = require("mongoose"),
@@ -15,8 +13,15 @@ var mongoose = require("mongoose"),
     Message   = require("./models/message");
     Post      = require("./models/post");
 
+
+
 //controllers 
-var chat = require("./controllers/chat");
+var Feed = require("./controllers/feed");
+
+var LinkParser = require("./helpers/link_parser");
+
+var Crawler = require("crawler").Crawler;
+var crawl = new Crawler({"maxConnections":10});
 
 var COOKIE_SECRET = 'MCswDQYJKoZIhvcNAQEBBQADGgAwFwIQBiPdqpkw/I+tvLWBqT/h3QIDAQAB';
 var cookieParser = express.cookieParser(COOKIE_SECRET);
@@ -47,8 +52,6 @@ mongoose.connect(database, function(err, res){
   }
 });
 
-// demosphere for users testing the product 
-demosphere = new Demosphere();
 
 app.locals.moment = require('moment');
 
@@ -104,32 +107,18 @@ app.get("/", function(req, res){
   }    
 });
 
-// renders a demo login page 
-app.get('/demo', function (req, res) {
-    res.render("demo");
-});
+app.post('/login', Feed.login);
 
-// demo login that tracks a guest users session and ties their username to the session 
-app.post('/demologin', function (req, res) {
-    // We just set a session value indicating that the user is logged in
-    req.session.isLogged = true;
-    req.session.username = req.body.name;
-    console.log(req.session.username + " is logged in");
-    res.redirect('/bookmark');
-});
+app.get('/bookmark', Feed.bookmark);
 
-app.post('/login', chat.login);
-
-app.get('/bookmark', chat.bookmark);
-
-app.get('/logout', chat.logout);
+app.get('/logout', Feed.logout);
 
 // issue sign up form
 app.get('/join', function(req, res){
      res.render("includes/join");
 });
 
-app.post('/signup', chat.signup);
+app.post('/signup', Feed.signup);
 
 
 app.get("/invite/:id", function(req, res){
@@ -143,7 +132,7 @@ app.get("/invite/:id", function(req, res){
   }
 });
 
-app.get("/bookmark/invite/:id", chat.invite);
+app.get("/bookmark/invite/:id", Feed.invite);
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +193,7 @@ sessionSockets.on('connection', function (err, socket, session) {
   var sphereMap = session.sphereMap;
   var sphereNames = session.sphereNames;  
   var nickname = session.nickname;
+  var currentUser;
 
   if(clients[sessionID]){
     clients[sessionID].push(socketID);
@@ -211,7 +201,12 @@ sessionSockets.on('connection', function (err, socket, session) {
     clients[sessionID] = [socketID];
   }
 
-
+  // get the current user object for this socket 
+  User.load(sessionID, function(err, user){
+    if(user){
+      currentUser = user;
+    }
+  });
 
   console.log("Joining Spheres..");
 
@@ -233,108 +228,79 @@ sessionSockets.on('connection', function (err, socket, session) {
       session.newMember = false; 
   }
 
-/*var sphereMap = {};        // hash of sphere names as keys that stores the sphere id and user's name for front end use
-  var index = 0;      // used to track which sphere user logins in to first (0 by default for main sphere)
-  var totalUpdates = 0; // total number of sphere notifications for user 
-
-  // on connection find out who the user is using the sessionID;
-  User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
-
-      if(err){console.log(err);}
-
-      // if there was no user found then the session is a demo plop them in the demosphere
-      if(!user){
-          var demouser = sessionData.username;
-          demosphere.members.push(demouser); 
-          console.log(demouser + " added to demosphere");
-          socket.join('demosphere');
-          io.sockets.in('demosphere').emit('users', demosphere.members); // update the member list of everyone in the sphere 
-          io.sockets.in('demosphere').emit('announcement', { msg: demouser + " joined the Sphere" }); // tell everyone who joined 
-      } else{  // get all the users spheres and connect to them 
-          index = user.currentSphere;
-
-          if(user.spheres.length == 0){
-
-              // if the user doesn't have a sphere create them one
-              var sphere = new Sphere({name: user.name + "'s sphere", owner: user._id });
-              // add user as sphere member
-              sphere.members.push({id: user.id , name: user.name});
-              sphere.save(function(err, sphere){
-                if(err || !sphere){ console.log("Error saving sphere"); }
-
-                else{
-                  socket.join(sphere.id);
-                  sphereMap[sphere.name] = {id: sphere._id, nickname: user.name, link: sphere.link(ENV) , updates: 0}; // build a sphereMap for the client 
-                  socket.emit('users', sphere.nicknames); 
-
-
-                  // pass the client side all the info necessary to track sphere related information 
-                  socket.emit('sphereMap', {sphereMap: sphereMap, index: index, justmade: true, totalUpdates: totalUpdates});
-
-                  socket.emit('announcement', {msg: "Welcome to your sphere!<br/> <a href='#' data-toggle='modal' data-target='#shareModal'> Invite </a>  whomever you deem worthy to the group "});
-
-                  user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
-                  user.save();
-                  console.log(user.name + " and " + sphere.name + "sync'd");
-                }
-              }); 
-
-          } else{
-           
-          
-           
-            for(var i = 0; i < user.spheres.length ; i++){
-               //makes sure the user first lands in the invite sphere 
-              if(sessionData.invite == true && sessionData.inviteID == user.spheres[i].object.id){
-                  console.log("user responding to invitation");
-                  index = i; 
-                  sessionData.invite = false; // the invite has been handled 
-
-
-              }
-
-              socket.join(user.spheres[i].object.id);  // connect to all the users spheres 
-
-              totalUpdates += user.spheres[i].updates;
-
-              console.log(user.spheres[i].updates);
-              // build the spheremap of the users spheres 
-              sphereMap[user.spheres[i].object.name] = {id: user.spheres[i].object._id, 
-                                                        nickname: user.spheres[i].nickname, 
-                                                        link: user.spheres[i].object.link(ENV),
-                                                        updates: user.spheres[i].updates
-                                                      };
-
-            }
-
-            // default sphere will be the users first sphere so send them that list of members
-            socket.emit('users', user.spheres[index].object.nicknames); 
-          
-            // pass the client side all the info necessary to track sphere related information 
-            socket.emit('sphereMap', {sphereMap: sphereMap, index: index, totalUpdates: totalUpdates});     
-
-          if(sessionData.justAdded == true){
-            io.sockets.in(user.spheres[index].object.id).emit('announcement', {msg: userSphere.nickname + " joined the sphere"}); 
-            socket.broadcast.to(user.spheres[index].object.id).emit('users',  user.spheres[index].object.nicknames) //emit to 'room' except this socket
-            sessionData.justAdded == false
-          }
-
-          }
-        }
-  }); */
 
     socket.on('post', function(data){
-      data.msg = linkParser(data.msg);
+      console.log("Posting Data..");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
-      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
-      var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
+      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
+      var type;   // type of post 
+      var url = LinkParser.getURL(data.post);
+      console.log("Post URL: " + url);
+      if(url){
 
+         var isImage = LinkParser.isImage(url);
 
-    });
+         if(isImage){
+          type = "image";
+          data.post = LinkParser.tagWrap(data.post, type);
+          console.log(data.post);
+          emitAndSave();
+         }else{
+    
+          crawl.queue([{
+            "uri": url,
+            "callback":function(error,result,$){
+              if(error){
+                console.log(error);
+              }else{
+
+              type = "link";
+              var title = $("title").text();
+              var description = $("meta[property='og:description']").attr('content') || 
+                                $("meta[name='og:description']").attr('content') || 
+                                $("meta[name='description']").attr('content');
+              var image = $("meta[property='og:image']").attr('content') ||
+                          $("meta[name='og:image']").attr('content');
+              console.log("Image: " + image);
+              console.log(title);
+              data.post = LinkParser.tagWrap(data.post, type, title, description, image);
+              console.log(data.post);
+              emitAndSave();
+              }
+      
+            } 
+          }]);
+        }
+      }else{
+          console.log("Non Link Post..");
+          emitAndSave();
+      }
+       
+
+    // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+      for(var i = 0; i< sphereClients.length; i++){
+          if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
+            console.log(sphereClients[i].id);
+            sphereClients[i].emit('notifySound');
+          }
+      } 
+     
+     function emitAndSave(){
+           io.sockets.in(sphereString).emit('post', data);
+           var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
+           Sphere.savePost(User, data.sphere, post, function(savedPost){
+              var time = moment().format();
+              session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
+              session.feed.unshift(time);
+              session.save();
+           });
+     }
+  
+
+    }); // end post 
     
     socket.on('send', function (data) {
-
-      data.msg = linkParser(data.msg);
+      data.msg = LinkParser.tagWrap(data.msg);
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
@@ -349,8 +315,8 @@ sessionSockets.on('connection', function (err, socket, session) {
         }
       }
 
-       Sphere.findOne({_id: data.sphere}, function(err, sphere){
-        if(sphere){
+       Post.findOne({_id: data.postID}, function(err, post){
+        if(post){
           console.log("sphere found")
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
@@ -364,13 +330,13 @@ sessionSockets.on('connection', function (err, socket, session) {
               console.log("Message Saved: " + msg);
             }
           });
-          sphere.messages.push(message);
-          sphere.save(function(err, sphere){
+          post.messages.push(message);
+          post.save(function(err, sphere){
             console.log(sphere.messages.length);
 
           });
 
-          for(var i = 0; i < sphere.members.length; i++){
+       /*  for(var i = 0; i < sphere.members.length; i++){
              var member = sphere.members[i].id;
               User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
                   if(err){console.log(err);}
@@ -378,7 +344,7 @@ sessionSockets.on('connection', function (err, socket, session) {
                     console.log("notifications updated");
                   }
               });
-          } 
+          } */
         }
       });
 
@@ -469,105 +435,124 @@ sessionSockets.on('connection', function (err, socket, session) {
   }); // end request users 
 
 
+  socket.on('requestFeed', function(data, fillFeed){
+      console.log("Requesting Feed..");
+ 
+      var targetSphere = null;
+      var posts = {};
+
+      if(currentUser.spheres[data.sphereIndex].object == data.sphereID){
+        targetSphere = currentUser.spheres[data.sphereIndex];
+      } else{
+          for(var i = 0; i < currentUser.spheres.length; i++){
+              if(currentUser.spheres[i].object == data.sphereID){
+                  sphere = currentUser.spheres[i];     
+              }
+          }
+      }
+
+ 
+
+      if(targetSphere){
+         console.log("Retrieving posts from Sphere: " + targetSphere + "..");
+         Sphere.findOne({_id: data.sphereID}).populate('posts', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){ 
+           if(sphere){             
+
+               for(var i = sphere.posts.length - 1; i > -1 ; i--){
+                  var currentPost = sphere.posts[i];
+                  var post = [currentPost.creatorName(), currentPost.content, currentUser.isOwner(currentPost), currentPost.isLink, currentPost.id];
+                  var time = moment(sphere.posts[i].date);
+                  var key = time.format();
+
+                  posts[key] = post;
+              }
+
+              console.log(posts);
+
+              fillFeed(posts);
+
+              // resets the notifications in a sphere to 0 once the user has accessed it 
+              targetSphere.updates = 0;
+              currentUser.currentSphere = data.sphereIndex;
+
+              // update the currentSphere session info 
+              session.currentSphere = sphere.name;     
+              session.posts = posts;
+              session.save();
+
+              currentUser.save(function(err){
+                  if(err){console.log(err);}
+
+                  else{
+                    console.log("user updates reset on requested sphere");
+                  }
+              });
+           } else{
+            console.log("User requested a sphere that magically doesn't exist!");
+           }
+         });
+      }
+
+
+  });
+
+
   socket.on('requestMessages', function(data, fillMessages){
       console.log("Requesting Messages...");
-        User.findOne({session: sessionID}, function(err, user){
-            if(err){console.log(err);}
+      
+      var postID = data.postID;
+      var joined = currentUser.joinedCurrent();
 
-            if(!user){
-              console.log("Session and user don't match up");
-            } else{
+      Post.findOne({_id: postID}).populate('messages', null, {date: {$gte: joined }}).exec(function(err, post){ 
 
+        if(err){
+          console.log(err);
+        }
 
-                var targetSphere = null;
+        if(post){
 
-                // check if the sphere at the given index has the same id as the sent id 
-                if(user.spheres[data.sphereIndex].object == data.sphereID){
-                  targetSphere = user.spheres[data.sphereIndex]; // if it does we have our sphere 
-                } else{
-                  // we have to go on a sphere hunt 
-                  for(var i = 0; i < user.spheres.length; i++){
-                     if(user.spheres[i].object == data.sphereID){
-                        sphere = user.spheres[i];     
-                     }
-                  }
-                }
-               
-                if(targetSphere){ // lets only do a query if we know the sphere exists 
-                    // find the requested sphere with all its messages after the user joined the sphere 
+          console.log("Extracting Messages from Post..");
+          var messages = {};
+          for(var i = 0; i < post.messages.length - 1; i++ ){
 
-                    Sphere.findOne({_id: data.sphereID}).populate('messages', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){    
-                      if(err){console.log(err);}
+            var currentMsg = post.messages[i];
+            var msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+            var time1 = moment(currentMsg.date);
 
-                      if(!sphere){
-                        console.log("User requested a sphere that magically doesn't exist!");
-                      } else{
-                        console.log(sphere.messages[sphere.messages.length - 1]);
-                        var messages = {};
-                        var key; 
-                        for(var i = 0; i <= sphere.messages.length - 1; i++){
-                            
-                            var msg1 = [sphere.messages[i].sender, sphere.messages[i].text, sphere.messages[i].isLink];
-                            var time1 = moment(sphere.messages[i].date);
-
-                            // create a hash key for the date of the first message that points to an array, and store the message in the array
-                            if(i == 0){
-                              key =  time1.format();
-                              messages[key] = [msg1];
-                            }
-
-                            if( sphere.messages.length > 1 && i < sphere.messages.length - 1){
-                              var msg2 = [sphere.messages[i+1].sender, sphere.messages[i+1].text, sphere.messages[i+1].isLink];
-                              var time2 = moment(sphere.messages[i+1].date);
-
-                              // compare each message to the one after it
-                              if(time2.diff(time1, "minutes") <= 30 ){
-                                // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-                                messages[key].push(msg2);
-                              }else{
-                                // if the difference is greater than 30 minutes create a new hash key for the message date
-                                key = time2.format();
-                                messages[key] = [msg2];
-                              }
-                            }
-                        } // end for 
-
-                        console.log(messages);
-                        //  send the hash back for the front end to make sense of 
-                        fillMessages(messages);
-
-                        // resets the notifcations in a sphere to 0 once the user has accessed it 
-                        targetSphere.updates = 0;
-                        user.currentSphere = data.sphereIndex;
-
-                        // update the currentSphere session info 
-                        session.currentSphere = sphere.name;     
-                        session.messages = messages;
-                        session.save();
-
-                        user.save(function(err){
-                          if(err){console.log(err);}
-
-                          else{
-                            console.log("user updates reset on requested sphere");
-                          }
-
-                        });
-
-                      }
-
-                    }); // end sphere hunt
-
-                  }else{
-                      socket.emit("chatError", "It seems you're not a member of this sphere..");
-                  }
-                 
+            // create a hash key for the date of the first message that points to an array, and store the message in the array
+            if(i == 0){
+              key =  time1.format();
+              messages[key] = [msg1];
             }
 
+            if(post.messages.length > 1 && i < post.messages.length - 1){
+              var nextMsg = post.messages[i+1];
+              var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
+              var time2 = moment(nextMsg.date);
 
-        }); // end user hunt 
+              // compare each message to the one after it
+              if(time2.diff(time1, "minutes") <= 30 ){
+                // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                messages[key].push(msg2);
+              }else{
+              // if the difference is greater than 30 minutes create a new hash key for the message date
+                key = time2.format();
+                messages[key] = [msg2];
+              }
+            }
+          }
 
-  
+          fillMessages(messages);
+
+        }else{
+          console.log("Couldn't obtain post");
+        }
+
+
+
+      });
+
+
   }); // end request messages 
 
 
@@ -657,45 +642,3 @@ sessionSockets.on('connection', function (err, socket, session) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-// parser to discover if the post or message contains a link 
- function linkParser(msg) { 
-    var res = msg;
-    var hasProtocol = msg.indexOf("http://") > -1;
-
-    if( hasProtocol || msg.indexOf("www.") > -1  ){
-      if(msg.indexOf("http://www.youtube.com/watch?") > -1 || msg.indexOf("www.youtube.com/watch?") > -1){
-        var video = msg.split('v=')[1];
-
-        if(video.indexOf('&') > -1){
-          video = video.split('&')[0];
-        }
-
-        res = "<iframe width='250' height='200' frameborder='0' src='//www.youtube.com/embed/" + video + "' allowfullscreen></iframe>";
-      }else{
-
-       res = "<a target='_blank' href='";
-
-        if(hasProtocol){
-          var suffix = /[^.]+$/.exec(msg);
-
-          if(suffix == "jpg" || suffix == "jpeg" || suffix == "gif" || suffix == "png"){
-            res += msg +"'>" ;
-            msg = "<img style='max-width:200px; max-height: 200px;' src='" + msg + "'/>";
-
-          }else{
-            res += msg +"'>" ;
-            msg = msg.substr(7);
-           } 
-
-        }else{
-          res += "http://"+ msg +"'>" ;
-          msg = msg.substr(4);
-        }  
-         res += msg + "</a>";
-      } 
-    }
-    res = res.replace(/\n/g, '<br />');
-    return res;
-
- }

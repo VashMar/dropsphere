@@ -1,0 +1,25 @@
+doctype html
+html
+    head
+        title= "DropSphere"
+        script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+        script(src='/js/lib/bootstrap.min.js')
+        script(src='/socket.io/socket.io.js')
+        script(src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js')
+        script(type="text/javascript" src="/easyxdm/easyxdm.debug.js")
+        script.
+            easyXDM.DomHelper.requiresJSON("/json2.js");
+        script(src='/js/provider.js')
+        script(src='/js/login_bindings.js')       
+        script(src='/js/messenger.js')    
+        include includes/head
+
+    body
+        include includes/feed
+        script.
+          $(document).ready(function(){
+            chat = new Chat;
+            chat.Connect(nickname);
+          });
+      
+          
