@@ -43,18 +43,21 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
 	this.findOne({_id: sphereID}, function(err, sphere){
 		 if(sphere){
           console.log("sphere found")
-          console.log(post);
-   
-          post.save(function(err, msg){
-            if(err){
-              console.log(err);
-            }
+        
+          post.fillViewers(sphere.members, function(filledPost){
+            filledPost.save(function(err, msg){
+              if(err){
+                console.log(err);
+              }
 
-            if(msg){
-              console.log("Post Saved: " + msg);
-              next(msg);
-            }
+              if(msg){
+                console.log("Post Saved: " + msg);
+                next(msg);
+              }
+            }); 
+
           });
+         
 
           sphere.posts.push(post);
           sphere.save(function(err, sphere){

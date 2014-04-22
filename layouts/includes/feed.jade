@@ -52,6 +52,7 @@
         #content(class="form-control")
             .postBox
                  textarea#postInput(class="form-control" placeholder="Enter a message...")
+                 #previewLink(class="post" style="display:none")
                  input#drop(type='button' class="btn btn-primary" value='drop' onclick='dropLink();')
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
             #feed 
@@ -74,16 +75,25 @@
                         - var isOwner = post[2];
                         - var isLink = post[3];
                         - var postID = post[4];
+                        - var seenConvo = post[5];
                         - var memberNum = nicknames.indexOf(sender);
-                            p.post(data= postID)
-                                span(class="time")
-                                    =moment(postTime).calendar() 
-                                span(class='user'+ memberNum)
-                                    =sender + ': '
+                            .post(data= postID)
+                                a(href='#')    
+                                    if seenConvo === true    
+                                        img.chatIcon(src="/img/chat_icon.png")
+                                    else 
+                                        img.chatIcon(src="favicon.png")
                                 if isLink === true
                                     !=content
                                 else
                                     =content 
+                                .sender(class='user'+ memberNum)
+                                    span
+                                        =sender 
+                                        <br />
+                                        =moment(postTime).format("MMM Do, h:mm a")
+                              
+                               
                 else
                     if nicknames.length < 2 
                         p.announcement Not that talking to yourself is weird or anything... but perhaps you should &nbsp;
@@ -151,6 +161,7 @@
 #preload
     img(src="/img/settings_hover.png")
     img(src="/img/settings_hover.png")
+    img(src="/img/loading.gif")
 script.
     // harvest all sphere related data for client tracking/use 
     sphereData = !{JSON.stringify(data)};

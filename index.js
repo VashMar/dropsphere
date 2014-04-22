@@ -229,6 +229,84 @@ sessionSockets.on('connection', function (err, socket, session) {
   }
 
 
+    socket.on('crawl', function(data, preview){
+      console.log("Crawling Link: " + data.url);
+      var url = data.url; 
+      console.log(url);
+      var isImage = LinkParser.isImage(url);
+      var type; 
+
+      if(isImage){
+          console.log("URL is Image..");
+          type = "image";
+          url = LinkParser.tagWrap(url, type);
+          console.log(url);
+          preview(url);
+      }else{
+
+      crawl.queue([{
+            "uri": url,
+            "callback":function(error,result,$){
+              if(error){
+                console.log(error);
+              }else{
+                type = "link";
+                var title = $("title").text();
+                var image = $("meta[property='og:image']").attr('content') ||
+                            $("meta[name='og:image']").attr('content');
+
+                if(!image){
+                  $('img').each(function(index, img){
+                       if(img.height > 40 && img.width > 40){
+                          image = img.src;
+                          return;
+                       } 
+                  });
+                }
+
+                var description = null;
+                console.log("Image: " + image);
+                console.log(title);
+                url = LinkParser.tagWrap(url, type, title, description, image);
+                console.log(url);
+                preview(url);
+              }
+      
+            } 
+     }]);
+
+    }
+
+
+    });
+
+
+    socket.on('postURL', function(data, returnID){
+      console.log("Posting URL..");
+      var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
+      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
+
+      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+      for(var i = 0; i< sphereClients.length; i++){
+              if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
+                console.log(sphereClients[i].id);
+                sphereClients[i].emit('notifySound');
+              }
+      } 
+
+      socket.broadcast.to(sphereString).emit('post', data);
+      var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
+      Sphere.savePost(User, data.sphere, post, function(savedPost){
+          returnID(savedPost.id);
+          var time = moment().format();
+          session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
+          session.feed.unshift(time);
+          session.save();
+      });
+    });
+
+
+
     socket.on('post', function(data){
       console.log("Posting Data..");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
@@ -244,7 +322,6 @@ sessionSockets.on('connection', function (err, socket, session) {
           type = "image";
           data.post = LinkParser.tagWrap(data.post, type);
           console.log(data.post);
-          emitAndSave();
          }else{
     
           crawl.queue([{
@@ -261,7 +338,9 @@ sessionSockets.on('connection', function (err, socket, session) {
                                 $("meta[name='description']").attr('content');
               var image = $("meta[property='og:image']").attr('content') ||
                           $("meta[name='og:image']").attr('content');
-              console.log("Image: " + image);
+
+
+              console.log("Image: " + image.length);
               console.log(title);
               data.post = LinkParser.tagWrap(data.post, type, title, description, image);
               console.log(data.post);
@@ -271,24 +350,29 @@ sessionSockets.on('connection', function (err, socket, session) {
             } 
           }]);
         }
-      }else{
-          console.log("Non Link Post..");
-          emitAndSave();
       }
-       
+          
 
-    // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
-      for(var i = 0; i< sphereClients.length; i++){
-          if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
-            console.log(sphereClients[i].id);
-            sphereClients[i].emit('notifySound');
-          }
-      } 
+      console.log("Non Link Post.."); 
+      emitAndSave(); 
+
+  
      
      function emitAndSave(){
+
+        // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+        for(var i = 0; i< sphereClients.length; i++){
+              if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
+                console.log(sphereClients[i].id);
+                sphereClients[i].emit('notifySound');
+              }
+        } 
+
+
            io.sockets.in(sphereString).emit('post', data);
            var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
            Sphere.savePost(User, data.sphere, post, function(savedPost){
+              console.log("Saved Post: " + savedPost);
               var time = moment().format();
               session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
               session.feed.unshift(time);
@@ -320,7 +404,9 @@ sessionSockets.on('connection', function (err, socket, session) {
           console.log("sphere found")
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
-          //clean up code /////////////////////////////////////////////////////////////////////////////////////////////////
+    
+          post.updatedChat(); // update conversation notifier 
+
           message.save(function(err, msg){
             if(err){
               console.log(err);

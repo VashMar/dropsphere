@@ -294,12 +294,14 @@ exports.login = function(req, res){
 	             for(var i = sphere.posts.length - 1; i > -1 ; i--){
                     var currentPost = sphere.posts[i];
 
-                    var post = [currentPost.creatorName(), currentPost.content, user.isOwner(currentPost), currentPost.isLink, currentPost.id];
+                    var post = currentPost.getPostData(user);
                     var time = moment(sphere.posts[i].date);
                     var key = time.format();
                     feed.push(key);
                     posts[key] = post;
                 }   
+
+                console.log(posts);
 
 	           }
 

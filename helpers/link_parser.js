@@ -19,7 +19,8 @@ exports.getURL = function(msg){
 		var link = result.substring(result.indexOf('<link>')+6, result.indexOf('</link>'));
 	} 
 
-	if(link && link.indexOf("http://") < 0){
+ 
+	if(link && (link.indexOf("http://") < 0 || link.indexOf("https://") < 0 )){
 		link = "http://" + link;
 	}
 
@@ -51,47 +52,51 @@ exports.tagWrap =  function(msg, type, title, description, image) {
 
       console.log(textInclude);
 
-      if(url.indexOf("http://") < 0){
-	 	url = "http://" + url;
-	  }
-     
       // if the post is a youtube video embed it to the page 
-      if(url.indexOf("www.youtube.com/watch?") > -1){
+ /*     if(url.indexOf("www.youtube.com/watch?") > -1){
         var video = msg.split('v=')[1];
 
         if(video.indexOf('&') > -1){
           video = video.split('&')[0];
         }
         res = "<iframe width='250' height='200' frameborder='0' src='//www.youtube.com/embed/" + video + "' allowfullscreen></iframe>";
-      } else{
+      } else{ */
  
 
         res = textInclude + "<a target='_blank' class='post_" + type + "' href='" + url + "'>";
        
         // check if post is an image and wrap in image tag 
         if(type == "image"){
-            res += "<img style='max-width:200px; max-height: 200px;' src='" + url + "'/>";
+        	if(url.indexOf("http://") < 0 && url.indexOf("https://") < 0){
+	 			url = "http://" + url;
+	  		}
+     
+            res += "<img src='" + url + "'/>";
             res += "</a>";
         }
       
         if(type == "link"){
-        	var imageTag = "";
+        	var imageStyle = " ";
 
-        	res += (title) ? title + "</a>" :  url + "</a>";
-
-         	if(image){
-         		imageTag = "<img style='max-width:100px; max-height: 100px;' src='" + image + "'/>";
+        	if(image){
+         		res+= "<img src='" + image + "'/>";
+         	}else{
+         		imageStyle= " style='float:none;'";
          	}
-         	if(description){
+
+        	res += (title) ? "<span" + imageStyle + "class='title'>" + title + "</span></a>" :  url + "</a>";
+
+       
+         /*	if(description){
          		description = description.substring(0,120);
          		description += "...";
 				res += "<span>" + imageTag + description + "</span>";
          	} else{
          		res += "<span>" + imageTag + "</span>";
-         	}
+         	}*/
         }
       
-      }
+      //} 
 
       return res; 
     });

@@ -11,6 +11,10 @@ var postSchema = mongoose.Schema({
 		object: {type: ObjectId, ref: 'User'},
 		name: {type: String}
 		},
+	viewers: [{
+		id: {type: String},
+		seen: {type: Boolean, default: true}
+	}],
 	isLink: {type: Boolean, default: false},
 	messages: [{type: ObjectId, ref: 'Message'}]
 });
@@ -33,6 +37,61 @@ postSchema.methods.creatorName = function(){
 }
 
 
+postSchema.methods.hasConvo = function(){
+   if(this.messages.length > 0){
+   		return true;
+   }
 
+   return false; 
+}
+
+postSchema.methods.hasSeenConvo = function(userID){
+	var viewers = this.viewers;
+	console.log(userID);
+	for(var v = 0; v < viewers.length; v++){
+		console.log(viewers[v].id);
+		if(viewers[v].id == userID){
+			return viewers[v].seen;
+		}
+	}
+
+	return true; 
+}
+
+postSchema.methods.convoSeen = function(userID){
+	var viewers = this.viewers;
+
+	for(var v = 0; v < viewers.length; v++){
+		if(viewers[v].id == userID){
+			viewers[v].seen = true;
+		}
+	}
+
+}
+
+postSchema.methods.updatedConvo = function(){
+	var viewers = this.viewers;
+
+	for(var v = 0; v < viewers.length; v++){
+		viewers[v].seen = false;	
+	}
+
+}
+
+
+postSchema.methods.fillViewers = function(members, next){
+	console.log(members);
+	
+	for(var m = 0; m < members.length; m++){
+		this.viewers.push({id: members[m]._id })
+	}
+
+	next(this); 
+
+}
+
+postSchema.methods.getPostData = function(user){
+ 	return [this.creatorName(), this.content, user.isOwner(this), this.isLink, this.id, this.hasSeenConvo(user.id)];
+}
 
 module.exports = mongoose.model('Post', postSchema);

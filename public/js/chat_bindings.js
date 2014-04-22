@@ -57,19 +57,27 @@ $(document).ready(function(){
         }
     }); 
 
- /*   $("#postInput").on('paste', function(){
+    $("#postInput").on('paste', function(){
 
         var self = $(this);
         setTimeout(function(e) {
-            checkLink(self.val());
+           var isLink =  checkLink(self.val());
+
+           if(isLink){chat.Preview(self.val());}
+
         }, 0);
 
-    }); */
+    }); 
 
-    $("#feed").on("click", "p.post", function(){
-        chat.SelectPost($(this));
+    $("#feed").on("click", "a img.chatIcon", function(){
+        chat.SelectPost($(this).parent().parent());
     });
 
+    $("#postInput").on("change keyup paste", function(){
+        if($("#postInput").val().trim() == ""){
+             $("#previewLink").hide();
+        }
+    });
 
 });
 
@@ -80,14 +88,27 @@ $(document).ready(function(){
 
     function dropLink(){
         var link = document.referrer;
+
         if($("#postInput").val() == ""){
             $("#postInput").val(link);
-        } else{
+        }else{
             $("#postInput").val($("#postInput").val() + "\n" + link);
         }    
+
+        chat.Preview(link);
+
+
     }
 
+    function checkLink(pasted){
+        var checkLink = new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?");
+        return checkLink.test(pasted);
+
+    }
+    
+
     function postMsg(){
+        $("#previewLink").hide();
         var post = $("#postInput").val();  
         if(post != ""){
             $("#postInput").val("");
