@@ -25,11 +25,12 @@ moment.lang('en', {
 socket = null;
 
 function Chat(){
-
+        var posts = Object.keys(feed);
         var currentPost = null;
         var postInput = null;
         var previewURL = null;
-        var chatIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
+        var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
+        var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
 
         this.Connect = function(user){ 
 
@@ -135,7 +136,7 @@ function Chat(){
                     if(sphereMap[currentSphere].id == data.sphere && currentPost == null) {    
                          var memberNum = data.memberNum || nicknames.indexOf(data.sender);  
                          var time = data.time || moment().calendar();       
-                         createPost(data.postID, data.post, memberNum, data.sender, time);
+                         createPost(data.postID, data.post, memberNum, data.sender, time, true);
                          socket.emit("seen", {sphere: data.sphere});
                     } else {
                          // find the sphere the message is meant for and send the user an update notification
@@ -178,6 +179,12 @@ function Chat(){
                 notifySound();
             });
 
+
+            socket.on('cachePost', function(data){
+                feed = data.feed;
+                posts = data.posts;
+            });
+
         };
 
         this.Disconnect = function(){
@@ -194,7 +201,7 @@ function Chat(){
             if(previewURL){
                 var memberNum = nicknames.indexOf(nickname);  
                 var time = moment().format("MMM Do, h:mm a");      
-                createPost(null, previewURL, memberNum, nickname, time);
+                createPost(null, previewURL, memberNum, nickname, time, true);
                 socket.emit("postURL", {sphere: sphereID, post: previewURL, sender: nickname, time: time, memberNum: memberNum}, function(postID){
                     $("#feed .post").first().attr("data", postID);
                 });
@@ -205,9 +212,7 @@ function Chat(){
         };
 
         this.Send = function Send(msg){
-         
-            socket.emit("send", {postID: currentPost, sphere: sphereID, msg: msg, sender: nickname}); 
-            
+            socket.emit("send", {postID: currentPost, sphere: sphereID, msg: msg, sender: nickname});  
         };
 
         this.Preview = function Preview(link){
@@ -229,6 +234,7 @@ function Chat(){
             $(".controls").show();
             $("#feed").empty();
             requestMessages();
+            alert(selected.index());
         };
 
         this.FeedReturn = function FeedReturn(){
@@ -323,7 +329,6 @@ function Chat(){
 
         var viewFeed = function(){
             $("#feed").empty();
-            var posts = Object.keys(feed);
             if(posts.length > 0){
                 for(var i = posts.length -1 ; i > -1 ; i--){
                     var time = posts[i];
@@ -333,10 +338,11 @@ function Chat(){
                     var isOwner = post[2];
                     var isLink = post[3];
                     var postID = post[4];
+                    var seen = post[5];
                     var memberNum = nicknames.indexOf(sender); 
-                    time = moment(time).calendar();
+                    time = moment(time).format("MMM Do, h:mm a");
 
-                    createPost(postID, content, memberNum, sender, time);
+                    createPost(postID, content, memberNum, sender, time, seen);
                     //$("#feed").append("<p class='post' data='"+ postID + "'>" + chatIcon + time + "<br /><span class='sender user" + memberNum + "'>" + sender + ": </span> " + content + "</p>");
                 }
             }
@@ -374,8 +380,9 @@ function Chat(){
         };
 
 
-        function createPost(postID,content,memberNum,sender,time){
+        function createPost(postID,content,memberNum,sender,time, seen){
 
+            var chatIcon = (seen) ? seenIcon : unseenIcon;
             var data = (postID) ? postID : '';
 
             $("#feed").prepend("<div class='post' data=" + data + ">" + 

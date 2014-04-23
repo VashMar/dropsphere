@@ -291,17 +291,15 @@ exports.login = function(req, res){
         		 	} else {
         		 		 console.log(sphere.posts[sphere.posts.length-1]);
 	                    
+                console.log(user);
 	             for(var i = sphere.posts.length - 1; i > -1 ; i--){
                     var currentPost = sphere.posts[i];
-
                     var post = currentPost.getPostData(user);
                     var time = moment(sphere.posts[i].date);
                     var key = time.format();
                     feed.push(key);
                     posts[key] = post;
                 }   
-
-                console.log(posts);
 
 	           }
 

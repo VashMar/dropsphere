@@ -47,15 +47,16 @@ postSchema.methods.hasConvo = function(){
 
 postSchema.methods.hasSeenConvo = function(userID){
 	var viewers = this.viewers;
-	console.log(userID);
+	console.log(viewers);
+	console.log("USERID: " + userID);
 	for(var v = 0; v < viewers.length; v++){
-		console.log(viewers[v].id);
+		console.log("VIEWERID: " + viewers[v].id);
 		if(viewers[v].id == userID){
 			return viewers[v].seen;
 		}
 	}
 
-	return true; 
+	return false; 
 }
 
 postSchema.methods.convoSeen = function(userID){
@@ -83,7 +84,7 @@ postSchema.methods.fillViewers = function(members, next){
 	console.log(members);
 	
 	for(var m = 0; m < members.length; m++){
-		this.viewers.push({id: members[m]._id })
+		this.viewers.push({id: members[m].id })
 	}
 
 	next(this); 

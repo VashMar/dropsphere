@@ -301,6 +301,7 @@ sessionSockets.on('connection', function (err, socket, session) {
           var time = moment().format();
           session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
           session.feed.unshift(time);
+          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts});
           session.save();
       });
     });
@@ -373,6 +374,7 @@ sessionSockets.on('connection', function (err, socket, session) {
            var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
            Sphere.savePost(User, data.sphere, post, function(savedPost){
               console.log("Saved Post: " + savedPost);
+              console.log("Current User: " + currentUser.id);
               var time = moment().format();
               session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
               session.feed.unshift(time);
