@@ -299,8 +299,9 @@ sessionSockets.on('connection', function (err, socket, session) {
       Sphere.savePost(User, data.sphere, post, function(savedPost){
           returnID(savedPost.id);
           var time = moment().format();
-          session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
+          session.posts[time] = savedPost.getPostData(currentUser);
           session.feed.unshift(time);
+          console.log(session.posts);
           io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts});
           session.save();
       });
@@ -407,7 +408,7 @@ sessionSockets.on('connection', function (err, socket, session) {
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
     
-          post.updatedChat(); // update conversation notifier 
+          post.updatedConvo(); // update conversation notifier 
 
           message.save(function(err, msg){
             if(err){
@@ -447,6 +448,13 @@ sessionSockets.on('connection', function (err, socket, session) {
           }
     });
   }); // end seen  
+
+
+  socket.on('seenConvo', function(data){
+    Post.seenConvo(data.postID, currentUser.id);
+    session.posts[data.time][5] = true;
+    session.save();
+  });
 
    socket.on('createSphere', function(data, sphereMap){
     console.log("Started sphere creation");

@@ -1,7 +1,8 @@
 - var nicknames = data.nicknames;
 - var sphereNames = data.sphereNames;
 - var currentSphere = data.currentSphere;
-- var feed = data.feed;
+- var feed = data.feed; 
+- var posts = data.posts; 
 - var announcements = Object.keys(data.announcements);
 - var sphereMap = data.sphereMap;
 
@@ -61,15 +62,15 @@
                         case announcement
                             when "welcome"
                                 p.announcement
-                                    =data.posts[postTime]
+                                    =posts[postTime]
                                     <br />
                                     #[a(href='#' data-toggle='modal' data-target='#shareModal') Invite ] whomever you deem worthy to share the web with
                             when "joined"
                                 p.announcement 
-                                    =data.posts[postTime]
+                                    =posts[postTime]
                 if feed.length > 0 
                     each postTime in feed
-                        - var post = data.posts[postTime];
+                        - var post = posts[postTime];
                         - var sender = post[0];
                         - var content = post[1];
                         - var isOwner = post[2];
@@ -174,7 +175,7 @@ script.
     sphereNames = sphereData.sphereNames;
     sphereID = sphereMap[currentSphere].id;
     sphereLink = sphereMap[currentSphere].link;
-    feed = sphereData.posts; 
+    posts = sphereData.posts; 
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js');

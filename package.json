@@ -4,7 +4,7 @@
     "description": "Real time web chat",
     "dependencies": {
         "socket.io": "latest",
-        "express": "latest",
+        "express": "3.x",
         "jade": "latest",
         "mongodb": "*",
         "mongoose": "*",

@@ -1,15 +1,9 @@
-
-
-
-
-
 function scrollBottom(){
     var chatBox = document.getElementById("feed");
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 moment().format();
-
 
 moment.lang('en', {
     calendar : {
@@ -25,7 +19,7 @@ moment.lang('en', {
 socket = null;
 
 function Chat(){
-        var posts = Object.keys(feed);
+        var feed = Object.keys(posts);
         var currentPost = null;
         var postInput = null;
         var previewURL = null;
@@ -47,25 +41,18 @@ function Chat(){
                 for(var i = 0; i < users.length; i++){
                     $("#users").append("<p>" + users[i] + "</p>");
                 }
-
-
             });
 
             socket.on('sphereMap', function(data){
-               
                 sphereMap = data.sphereMap;
                 sphereNames = Object.keys(sphereMap);
                 currentSphere = sphereNames[data.index];
                 nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
                 totalUpdates = data.totalUpdates;
 
-                   
-
                 $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                 $(".sphere").parent().remove();
 
-                  
-                  
                 for(var i = 0; i < sphereNames.length; i++){
 
                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
@@ -94,20 +81,21 @@ function Chat(){
                 if(data.justmade === undefined){
                     requestMessages();
                 }
-                
-                   
             });
 
             socket.on('message', function(data){
                    
                 if(data.msg){
-                    // if the message is being sent to the current sphere being looked at, add it to the chat 
+                    // if the message is being sent to the currently viewed chat, append it
                     if(sphereMap[currentSphere].id == data.sphere && currentPost == data.postID) {    
                          var memberNum = nicknames.indexOf(data.sender);         
                          $("#feed").append("<p class='message'><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                          scrollBottom();
-                         socket.emit("seen", {sphere: data.sphere});
-                    } else {
+                    }else if(sphereMap[currentSphere].id == data.sphere){
+                        $(".post[data='" + data.postID + "']").find(".chatIcon").attr('src', 'favicon.png');
+                    }
+
+                    /*else {
                          // find the sphere the message is meant for and send the user an update notification
                         for(var i = 0; i < sphereNames.length; i++){
                             if(sphereMap[sphereNames[i]].id == data.sphere){
@@ -126,7 +114,7 @@ function Chat(){
                              
                         } 
 
-                    }
+                    } */
                 }           
             });
 
@@ -156,7 +144,6 @@ function Chat(){
                             }
                              
                         } 
-
                     }
                 }        
             });
@@ -224,17 +211,17 @@ function Chat(){
             }); 
         };
 
-
         this.SelectPost = function SelectPost(selected){
             currentPost = selected.attr('data');
             postInput = $(".postBox").html();
+            var itemNum = selected.index();
             selected = selected.attr('id', 'selectedPost');
             $(".postBox").html(selected);
             $(".postBox").prepend("<a id='feedReturn' href='#' onclick='feedReturn();'> Return to Feed </a>");
             $(".controls").show();
             $("#feed").empty();
             requestMessages();
-            alert(selected.index());
+            seenConvo(itemNum);
         };
 
         this.FeedReturn = function FeedReturn(){
@@ -278,8 +265,6 @@ function Chat(){
                 sphereLink = sphereMap[currentSphere].link;
                 nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
     
-                   
-
                 // the current sphere is the newly created one 
                 $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
 
@@ -302,7 +287,7 @@ function Chat(){
            if(sphereWide){
              //update the user's name on all spheres of the sphereMap
              for(var i = 0; i< sphereNames.length; i++){
-                    // if the sphere nickname is the user's default username swap it with the new one 
+                // if the sphere nickname is the user's default username swap it with the new one 
                   if(sphereMap[sphereNames[i]].nickname == username){ 
                         sphereMap[sphereNames[i]].nickname = newName;
                   }
@@ -329,10 +314,10 @@ function Chat(){
 
         var viewFeed = function(){
             $("#feed").empty();
-            if(posts.length > 0){
-                for(var i = posts.length -1 ; i > -1 ; i--){
-                    var time = posts[i];
-                    var post = feed[time];
+            if(feed.length > 0){
+                for(var i = feed.length -1 ; i > -1 ; i--){
+                    var time = feed[i];
+                    var post = posts[time];
                     var sender = post[0];
                     var content = post[1];
                     var isOwner = post[2];
@@ -392,7 +377,11 @@ function Chat(){
         }
 
 
-
+        function seenConvo(postNum){
+            var time = feed[postNum];
+            posts[time][5] = true;
+            socket.emit("seenConvo", {postID: posts[time][4], time:time});
+        }
     
 
         function clearUpdates(){

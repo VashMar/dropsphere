@@ -1,4 +1,4 @@
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
@@ -24,9 +24,7 @@ sphereSchema.virtual('nicknames').get(function(){
 			nicknames.push(nickname);	
 		}
 	}
-
 	return nicknames;
-
 });
 
 

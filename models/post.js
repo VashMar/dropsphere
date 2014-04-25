@@ -95,4 +95,14 @@ postSchema.methods.getPostData = function(user){
  	return [this.creatorName(), this.content, user.isOwner(this), this.isLink, this.id, this.hasSeenConvo(user.id)];
 }
 
+postSchema.statics.seenConvo = function(postID, userID){
+	this.update({$and: [{id: postID} , {'viewers.id': userID}]}, {'$set': {'viewers.$.seen' : true}}, function(err){
+          if(err){console.log(err);}
+
+          else{
+            console.log("Convo Seen");
+          }
+    });
+}
+
 module.exports = mongoose.model('Post', postSchema);
