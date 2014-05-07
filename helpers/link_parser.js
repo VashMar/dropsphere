@@ -40,7 +40,7 @@ exports.isImage = function(url){
 }
 
 // wraps the links of each message or post in the appropriate tags 
-exports.tagWrap =  function(msg, type, title, description, image) {
+exports.tagWrap =  function(msg, type, title, image) {
 	
 	console.log("Parsing Sent Message..");
 
@@ -71,7 +71,7 @@ exports.tagWrap =  function(msg, type, title, description, image) {
 	 			url = "http://" + url;
 	  		}
      
-            res += "<img src='" + url + "'/>";
+            res += "<img src='" + url + "'/><span class='title image' style='margin-top:20px;'></span>";
             res += "</a>";
         }
       
@@ -81,7 +81,7 @@ exports.tagWrap =  function(msg, type, title, description, image) {
         	if(image){
          		res+= "<img src='" + image + "'/>";
          	}else{
-         		imageStyle= " style='float:none;'";
+         		imageStyle= " style='float:none; padding:5px;'";
          	}
 
         	res += (title) ? "<span" + imageStyle + "class='title'>" + title + "</span></a>" :  url + "</a>";

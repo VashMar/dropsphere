@@ -57,7 +57,7 @@ $(document).ready(function(){
         }
     }); 
 
-    $("#postInput").on('paste', function(){
+    $("#urlInput").on('paste', function(){
 
         var self = $(this);
         setTimeout(function(e) {
@@ -73,9 +73,15 @@ $(document).ready(function(){
         chat.SelectPost($(this).parent().parent());
     });
 
-    $("#postInput").on("change keyup paste", function(){
-        if($("#postInput").val().trim() == ""){
+    $("#urlInput").on("change keyup paste", function(){
+        if($("#urlInput").val().trim() == ""){
              $("#previewLink").hide();
+        }
+    });
+
+    $("#postInput").on("change keyup paste", function(){
+        if( $("#previewLink").is(":visible") ){
+            $("#previewLink span.title").html($("#postInput").val());
         }
     });
 
@@ -89,11 +95,13 @@ $(document).ready(function(){
     function dropLink(){
         var link = document.referrer;
 
-        if($("#postInput").val() == ""){
+        $("#urlInput").val(link);
+
+    /*   if($("#postInput").val() == ""){
             $("#postInput").val(link);
         }else{
             $("#postInput").val($("#postInput").val() + "\n" + link);
-        }    
+        }   */ 
 
         chat.Preview(link);
 
@@ -110,10 +118,10 @@ $(document).ready(function(){
     function postMsg(){
         $("#previewLink").hide();
         var post = $("#postInput").val();  
-        if(post != ""){
-            $("#postInput").val("");
-            chat.Post(post);
-        };    
+        $("#postInput").val("");
+        $("#urlInput").val("");
+        chat.Post(post);
+          
     }
 
 

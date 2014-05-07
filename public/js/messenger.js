@@ -126,7 +126,11 @@ function Chat(){
                          var time = data.time || moment().calendar();       
                          createPost(data.postID, data.post, memberNum, data.sender, time, true);
                          socket.emit("seen", {sphere: data.sphere});
-                    } else {
+                    }
+                    if(sphereMap[currentSphere].id == data.sphere){
+                        var postData = [data.sender, data.post, false, data.isLink, data.postID, false];
+                        socket.emit("updateSession", {postData: postData, time: data.timeFormatted});
+                    }else {
                          // find the sphere the message is meant for and send the user an update notification
                         for(var i = 0; i < sphereNames.length; i++){
                             if(sphereMap[sphereNames[i]].id == data.sphere){
@@ -186,6 +190,11 @@ function Chat(){
         
         this.Post = function Post(post){
             if(previewURL){
+                if(post != ""){
+                  var startTag =  previewURL.indexOf('>', previewURL.indexOf('<span')) + 1;
+                  previewURL = previewURL.substring(0,startTag) + post + "</span></a>";
+                }
+               
                 var memberNum = nicknames.indexOf(nickname);  
                 var time = moment().format("MMM Do, h:mm a");      
                 createPost(null, previewURL, memberNum, nickname, time, true);
@@ -238,7 +247,7 @@ function Chat(){
                 $(".postBox").html(postInput);
                 currentPost = null;
             }
-     
+
             // set the user's name to their name in the new sphere 
             nickname = sphereMap[current].nickname;
             sphereID = sphereMap[current].id;
@@ -306,8 +315,9 @@ function Chat(){
 
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
-            socket.emit('requestFeed',  {sphereID: sphereID, sphereIndex: sphereIndex}, function(posts){  
-                feed = posts; 
+            socket.emit('requestFeed',  {sphereID: sphereID, sphereIndex: sphereIndex}, function(reqPosts, reqFeed){  
+                posts = reqPosts; 
+                feed = reqFeed;
                 viewFeed();
             });
         };

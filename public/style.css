@@ -196,6 +196,13 @@ span.title {
   min-width: 100px;
   max-width: 150px; }
 
+span.title.image {
+  float: none;
+  padding: 5px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto; }
+
 a.post_link .title {
   margin-top: 30px; }
 
@@ -231,7 +238,7 @@ a.post_image img {
   background: none !important; }
 
 textarea {
-  margin: 9px 0 6px 0;
+  margin: 4px 0 6px 0;
   resize: none; }
 
 #send {
@@ -239,6 +246,13 @@ textarea {
 
 #feedReturn {
   color: white; }
+
+#postInput {
+  height: 55px; }
+
+#urlInput {
+  height: 32px;
+  overflow: hidden; }
 
 /* Homepage */
 #bookmarklet {

@@ -3,8 +3,11 @@ $(document).ready(function(){
     	height: '86%',
     	start: 'top'
     });
-    $('textarea').slimScroll({
-    	width:'100%'
-    });
+
+
+    /*$('#postInput').slimScroll({
+    	width:'100%',
+    	railVisible: false
+    }); */
 
 });

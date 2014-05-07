@@ -20,6 +20,10 @@ var Feed = require("./controllers/feed");
 
 var LinkParser = require("./helpers/link_parser");
 
+var request = require('request');
+var cheerio = require('cheerio');
+
+
 var Crawler = require("crawler").Crawler;
 var crawl = new Crawler({"maxConnections":10});
 
@@ -244,7 +248,38 @@ sessionSockets.on('connection', function (err, socket, session) {
           preview(url);
       }else{
 
-      crawl.queue([{
+        request(url, function(err, response, html){
+          if (!err && response.statusCode == 200){
+            var $ = cheerio.load(html);
+
+            type = "link";
+            var title = $("title").text();
+            var image = $("meta[property='og:image']").attr('content') ||
+                        $("meta[name='og:image']").attr('content');
+
+            if(!image){
+              console.log($('img'));
+              $('img').each(function(index, img){
+                    console.log(img);
+                    var imgAttr = img.attribs;
+                    if(imgAttr.height > 40 && imgAttr.width > 40){
+                        image = imgAttr.src;
+                        return;
+                      } 
+                  });
+              }
+
+        
+            console.log("Image: " + image);
+            console.log(title);
+            url = LinkParser.tagWrap(url, type, title, image);
+            console.log(url);
+            preview(url);
+
+          }
+        });
+         
+ /*     crawl.queue([{
             "uri": url,
             "callback":function(error,result,$){
               if(error){
@@ -273,9 +308,9 @@ sessionSockets.on('connection', function (err, socket, session) {
               }
       
             } 
-     }]);
+     }]); */
 
-    }
+    } 
 
 
     });
@@ -285,6 +320,7 @@ sessionSockets.on('connection', function (err, socket, session) {
       console.log("Posting URL..");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
+      var time = moment().format();
 
       // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
@@ -294,16 +330,19 @@ sessionSockets.on('connection', function (err, socket, session) {
               }
       } 
 
+      data.isLink = true;
+      data.timeFormatted = time;
+
       socket.broadcast.to(sphereString).emit('post', data);
       var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
       Sphere.savePost(User, data.sphere, post, function(savedPost){
           returnID(savedPost.id);
-          var time = moment().format();
+
           session.posts[time] = savedPost.getPostData(currentUser);
           session.feed.unshift(time);
-          console.log(session.posts);
-          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts});
           session.save();
+          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts});
+          console.log("Saved Session Data: " + session.posts);
       });
     });
 
@@ -449,9 +488,22 @@ sessionSockets.on('connection', function (err, socket, session) {
     });
   }); // end seen  
 
+  socket.on('updateSession', function(data){
+    console.log("Updating Session Data..");
+    console.log(data.time);
+    console.log(currentUser.name);
+    session.posts[data.time] = data.postData;
+    session.feed.unshift(data.time);
+    console.log("Updated Feed: " + session.feed);
+    session.save();
+  });
+
 
   socket.on('seenConvo', function(data){
+    console.log("Conversation Seen by: " + currentUser.name );
     Post.seenConvo(data.postID, currentUser.id);
+    console.log(data.time);
+    console.log(session.feed);
     session.posts[data.time][5] = true;
     session.save();
   });
@@ -536,7 +588,7 @@ sessionSockets.on('connection', function (err, socket, session) {
  
       var targetSphere = null;
       var posts = {};
-
+      var feed = [];
       if(currentUser.spheres[data.sphereIndex].object == data.sphereID){
         targetSphere = currentUser.spheres[data.sphereIndex];
       } else{
@@ -556,16 +608,17 @@ sessionSockets.on('connection', function (err, socket, session) {
 
                for(var i = sphere.posts.length - 1; i > -1 ; i--){
                   var currentPost = sphere.posts[i];
-                  var post = [currentPost.creatorName(), currentPost.content, currentUser.isOwner(currentPost), currentPost.isLink, currentPost.id];
+                  var post = currentPost.getPostData(currentUser);
                   var time = moment(sphere.posts[i].date);
                   var key = time.format();
 
                   posts[key] = post;
+                  feed.push(key);
               }
 
-              console.log(posts);
+              console.log(feed);
 
-              fillFeed(posts);
+              fillFeed(posts, feed);
 
               // resets the notifications in a sphere to 0 once the user has accessed it 
               targetSphere.updates = 0;
