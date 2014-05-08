@@ -34,6 +34,12 @@ var userSchema = new Schema({
 userSchema.pre('save', function(next) {
     var user = this;
 
+    for(var i=0; i< user.spheres.length; i++){
+        if(user.spheres[i].nickname  == ""){
+           user.spheres[i].nickname = user.name; 
+        }
+    }
+
     // only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) return next();
 

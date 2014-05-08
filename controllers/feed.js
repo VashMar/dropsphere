@@ -60,23 +60,23 @@ exports.signup = function(req, res){
 
         
          var inviteID = req.session.inviteID;
+
          // construct data variables for client side tracking
          var username = user.name,
-         	 nicknames = [],
-         	 nickname = username,
-         	 currentSphere = "",
-         	 sphereData = {},
-         	 sphereMap = {},
-         	 sphereNames = [], 
-         	 totalUpdates = 0,
-         	 posts = {},
-           feed = [],
-           announcements = {};
+         	  nicknames = [],
+         	  nickname = username,
+         	  currentSphere = "",
+         	  sphereData = {},
+         	  sphereMap = {},
+         	  sphereNames = [], 
+         	  totalUpdates = 0,
+         	  posts = {},
+            feed = [],
+            announcements = {};
 
          console.log(req.session.invite);
 
          var newSphere = new Sphere();
-
       	 // if the new user is being invited to an open sphere, assign them to it 
          if(req.session.invite == true){
          	req.session.invite = false; // turn the flag off 
@@ -98,7 +98,7 @@ exports.signup = function(req, res){
 				
 				
 
-         } else {	// create the user a sphere and plop them inside 
+         }else {	// create the user a sphere and plop them inside 
          	  console.log("Creating sphere for new user..");
          	  newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id });
          	  // create a welcome message 
@@ -151,7 +151,7 @@ exports.signup = function(req, res){
 			          req.session.sphereMap = sphereMap;
 		            req.session.sphereNames = sphereNames;
 		            req.session.username = username;
-		            req.session.name = nickname;
+		            req.session.nickname = nickname;
 		            req.session.nicknames = nicknames;
                 req.session.feed = feed;
 		            req.session.posts = posts;
@@ -210,7 +210,6 @@ exports.login = function(req, res){
           }
 
           else{
-
 
           	// data about current user and their current sphere
           	var username = user.name,

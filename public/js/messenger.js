@@ -23,6 +23,7 @@ function Chat(){
         var currentPost = null;
         var postInput = null;
         var previewURL = null;
+        var feedHeight = $("#feed").height();
         var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
         var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
 
@@ -224,6 +225,10 @@ function Chat(){
             currentPost = selected.attr('data');
             postInput = $(".postBox").html();
             var itemNum = selected.index();
+            var itemHeight = selected.height();
+            alert(itemHeight);
+            alert(feedHeight);
+            alert($("#content").height());
             selected = selected.attr('id', 'selectedPost');
             $(".postBox").html(selected);
             $(".postBox").prepend("<a id='feedReturn' href='#' onclick='feedReturn();'> Return to Feed </a>");
@@ -393,6 +398,9 @@ function Chat(){
             socket.emit("seenConvo", {postID: posts[time][4], time:time});
         }
     
+        function adjustScrollHeight(height){
+
+        }
 
         function clearUpdates(){
 

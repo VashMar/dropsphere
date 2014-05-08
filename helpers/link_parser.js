@@ -71,7 +71,7 @@ exports.tagWrap =  function(msg, type, title, image) {
 	 			url = "http://" + url;
 	  		}
      
-            res += "<img src='" + url + "'/><span class='title image' style='margin-top:20px;'></span>";
+            res += "<img src='" + url + "'/><span class='title image'></span>";
             res += "</a>";
         }
       

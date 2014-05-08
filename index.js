@@ -318,6 +318,7 @@ sessionSockets.on('connection', function (err, socket, session) {
 
     socket.on('postURL', function(data, returnID){
       console.log("Posting URL..");
+      console.log("Sender: " + data.sender);
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
       var time = moment().format();
@@ -350,6 +351,7 @@ sessionSockets.on('connection', function (err, socket, session) {
 
     socket.on('post', function(data){
       console.log("Posting Data..");
+
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
       var type;   // type of post 
@@ -456,11 +458,12 @@ sessionSockets.on('connection', function (err, socket, session) {
 
             if(msg){
               console.log("Message Saved: " + msg);
+
+              post.messages.push(message);
+              post.save(function(err, sphere){
+                console.log(sphere.messages.length);
+              });
             }
-          });
-          post.messages.push(message);
-          post.save(function(err, sphere){
-            console.log(sphere.messages.length);
 
           });
 
@@ -661,44 +664,66 @@ sessionSockets.on('connection', function (err, socket, session) {
         if(post){
 
           console.log("Extracting Messages from Post..");
-          var messages = {};
-          for(var i = 0; i < post.messages.length - 1; i++ ){
+          var messages = {},
+              key,
+              currentMsg,
+              msg1, 
+              time1;
+
+    /*      for(var i = posts.messages.length - 1; i > -1 ; i--){
 
             var currentMsg = post.messages[i];
             var msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
             var time1 = moment(currentMsg.date);
 
-            // create a hash key for the date of the first message that points to an array, and store the message in the array
-            if(i == 0){
-              key =  time1.format();
-              messages[key] = [msg1];
-            }
 
-            if(post.messages.length > 1 && i < post.messages.length - 1){
-              var nextMsg = post.messages[i+1];
-              var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
-              var time2 = moment(nextMsg.date);
+          } */
 
-              // compare each message to the one after it
-              if(time2.diff(time1, "minutes") <= 30 ){
-                // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-                messages[key].push(msg2);
-              }else{
-              // if the difference is greater than 30 minutes create a new hash key for the message date
-                key = time2.format();
-                messages[key] = [msg2];
-              }
-            }
+          // if theres only one message just display it
+          if(post.messages.length == 1){
+            currentMsg = post.messages[0];
+            msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+            time1 = moment(currentMsg.date);
+            key =  time1.format();
+            messages[key] = [msg1];
+          }else{
+            // otherwise loop through and sort the messages based on conversation time 
+            for(var i = 0; i < post.messages.length - 1; i++ ){
+                currentMsg = post.messages[i];
+                msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+                time1 = moment(currentMsg.date);
+
+                // create a hash key for the date of the first message that points to an array, and store the message in the array
+                if(i == 0){
+                  key =  time1.format();
+                  messages[key] = [msg1];
+                }
+
+                if(post.messages.length > 1 && i < post.messages.length - 1){
+                  var nextMsg = post.messages[i+1];
+                  var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
+                  var time2 = moment(nextMsg.date);
+
+                  // compare each message to the one after it
+                  if(time2.diff(time1, "minutes") <= 30 ){
+                    // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                    messages[key].push(msg2);
+                  }else{
+                    // if the difference is greater than 30 minutes create a new hash key for the message date
+                    key = time2.format();
+                    messages[key] = [msg2];
+                  }
+                }
+            } 
           }
+
+          console.log(messages);
 
           fillMessages(messages);
 
         }else{
           console.log("Couldn't obtain post");
         }
-
-
-
       });
 
 

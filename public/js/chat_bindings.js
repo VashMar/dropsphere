@@ -12,7 +12,6 @@ $(document).ready(function(){
         sendMsg();
     });
 
-
     // get and display the new current sphere when the user chooses to switch
     $("#sphereList").on("click", "a.sphere", function(e){
        
