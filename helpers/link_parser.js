@@ -76,7 +76,6 @@ exports.tagWrap =  function(msg, type, title, image) {
         	res += (title) ? "<span" + imageStyle + "class='title'>" + title + "</span></a>" :  url + "</a>";
         }
 
-
         if(type == "msgLink"){
           res = "<a target='_blank' href='" + url + "'>" + url + "</a>";
         } 
