@@ -115,7 +115,7 @@ $(document).ready(function(){
     
 
     function postMsg(){
-        $("#previewLink").hide();
+        closePreview();
         var post = $("#postInput").val();  
         $("#postInput").val("");
         $("#urlInput").val("");
@@ -123,6 +123,9 @@ $(document).ready(function(){
           
     }
 
+    function closePreview(){
+        $("#previewContainer").hide();
+    }
 
     function sendMsg(){
         

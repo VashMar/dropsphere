@@ -170,6 +170,11 @@ input {
 .postBox .chatIcon {
   display: none; }
 
+#closePreview {
+  position: absolute;
+  margin-left: 119px;
+  z-index: 20; }
+
 #previewLink {
   min-height: 90px; }
 
@@ -184,6 +189,9 @@ input {
 
 #selectedPost img {
   margin-top: 10px; }
+
+#selectedPost .chatIcon {
+  display: none; }
 
 .post {
   min-height: 120px;
@@ -231,7 +239,8 @@ a.post_image img {
   padding-top: 20px; }
 
 .chatIcon {
-  float: left; }
+  float: left;
+  padding-right: 6px; }
 
 /* Controls */
 .controls .slimScrollDiv, .controls .slimScrollBar {
@@ -287,7 +296,9 @@ a#bookmarklet {
   text-align: center; }
 
 .message {
-  margin-left: 4px; }
+  margin-left: 4px;
+  padding-left: 3px;
+  padding-right: 6px; }
 
 .post {
   font-size: 12px;

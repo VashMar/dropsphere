@@ -53,8 +53,11 @@
         #content(class="form-control")
             .postBox
                  textarea#urlInput(class="form-control" placeholder="URL goes here...")
-                 textarea#postInput(class="form-control" placeholder="Enter a message...")
-                 #previewLink(class="post" style="display:none")
+                 textarea#postInput(class="form-control" maxlength="140" placeholder="Enter a message...")
+                 #previewContainer(style="display:none")
+                    a#closePreview(href="#" onclick="closePreview();")
+                        img(src="/img/close_preview.png")
+                    #previewLink(class="post")
                  input#drop(type='button' class="btn btn-primary" value='drop' onclick='dropLink();')
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
             #feed 
@@ -175,6 +178,7 @@ script.
     sphereID = sphereMap[currentSphere].id;
     sphereLink = sphereMap[currentSphere].link;
     posts = sphereData.posts; 
+    feed = sphereData.feed;
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js');

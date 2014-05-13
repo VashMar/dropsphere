@@ -278,37 +278,6 @@ sessionSockets.on('connection', function (err, socket, session) {
 
           }
         });
-         
- /*     crawl.queue([{
-            "uri": url,
-            "callback":function(error,result,$){
-              if(error){
-                console.log(error);
-              }else{
-                type = "link";
-                var title = $("title").text();
-                var image = $("meta[property='og:image']").attr('content') ||
-                            $("meta[name='og:image']").attr('content');
-
-                if(!image){
-                  $('img').each(function(index, img){
-                       if(img.height > 40 && img.width > 40){
-                          image = img.src;
-                          return;
-                       } 
-                  });
-                }
-
-                var description = null;
-                console.log("Image: " + image);
-                console.log(title);
-                url = LinkParser.tagWrap(url, type, title, description, image);
-                console.log(url);
-                preview(url);
-              }
-      
-            } 
-     }]); */
 
     } 
 
@@ -427,8 +396,8 @@ sessionSockets.on('connection', function (err, socket, session) {
 
     }); // end post 
     
-    socket.on('send', function (data) {
-      data.msg = LinkParser.tagWrap(data.msg);
+    socket.on('send', function(data) {
+      data.msg = LinkParser.tagWrap(data.msg, "msgLink");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
@@ -449,7 +418,7 @@ sessionSockets.on('connection', function (err, socket, session) {
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
     
-          post.updatedConvo(); // update conversation notifier 
+          post.updatedConvo(currentUser.id); // update conversation notifier 
 
           message.save(function(err, msg){
             if(err){
@@ -505,8 +474,6 @@ sessionSockets.on('connection', function (err, socket, session) {
   socket.on('seenConvo', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     Post.seenConvo(data.postID, currentUser.id);
-    console.log(data.time);
-    console.log(session.feed);
     session.posts[data.time][5] = true;
     session.save();
   });

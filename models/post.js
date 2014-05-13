@@ -47,11 +47,10 @@ postSchema.methods.hasConvo = function(){
 
 postSchema.methods.hasSeenConvo = function(userID){
 	var viewers = this.viewers;
-	console.log(viewers);
 	console.log("USERID: " + userID);
 	for(var v = 0; v < viewers.length; v++){
-		console.log("VIEWERID: " + viewers[v].id);
 		if(viewers[v].id == userID){
+			console.log("VIEWERID: " + viewers[v].id + ": " + viewers[v]);
 			return viewers[v].seen;
 		}
 	}
@@ -70,11 +69,14 @@ postSchema.methods.convoSeen = function(userID){
 
 }
 
-postSchema.methods.updatedConvo = function(){
+postSchema.methods.updatedConvo = function(senderID){
 	var viewers = this.viewers;
-
+	console.log(senderID);
 	for(var v = 0; v < viewers.length; v++){
-		viewers[v].seen = false;	
+		if(viewers[v].id != senderID){
+			viewers[v].seen = false;	
+		};
+		
 	}
 
 }
@@ -96,11 +98,12 @@ postSchema.methods.getPostData = function(user){
 }
 
 postSchema.statics.seenConvo = function(postID, userID){
-	this.update({$and: [{id: postID} , {'viewers.id': userID}]}, {'$set': {'viewers.$.seen' : true}}, function(err){
+
+	this.update({$and: [{_id: postID},{'viewers.id': userID}] }, {'$set': {'viewers.$.seen' : true}}, function(err, numAffected){
           if(err){console.log(err);}
 
           else{
-            console.log("Convo Seen");
+            console.log(numAffected);
           }
     });
 }

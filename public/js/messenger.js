@@ -19,7 +19,7 @@ moment.lang('en', {
 socket = null;
 
 function Chat(){
-        var feed = Object.keys(posts);
+        
         var currentPost = null;
         var postInput = null;
         var previewURL = null;
@@ -214,7 +214,7 @@ function Chat(){
 
         this.Preview = function Preview(link){
             $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
-            $("#previewLink").show();
+            $("#previewContainer").show();
             socket.emit("crawl", {url: link}, function(url){
                 $("#previewLink").html(url);
                 previewURL = url;
@@ -222,18 +222,18 @@ function Chat(){
         };
 
         this.SelectPost = function SelectPost(selected){
+            selected.attr('id', 'selectedPost');
             currentPost = selected.attr('data');
             postInput = $(".postBox").html();
             var itemNum = selected.index();
             var itemHeight = selected.height();
-            alert(itemHeight);
-            alert(feedHeight);
-            alert($("#content").height());
-            selected = selected.attr('id', 'selectedPost');
-            $(".postBox").html(selected);
+            $(".postBox").html("");
             $(".postBox").prepend("<a id='feedReturn' href='#' onclick='feedReturn();'> Return to Feed </a>");
             $(".controls").show();
             $("#feed").empty();
+            $(".slimScrollDiv").css('height', '98%');
+            $("#feed").css('height', '96%');
+            $("#feed").append(selected);
             requestMessages();
             seenConvo(itemNum);
         };
@@ -241,6 +241,8 @@ function Chat(){
         this.FeedReturn = function FeedReturn(){
             $(".controls").hide();
             $(".postBox").html(postInput);
+            $(".slimScrollDiv").css('height', '86%');
+            $("#feed").css('height', '86%');
             currentPost = null;
             viewFeed();
         };
@@ -328,6 +330,7 @@ function Chat(){
         };
 
         var viewFeed = function(){
+
             $("#feed").empty();
             if(feed.length > 0){
                 for(var i = feed.length -1 ; i > -1 ; i--){
@@ -343,7 +346,6 @@ function Chat(){
                     time = moment(time).format("MMM Do, h:mm a");
 
                     createPost(postID, content, memberNum, sender, time, seen);
-                    //$("#feed").append("<p class='post' data='"+ postID + "'>" + chatIcon + time + "<br /><span class='sender user" + memberNum + "'>" + sender + ": </span> " + content + "</p>");
                 }
             }
         };
@@ -353,7 +355,6 @@ function Chat(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
             socket.emit('requestMessages', {postID: currentPost}, function(messages){
 
-                $("#feed").empty();
                 var conversations = Object.keys(messages);
 
                 if(conversations.length > 0 ){
@@ -398,9 +399,6 @@ function Chat(){
             socket.emit("seenConvo", {postID: posts[time][4], time:time});
         }
     
-        function adjustScrollHeight(height){
-
-        }
 
         function clearUpdates(){
 

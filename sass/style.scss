@@ -199,6 +199,12 @@ input{
 	display:none;
 }
 
+#closePreview{
+	position:absolute;
+	margin-left: 119px;
+	z-index:20;
+}
+
 #previewLink{
 	min-height:90px;
 
@@ -221,6 +227,9 @@ input{
 	margin-top:10px;
 }
 
+#selectedPost .chatIcon{
+	display:none;
+}
 
 .post{
 	min-height: 120px;
@@ -278,6 +287,7 @@ a.post_image img{	/* linked image url */
 
 .chatIcon{
 	float:left;
+	padding-right:6px;
 }
 
 /* Controls */
@@ -344,6 +354,8 @@ a#bookmarklet{
 
 .message{
 	margin-left: 4px;
+	padding-left: 3px;
+	padding-right: 6px;
 }
 
 .post{

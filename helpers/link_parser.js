@@ -52,27 +52,16 @@ exports.tagWrap =  function(msg, type, title, image) {
 
       console.log(textInclude);
 
-      // if the post is a youtube video embed it to the page 
- /*     if(url.indexOf("www.youtube.com/watch?") > -1){
-        var video = msg.split('v=')[1];
-
-        if(video.indexOf('&') > -1){
-          video = video.split('&')[0];
-        }
-        res = "<iframe width='250' height='200' frameborder='0' src='//www.youtube.com/embed/" + video + "' allowfullscreen></iframe>";
-      } else{ */
- 
-
         res = textInclude + "<a target='_blank' class='post_" + type + "' href='" + url + "'>";
        
         // check if post is an image and wrap in image tag 
         if(type == "image"){
         	if(url.indexOf("http://") < 0 && url.indexOf("https://") < 0){
-	 			url = "http://" + url;
-	  		}
+	 			   url = "http://" + url;
+	  		  }
      
-            res += "<img src='" + url + "'/><span class='title image'></span>";
-            res += "</a>";
+          res += "<img src='" + url + "'/><span class='title image'></span>";
+          res += "</a>";
         }
       
         if(type == "link"){
@@ -81,23 +70,17 @@ exports.tagWrap =  function(msg, type, title, image) {
         	if(image){
          		res+= "<img src='" + image + "'/>";
          	}else{
-         		imageStyle= " style='float:none; padding:5px;'";
+         		imageStyle= "style='float:none; padding:5px;'";
          	}
 
         	res += (title) ? "<span" + imageStyle + "class='title'>" + title + "</span></a>" :  url + "</a>";
-
-       
-         /*	if(description){
-         		description = description.substring(0,120);
-         		description += "...";
-				res += "<span>" + imageTag + description + "</span>";
-         	} else{
-         		res += "<span>" + imageTag + "</span>";
-         	}*/
         }
-      
-      //} 
 
+
+        if(type == "msgLink"){
+          res = "<a target='_blank' href='" + url + "'>" + url + "</a>";
+        } 
+      
       return res; 
     });
 
