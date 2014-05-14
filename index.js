@@ -286,7 +286,7 @@ sessionSockets.on('connection', function (err, socket, session) {
 
 
     socket.on('postURL', function(data, returnID){
-      console.log("Posting URL..");
+      console.log(currentUser.name + " is posting URL..");
       console.log("Sender: " + data.sender);
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
