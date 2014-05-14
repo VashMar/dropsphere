@@ -595,7 +595,8 @@ sessionSockets.on('connection', function (err, socket, session) {
               currentUser.currentSphere = data.sphereIndex;
 
               // update the currentSphere session info 
-              session.currentSphere = sphere.name;     
+              session.currentSphere = sphere.name; 
+              session.feed = feed;    
               session.posts = posts;
               session.save();
 
