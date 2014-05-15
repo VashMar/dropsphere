@@ -1,11 +1,11 @@
-javascript:(function() {
+javascript:(function(){
   var socketxdm;
   if(typeof dropsphere === 'undefined' || dropsphere==false){
     dropsphere=true;
     var el=document.createElement('div'),
         b=document.getElementsByTagName('body')[0],
         msg='';
-
+    
     var img=new Image();
     img.src='http://dropsphere.herokuapp.com/img/close_hover.png';
     
@@ -26,13 +26,12 @@ javascript:(function() {
       };
       head.appendChild(script);
     }
-    getScript('http://code.jquery.com/jquery.min.js',function() {
-      getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
-        dropsphereLaunch();
-        dropsphereXDM();
-      });
 
+    getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
+      dropsphereLaunch();
+      dropsphereXDM();
     });
+
     function dropsphereLaunch(){
       dropsphere=true;
       var d = document.createElement('div');

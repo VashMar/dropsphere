@@ -41,6 +41,7 @@ function launchBookmark(inviteURL){
         };
         head.appendChild(script);
       }
+
       getScript('http://code.jquery.com/jquery.min.js',function() {
         if (typeof jQuery=='undefined') {
           msg='Sorry, but jQuery wasn\'t able to load';
@@ -53,7 +54,7 @@ function launchBookmark(inviteURL){
       });
 
       function uiLoader(){
-        getScript('http://code.jquery.com/ui/1.10.4/jquery-ui.js',function() {
+        getScript('http://code.jquery.com/ui/1.10.4/jquery-ui.js',function(){
           if (typeof jQuery=='undefined') {
             msg='Sorry, but jQuery wasn\'t able to load';
           } else {
@@ -67,13 +68,14 @@ function launchBookmark(inviteURL){
             console.log('bookmarklet loaded');
           });
           return showMsg();
-
         });
       }
+
       function testMsg(){
         targetWindow.postMessage('Hello World!', 'http://dropsphere.herokuapp.com');
       }
-      function showMsg() {
+      
+      function showMsg(){
         el.innerHTML=msg;
         b.appendChild(el);
         window.setTimeout(function() {
