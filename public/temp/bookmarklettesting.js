@@ -1,12 +1,13 @@
-javascript:(function() {
+javascript:(function(){
+  var socketxdm;
   if(typeof dropsphere === 'undefined' || dropsphere==false){
     dropsphere=true;
     var el=document.createElement('div'),
         b=document.getElementsByTagName('body')[0],
         msg='';
-
+    
     var img=new Image();
-    img.src='http://dropsphere.herokuapp.com/img/close_hover.png';
+    img.src='http://localhost:3500/img/close_hover.png';
     
     function getScript(url,success){
       var script=document.createElement('script');
@@ -26,8 +27,9 @@ javascript:(function() {
       head.appendChild(script);
     }
 
-    getScript('http://code.jquery.com/jquery.min.js',function(){
-     dropsphereLaunch();
+    getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
+      dropsphereLaunch();
+      dropsphereXDM();
     });
 
     function dropsphereLaunch(){
@@ -77,11 +79,11 @@ javascript:(function() {
       margin:2px 6px 0 0;
       height:30px;
       width:30px;
-      background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;
+      background:url(http://localhost:3500/img/close.png) no-repeat;
       z-index:99999999;
       }
       #close:hover{
-      background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;
+      background:url(http://localhost:3500/img/close_hover.png) no-repeat;
       }
       #dropsphere{
          }
@@ -93,8 +95,26 @@ javascript:(function() {
         position:absolute;
         top:0;
          pointer-events:none;
-      }';
+      }
+      ';
       document.body.appendChild(css);
+    }
+
+    function dropsphereXDM(){
+          socketxdm = new easyXDM.Socket({
+            remote: 'http://localhost:3500/bookmark',
+            container:'dropsphere',
+
+            onMessage: function(message, origin){
+              if(message == 'getURL'){
+                  console.log('URL requested from ' + origin);
+                  socketxdm.postMessage(document.URL);
+              }
+            },
+            onReady : function() {
+                    socketxdm.postMessage('bookmarkletSuccess');
+            }
+          });
     }
   }
 })();

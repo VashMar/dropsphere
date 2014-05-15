@@ -1,8 +1,13 @@
 $(document).ready(function(){
-    var socketxdm = new easyXDM.Socket({
+    socketxdm = new easyXDM.Socket({
         onMessage: function(message, origin){
+            if(message == 'bookmarkletSuccess'){
+                console.log("Received '" + message + "' from '" + origin + "'");
+            }else{
+                console.log(message + " sent from " + origin);
+                dropLink(message);
+            }
             
-            console.log("Received '" + message + "' from '" + origin + "'");
         },
         onReady : function() {
 			socketxdm.postMessage("testing");

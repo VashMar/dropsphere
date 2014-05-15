@@ -106,6 +106,10 @@ javascript:(function(){
             container:'dropsphere',
 
             onMessage: function(message, origin){
+              if(message == 'getURL'){
+                  console.log('URL requested from ' + origin);
+                  socketxdm.postMessage(document.URL);
+              }
             },
             onReady : function() {
                     socketxdm.postMessage('xdm working in bookmarklet');

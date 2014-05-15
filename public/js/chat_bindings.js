@@ -91,20 +91,14 @@ $(document).ready(function(){
 
     }
 
-    function dropLink(){
-        var link = document.referrer;
+    function getLink(){
+        socketxdm.postMessage('getURL');
+    }
 
+    function dropLink(url){
+        var link = url;
         $("#urlInput").val(link);
-
-    /*   if($("#postInput").val() == ""){
-            $("#postInput").val(link);
-        }else{
-            $("#postInput").val($("#postInput").val() + "\n" + link);
-        }   */ 
-
         chat.Preview(link);
-
-
     }
 
     function checkLink(pasted){
