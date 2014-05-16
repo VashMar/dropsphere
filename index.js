@@ -33,7 +33,7 @@ var EXPRESS_SID_KEY = 't3stk3y';
 
 var app = express();
 var sessionStore = new express.session.MemoryStore();
-console.log(process.env.PORT);
+console.log("RUNNING ON PORT: " + process.env.PORT);
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
 var io = require('socket.io').listen(app.listen(port));
