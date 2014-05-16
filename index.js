@@ -33,7 +33,7 @@ var EXPRESS_SID_KEY = 't3stk3y';
 
 var app = express();
 var sessionStore = new express.session.MemoryStore();
-console.log("RUNNING ON PORT: " + process.env.PORT);
+
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
 var io = require('socket.io').listen(app.listen(port));
@@ -103,8 +103,8 @@ app.configure(function () {
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
   console.log("ENVIRONMENT IS: " + ENV);
-  console.log(ENV == 'production');
   if(ENV == 'production'){
+      console.log("RUNNING ON PORT: " + process.env.PORT);
       console.log("rendering heroku bookmarklet");
       res.render("home");
   } else {
