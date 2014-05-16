@@ -24,7 +24,7 @@ javascript:(function(){
           head.removeChild(script);
         }
       };
-      head.appendChild(script);
+      (head || document.documentElement).appendChild(script);
     }
 
     getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
