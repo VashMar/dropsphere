@@ -189,7 +189,7 @@ io.set('authorization', function (data, callback) {
 
 clients = {}; // tracks sessions and associated sockets 
 
-sessionSockets.on('connection', function (err, socket, session) {
+sessionSockets.on('connection', function (err, socket, session){
  
   console.log("Server connection created for socket: " + socket.id + "at " + moment().format("hh:mm:ssA") );
 
@@ -769,6 +769,8 @@ sessionSockets.on('connection', function (err, socket, session) {
 
 
   socket.on('leaveRooms', function(data){
+    console.log("ending session");
+    currentUser.endSession(sessionID);
     console.log("leaving  rooms");
     var spheres = data.spheres;
     console.log(spheres);

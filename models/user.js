@@ -19,7 +19,7 @@ var userSchema = new Schema({
 	name: { type: String, required: true, trim: true, validate: nameValidator },
 	password: { type: String, required: true, validate: passValidator },
 	email: { type: String, required: true, index: { unique: true }, validate: isEmail }, 
-	session: String, 
+	sessions: [String], 
     spheres: [{
         object: {type: ObjectId, ref: 'Sphere'},      // references the sphere object user belongs to              
         nickname: {type: String},                    // references the users name in that sphere 
@@ -142,11 +142,19 @@ userSchema.methods.joinedCurrent = function(){
   return this.spheres[this.currentSphere].joined;    
 }
 
+userSchema.methods.endSession = function(sessionID){
+  console.log("Exiting Session " + sessionID + " in session list: " + this.sessions);
+  this.sessions.splice(this.sessions.indexOf(sessionID), 1);
+  console.log("Remaining sessions " + this.sessions);
+}
+
 userSchema.statics.load = function(sessionID, next){
-    this.findOne({session: sessionID}, function(err, user){
+    console.log("Loading Current User.. " + sessionID);
+    this.findOne({sessions: {$in : [sessionID]}}, function(err, user){
         if(err || !user){
             next(err);
         } else{
+            console.log("User found..");
             next(false, user);
         }
     });

@@ -47,7 +47,8 @@ exports.signup = function(req, res){
         session = req.sessionID;	
 
     //try to create
-    var user = new User({name: name, email: email, password: password, session: session});
+    var user = new User({name: name, email: email, password: password});
+    user.sessions.push(session);
 
     user.save(function(err, user){
         // respond with validation errors here
@@ -185,7 +186,6 @@ exports.signup = function(req, res){
 
 	
 }
-
 
 
 exports.login = function(req, res){
@@ -328,12 +328,12 @@ exports.login = function(req, res){
 	       req.session.isLogged = true;
 
 	       // store the new session 
-	       user.session = req.sessionID;
+	       user.sessions.push(req.sessionID);
 
-	       user.save(function(err){
+	       user.save(function(err,user){
 	         if(err){console.log(err);}
 	         else{
-	           console.log("new user session saved");
+	           console.log("new user session saved: " + user.sessions);
 	         }
           }); 
 
@@ -375,7 +375,7 @@ exports.invite = function(req,res){
 
 
    if(req.session.isLogged == true){
-    User.findOne({session: req.sessionID}, function(err, user){
+    User.findOne({'sessions.$': req.sessionID}, function(err, user){
       if(user){
 
       Sphere.findOne({_id: inviteID}, function(err,sphere){
