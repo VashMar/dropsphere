@@ -388,7 +388,7 @@ sessionSockets.on('connection', function (err, socket, session){
               console.log("Saved Post: " + savedPost);
               console.log("Current User: " + currentUser.id);
               var time = moment().format();
-              session.posts[time] = [savedPost.creatorName(), savedPost.content, currentUser.isOwner(savedPost), savedPost.isLink, savedPost.id];
+              session.posts[time] = savedPost.getPostData(currentUser);
               session.feed.unshift(time);
               session.save();
            });

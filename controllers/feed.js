@@ -375,7 +375,7 @@ exports.invite = function(req,res){
 
 
    if(req.session.isLogged == true){
-    User.findOne({'sessions.$': req.sessionID}, function(err, user){
+    User.findOne({sessions: {$in : [req.sessionID]}}, function(err, user){
       if(user){
 
       Sphere.findOne({_id: inviteID}, function(err,sphere){
