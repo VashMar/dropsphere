@@ -30,7 +30,7 @@ function Chat(){
 
 
         alert(contentHeight);
-        
+        alert(feedHeight);
         this.Connect = function(user){ 
 
             socket =  io.connect(window.location.hostname);  
