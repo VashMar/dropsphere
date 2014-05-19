@@ -23,7 +23,6 @@ function Chat(){
         var currentPost = null;
         var postInput = null;
         var previewURL = null;
-        var feedHeight = $("#feed").height();
         var contentHeight = $("#content").height();
         var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
         var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
@@ -243,8 +242,8 @@ function Chat(){
         this.FeedReturn = function FeedReturn(){
             $(".controls").hide();
             $(".postBox").html(postInput);
-            $(".slimScrollDiv").css('height', '86%');
-            $("#feed").css('height', '86%');
+            $(".slimScrollDiv").css('height', feedHeight);
+            $("#feed").css('height', feedHeight);
             currentPost = null;
             viewFeed();
         };
