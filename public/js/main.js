@@ -1,6 +1,9 @@
 $(document).ready(function(){
+
+	var height = ($("#feed").height() > 500 ? '86%' : '75%');
+
     $('#feed').slimScroll({
-    	height: '86%',
+    	height: height,
     	start: 'top'
     });
 

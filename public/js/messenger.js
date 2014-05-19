@@ -29,8 +29,6 @@ function Chat(){
         var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
 
 
-        alert(contentHeight);
-        alert(feedHeight);
         this.Connect = function(user){ 
 
             socket =  io.connect(window.location.hostname);  
