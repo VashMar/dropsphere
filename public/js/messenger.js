@@ -24,9 +24,13 @@ function Chat(){
         var postInput = null;
         var previewURL = null;
         var feedHeight = $("#feed").height();
+        var contentHeight = $("#content").height();
         var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
         var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
 
+
+        alert(contentHeight);
+        
         this.Connect = function(user){ 
 
             socket =  io.connect(window.location.hostname);  
