@@ -1,7 +1,6 @@
 $(document).ready(function(){   
 
-    $("textarea#messageInput").bind('keypress', function(e) {
-        
+    $("textarea#messageInput").bind('keypress', function(e){    
         if(e.keyCode==13 && !e.shiftKey){
             e.preventDefault();
             sendMsg();
@@ -14,14 +13,12 @@ $(document).ready(function(){
 
     // get and display the new current sphere when the user chooses to switch
     $("#sphereList").on("click", "a.sphere", function(e){
-       
         var current = $(this).children('.sphereName').text().trim();
 
-       if(currentSphere != current){    //doesn't switch if the user chooses the sphere they're already in
+        if(currentSphere != current){    //doesn't switch if the user chooses the sphere they're already in
             $("span#currentSphere").html(current);
             chat.SwitchSphere(current);
         } 
-
     });
 
     $("#saveSphere").click(function(){
@@ -74,7 +71,7 @@ $(document).ready(function(){
 
     $("#urlInput").on("change keyup paste", function(){
         if($("#urlInput").val().trim() == ""){
-             $("#previewLink").hide();
+             $("#previewContainer").hide();
         }
     });
 
@@ -88,7 +85,6 @@ $(document).ready(function(){
 
     function feedReturn(){
          chat.FeedReturn();
-
     }
 
     function getLink(){

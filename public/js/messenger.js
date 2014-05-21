@@ -96,27 +96,6 @@ function Chat(){
                     }else if(sphereMap[currentSphere].id == data.sphere){
                         $(".post[data='" + data.postID + "']").find(".chatIcon").attr('src', 'favicon.png');
                     }
-
-                    /*else {
-                         // find the sphere the message is meant for and send the user an update notification
-                        for(var i = 0; i < sphereNames.length; i++){
-                            if(sphereMap[sphereNames[i]].id == data.sphere){
-                                sphereMap[sphereNames[i]].updates++;            // increment this spheres updates on client side 
-                                var updates = sphereMap[sphereNames[i]].updates;
-                                totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
-                                $("#notifications").html(totalUpdates); 
-
-                                if($("#updates-" + i ).length){
-                                  $("#updates-" + i ).html(updates);
-                                } else {
-                                  var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
-                                  $("#okcircle-" + i).replaceWith(updateIcon);
-                                } 
-                            }
-                             
-                        } 
-
-                    } */
                 }           
             });
 
@@ -264,7 +243,6 @@ function Chat(){
             currentSphere = current;
             socket.emit('requestUsers', {sphereID : sphereID});
             requestFeed();
-
         };
 
  
