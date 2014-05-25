@@ -84,10 +84,10 @@
                         - var memberNum = nicknames.indexOf(sender);
                             .post(data= postID)
                                 a(href='#')    
-                                    if seenConvo === true    
-                                        img.chatIcon(src="/img/chat_icon.png")
+                                    if seenConvo === false 
+                                        img.chatIcon(src="favicon.png")   
                                     else 
-                                        img.chatIcon(src="favicon.png")
+                                        img.chatIcon(src="/img/chat_icon.png")
                                 if isLink === true
                                     !=content
                                 else

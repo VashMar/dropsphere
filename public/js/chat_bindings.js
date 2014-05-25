@@ -100,7 +100,6 @@ $(document).ready(function(){
     function checkLink(pasted){
         var checkLink = new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?");
         return checkLink.test(pasted);
-
     }
     
 
@@ -109,8 +108,7 @@ $(document).ready(function(){
         var post = $("#postInput").val();  
         $("#postInput").val("");
         $("#urlInput").val("");
-        chat.Post(post);
-          
+        chat.Post(post); 
     }
 
     function closePreview(){
@@ -118,13 +116,11 @@ $(document).ready(function(){
     }
 
     function sendMsg(){
-        
         var msg = $("#messageInput").val();  
         if(msg != ""){
             $("#messageInput").val("");
             chat.Send(msg);
-        };    
-       
+        };     
     }
 
     function notifySound(){

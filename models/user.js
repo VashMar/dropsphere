@@ -61,7 +61,7 @@ userSchema.pre('save', function(next) {
 
 // compares user submitted pass to saved salted one
 userSchema.methods.comparePassword = function(sentPassword, callback) {
-    bcrypt.compare(sentPassword, this.password, function(err, isMatch) {
+    bcrypt.compare(sentPassword, this.password, function(err, isMatch){
         if (err) return cb(err);
         callback(null, isMatch);
     });

@@ -32,7 +32,6 @@ sphereSchema.methods.link = function(ENV){
 	if(ENV == "production"){
 	  return "http://dropsphere.herokuapp.com/invite/" + this.id;	
 	}
-
 	return "http://localhost:3500/invite/" + this.id;
 };
 

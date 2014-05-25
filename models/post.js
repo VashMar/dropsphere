@@ -41,7 +41,6 @@ postSchema.methods.hasConvo = function(){
    if(this.messages.length > 0){
    		return true;
    }
-
    return false; 
 }
 
@@ -50,23 +49,20 @@ postSchema.methods.hasSeenConvo = function(userID){
 	console.log("USERID: " + userID);
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id == userID){
-			console.log("VIEWERID: " + viewers[v].id + ": " + viewers[v]);
+			console.log("VIEWERID: " + viewers[v].id + ": " + viewers[v].seen);
 			return viewers[v].seen;
 		}
 	}
-
 	return false; 
 }
 
 postSchema.methods.convoSeen = function(userID){
 	var viewers = this.viewers;
-
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id == userID){
 			viewers[v].seen = true;
 		}
 	}
-
 }
 
 postSchema.methods.updatedConvo = function(senderID){
@@ -76,9 +72,7 @@ postSchema.methods.updatedConvo = function(senderID){
 		if(viewers[v].id != senderID){
 			viewers[v].seen = false;	
 		};
-		
 	}
-
 }
 
 

@@ -281,14 +281,14 @@ sessionSockets.on('connection', function (err, socket, session){
         });
 
     } 
+  });
 
 
-    });
+  socket.on('postURL', function(data, returnID){
 
-
-    socket.on('postURL', function(data, returnID){
       console.log(currentUser.name + " is posting URL..");
       console.log("Sender: " + data.sender);
+
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
       var time = moment().format();
@@ -307,19 +307,18 @@ sessionSockets.on('connection', function (err, socket, session){
       socket.broadcast.to(sphereString).emit('post', data);
       var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
       Sphere.savePost(User, data.sphere, post, function(savedPost){
+          console.log("Post saved to sphere...");
           returnID(savedPost.id);
-
           session.posts[time] = savedPost.getPostData(currentUser);
           session.feed.unshift(time);
           session.save();
           io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts});
-          console.log("Saved Session Data: " + session.posts);
-      });
+          console.log("Saved Session Data: " + session.posts[time]);
+      });  
     });
 
-
-
     socket.on('post', function(data){
+      
       console.log("Posting Data..");
 
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
@@ -343,22 +342,21 @@ sessionSockets.on('connection', function (err, socket, session){
               if(error){
                 console.log(error);
               }else{
+                type = "link";
+                var title = $("title").text();
+                var description = $("meta[property='og:description']").attr('content') || 
+                                  $("meta[name='og:description']").attr('content') || 
+                                  $("meta[name='description']").attr('content');
+                var image = $("meta[property='og:image']").attr('content') ||
+                            $("meta[name='og:image']").attr('content');
 
-              type = "link";
-              var title = $("title").text();
-              var description = $("meta[property='og:description']").attr('content') || 
-                                $("meta[name='og:description']").attr('content') || 
-                                $("meta[name='description']").attr('content');
-              var image = $("meta[property='og:image']").attr('content') ||
-                          $("meta[name='og:image']").attr('content');
 
-
-              console.log("Image: " + image.length);
-              console.log(title);
-              data.post = LinkParser.tagWrap(data.post, type, title, description, image);
-              console.log(data.post);
-              emitAndSave();
-              }
+                console.log("Image: " + image.length);
+                console.log(title);
+                data.post = LinkParser.tagWrap(data.post, type, title, description, image);
+                console.log(data.post);
+                emitAndSave();
+            }
       
             } 
           }]);
@@ -384,6 +382,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
            io.sockets.in(sphereString).emit('post', data);
            var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
+           
            Sphere.savePost(User, data.sphere, post, function(savedPost){
               console.log("Saved Post: " + savedPost);
               console.log("Current User: " + currentUser.id);
@@ -397,7 +396,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
     }); // end post 
     
-    socket.on('send', function(data) {
+    socket.on('send', function(data){
       data.msg = LinkParser.tagWrap(data.msg, "msgLink");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 

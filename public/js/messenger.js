@@ -102,16 +102,16 @@ function Chat(){
             socket.on('post', function(data){
                 if(data.post){
                     // if the message is being sent to the current sphere being looked at, add it to the chat 
-                    if(sphereMap[currentSphere].id == data.sphere && currentPost == null) {    
+                    if(sphereMap[currentSphere].id == data.sphere && currentPost == null){    
                          var memberNum = data.memberNum || nicknames.indexOf(data.sender);  
                          var time = data.time || moment().calendar();       
                          createPost(data.postID, data.post, memberNum, data.sender, time, true);
                          socket.emit("seen", {sphere: data.sphere});
                     }
                     if(sphereMap[currentSphere].id == data.sphere){
-                        var postData = [data.sender, data.post, false, data.isLink, data.postID, false];
+                        var postData = [data.sender, data.post, false, data.isLink, data.postID, true];
                         socket.emit("updateSession", {postData: postData, time: data.timeFormatted});
-                    }else {
+                    }else{
                          // find the sphere the message is meant for and send the user an update notification
                         for(var i = 0; i < sphereNames.length; i++){
                             if(sphereMap[sphereNames[i]].id == data.sphere){
