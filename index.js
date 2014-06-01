@@ -382,7 +382,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
            io.sockets.in(sphereString).emit('post', data);
            var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
-           
+
            Sphere.savePost(User, data.sphere, post, function(savedPost){
               console.log("Saved Post: " + savedPost);
               console.log("Current User: " + currentUser.id);
@@ -481,7 +481,7 @@ sessionSockets.on('connection', function (err, socket, session){
    socket.on('createSphere', function(data, sphereMap){
     console.log("Started sphere creation");
       // find the user and make sure they're under the sphere limit 
-      User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
+      User.findOne({sessions: {$in : [sessionID]}}).populate('spheres.object').exec(function(err, user){
 
           if(err){console.log(err);}
 
