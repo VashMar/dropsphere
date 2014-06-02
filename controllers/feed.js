@@ -191,9 +191,11 @@ exports.signup = function(req, res){
 exports.login = function(req, res){
 
 	//get credentials 
+  console.log("Obtaining User Credentials...");
 	var email = req.body.email,
-	password = req.body.password;
-
+	password = req.body.password,
+  isMobile = req.body.mobile;
+  
   	// pull the user and belonging spheres 
     User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
       if(!user || err){ 
@@ -205,7 +207,7 @@ exports.login = function(req, res){
       	//authorize 
         user.comparePassword(password, function(err, isMatch){
           if(!isMatch || err){ 
-             console.log("Incorred Login Credentials");
+             console.log("Incorret Login Credentials");
              res.json(400, {message: "The email or password you entered is incorrect"});
           }
 
@@ -297,6 +299,22 @@ exports.login = function(req, res){
 
 	           }
 
+            if(isMobile == "true"){
+              console.log("Accessed through Mobile");
+              res.json(200,  { data: {
+                nickname:  nickname,
+                username: username,
+                nicknames: nicknames,
+                feed: feed, 
+                posts: posts,
+                announcements: announcements,
+                sphereMap: sphereMap,
+                sphereNames: sphereNames,
+                currentSphere: currentSphere,
+                totalUpdates: totalUpdates
+                }
+              }); 
+            }else{
             res.render("includes/feed", { data: {
               nickname:  nickname,
               username: username,
@@ -310,6 +328,9 @@ exports.login = function(req, res){
               totalUpdates: totalUpdates
               }
             }); 
+
+            }
+         
 
 
 	       // store session data 
