@@ -195,7 +195,7 @@ exports.login = function(req, res){
 	var email = req.body.email,
 	password = req.body.password,
   isMobile = req.body.mobile;
-  console.log(isMobile);
+  console.log("Is this for Mobile?: " + isMobile);
   	// pull the user and belonging spheres 
     User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
       if(!user || err){ 
@@ -210,9 +210,7 @@ exports.login = function(req, res){
              console.log("Incorret Login Credentials");
              res.json(400, {message: "The email or password you entered is incorrect"});
           }
-
           else{
-
           	// data about current user and their current sphere
           	var username = user.name,
           		  nicknames,
@@ -231,7 +229,7 @@ exports.login = function(req, res){
             		sphereID = req.session.inviteID;
             		joined = moment(); // track the time the user joined the sphere as now 
           	} else{	// otherwise we already have the target sphere so track its data 
-                console.log(user);
+  
             	 	var targetSphere = user.spheres[user.currentSphere];
                 targetSphere.updates = 0; // served sphere doesn't need update notifications
         			 	nicknames = targetSphere.object.nicknames;
@@ -250,7 +248,7 @@ exports.login = function(req, res){
   			 	
 
             Sphere.findOne({_id: sphereID}).populate('posts', null, {date: {$gte: joined }}).exec(function(err, sphere){ 
-            	console.log(sphere);
+        
             	if(err|!sphere){
             		console.log("unable to populate messages for sphere");
             	} else {
@@ -283,9 +281,7 @@ exports.login = function(req, res){
                 }
         		 	 // otherwise just get all the recorded messages since the user has joined the sphere 
         		 	} else {
-        		 		 console.log(sphere.posts[sphere.posts.length-1]);
-	                    
-                console.log(user);
+        	
 	             for(var i = sphere.posts.length - 1; i > -1 ; i--){
                     var currentPost = sphere.posts[i];
                     var post = currentPost.getPostData(user);
@@ -313,21 +309,21 @@ exports.login = function(req, res){
                 }
               }); 
             }else{
-            res.render("includes/feed", { data: {
-              nickname:  nickname,
-              username: username,
-              nicknames: nicknames,
-              feed: feed, 
-              posts: posts,
-              announcements: announcements,
-              sphereMap: sphereMap,
-              sphereNames: sphereNames,
-              currentSphere: currentSphere,
-              totalUpdates: totalUpdates
+              res.render("includes/feed", { data: {
+                nickname:  nickname,
+                username: username,
+                nicknames: nicknames,
+                feed: feed, 
+                posts: posts,
+                announcements: announcements,
+                sphereMap: sphereMap,
+                sphereNames: sphereNames,
+                currentSphere: currentSphere,
+                totalUpdates: totalUpdates
               }
             }); 
 
-            }
+          }
          
 
 
