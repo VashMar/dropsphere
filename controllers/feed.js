@@ -195,7 +195,7 @@ exports.login = function(req, res){
 	var email = req.body.email,
 	password = req.body.password,
   isMobile = req.body.mobile;
-  
+  console.log(isMobile);
   	// pull the user and belonging spheres 
     User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
       if(!user || err){ 
@@ -295,13 +295,11 @@ exports.login = function(req, res){
                     posts[key] = post;
                 }   
 
-                console.log(posts);
-
 	           }
 
             if(isMobile == "true"){
               console.log("Accessed through Mobile");
-              res.json(200,  { data: {
+              res.json(200, { data: {
                 nickname:  nickname,
                 username: username,
                 nicknames: nicknames,
