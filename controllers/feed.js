@@ -192,6 +192,7 @@ exports.login = function(req, res){
 
 	//get credentials 
   console.log("Obtaining User Credentials...");
+  console.log("Request: " + req);
 	var email = req.body.email,
 	password = req.body.password,
   isMobile = req.body.mobile;
