@@ -265,18 +265,21 @@ sessionSockets.on('connection', function (err, socket, session){
                     var imgAttr = img.attribs;
                     if(imgAttr.height > 40 && imgAttr.width > 40){
                         image = imgAttr.src;
-                        return;
+                        return false;
                       } 
                   });
+                viewWrapped(); 
+              }else{
+                viewWrapped();
               }
 
-        
-            console.log("Image: " + image);
-            console.log(title);
-            url = LinkParser.tagWrap(url, type, title, image);
-            console.log(url);
-            preview(url);
-
+            function viewWrapped(){
+              console.log("Image: " + image);
+              console.log(title);
+              url = LinkParser.tagWrap(url, type, title, image);
+              console.log(url);
+              preview(url);
+            }
           }
         });
 
