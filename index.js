@@ -191,7 +191,7 @@ clients = {}; // tracks sessions and associated sockets
 
 sessionSockets.on('connection', function (err, socket, session){
  
-  console.log("Server connection created for socket: " + socket.id + "at " + moment().format("hh:mm:ssA") );
+  console.log("Server connection created for socket: " + socket.id + " at " + moment().format("hh:mm:ssA") );
 
   var sessionID = session.id;
   var socketID = socket.id;
@@ -219,6 +219,7 @@ sessionSockets.on('connection', function (err, socket, session){
       var sphere = sphereMap[sphereNames[i]].id;
       sphere = String(sphere);
       socket.join(sphere);
+      console.log(io.sockets.adapter.rooms);
       console.log("Joined " + sphere);
   }
 
@@ -267,6 +268,7 @@ sessionSockets.on('connection', function (err, socket, session){
                         image = imgAttr.src;
                         return false;
                       } 
+
                   });
                 viewWrapped(); 
               }else{
@@ -291,16 +293,17 @@ sessionSockets.on('connection', function (err, socket, session){
 
       console.log(currentUser.name + " is posting URL..");
       console.log("Sender: " + data.sender);
+      console.log(io.sockets.adapter.rooms);
 
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
-      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
+      var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
+      console.log("clients: " + sphereClients);
       var time = moment().format();
-
+  
       // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
-              if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
-                console.log(sphereClients[i].id);
-                sphereClients[i].emit('notifySound');
+              if(clients[sessionID].indexOf(sphereClients[i]) === -1){
+                socket.broadcast.to(sphereClients[i]).emit('notifySound');
               }
       } 
 
