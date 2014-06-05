@@ -112,7 +112,7 @@ app.get("/", function(req, res){
   }    
 });
 
-app.get('/test', function(req, res){
+app.get('/test.json', function(req, res){
   res.json(200, {data: "dummy data"});
 });
 
