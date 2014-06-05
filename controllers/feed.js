@@ -193,7 +193,11 @@ exports.login = function(req, res){
 	//get credentials 
   console.log("Obtaining User Credentials...");
 	var email = req.body.email,
-	password = req.body.password;
+	password = req.body.password,
+  isMobile = req.body.mobile;
+
+  console.log(isMobile);
+
 
   	// pull the user and belonging spheres 
     User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
@@ -298,19 +302,35 @@ exports.login = function(req, res){
 
 	           }
 
-            res.render("includes/feed", { data: {
-              nickname:  nickname,
-              username: username,
-              nicknames: nicknames,
-              feed: feed, 
-              posts: posts,
-              announcements: announcements,
-              sphereMap: sphereMap,
-              sphereNames: sphereNames,
-              currentSphere: currentSphere,
-              totalUpdates: totalUpdates
-              }
-            }); 
+            if(isMobile == "true"){
+              res.json(200, { data: {
+                nickname:  nickname,
+                username: username,
+                nicknames: nicknames,
+                feed: feed, 
+                posts: posts,
+                announcements: announcements,
+                sphereMap: sphereMap,
+                sphereNames: sphereNames,
+                currentSphere: currentSphere,
+                totalUpdates: totalUpdates
+                }
+              }); 
+            }else{
+              res.render("includes/feed", { data: {
+                nickname:  nickname,
+                username: username,
+                nicknames: nicknames,
+                feed: feed, 
+                posts: posts,
+                announcements: announcements,
+                sphereMap: sphereMap,
+                sphereNames: sphereNames,
+                currentSphere: currentSphere,
+                totalUpdates: totalUpdates
+                }
+              }); 
+            } 
 
 
 	       // store session data 
