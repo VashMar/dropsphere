@@ -112,6 +112,10 @@ app.get("/", function(req, res){
   }    
 });
 
+app.get('/test', function(req, res){
+  res.json(200, {data: "dummy data"});
+});
+
 app.post('/login', Feed.login);
 
 app.get('/bookmark', Feed.bookmark);
