@@ -87,8 +87,18 @@ postSchema.methods.fillViewers = function(members, next){
 
 }
 
+postSchema.methods.ownedBy = function(userID){
+	var creatorID = String(this.creator.object);
+	if(creatorID  == userID){
+		 console.log("Post belongs to current user");
+		 return true;
+	}
+
+	return false;
+}
+
 postSchema.methods.getPostData = function(user){
- 	return [this.creatorName(), this.content, user.isOwner(this), this.isLink, this.id, this.hasSeenConvo(user.id)];
+ 	return [this.creatorName(), this.content, this.ownedBy(user._id), this.isLink, this.id, this.hasSeenConvo(user.id)];
 }
 
 postSchema.statics.seenConvo = function(postID, userID){
