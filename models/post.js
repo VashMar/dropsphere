@@ -5,7 +5,13 @@ var Schema = mongoose.Schema,
 
 
 var postSchema = mongoose.Schema({
-	content: String,
+	content: String,			
+	contentData: {
+		url: {type: String, default: ""},
+		thumbnail: {type: String, default: ""},
+		image: {type: String, default: ""},
+		title: {type: String, default: ""},
+	},
 	date: {type: Date, default: Date.now },
 	creator: {
 		object: {type: ObjectId, ref: 'User'},
@@ -97,8 +103,16 @@ postSchema.methods.ownedBy = function(userID){
 	return false;
 }
 
-postSchema.methods.getPostData = function(user){
- 	return [this.creatorName(), this.content, this.ownedBy(user._id), this.isLink, this.id, this.hasSeenConvo(user.id)];
+postSchema.methods.getPostData = function(user, isMobile){
+
+	var postContent = isMobile == "true" ? this.contentData : this.content;
+
+ 	return {sender: this.creatorName(), 
+ 			content: postContent, 
+ 			isOwner: this.ownedBy(user._id), 
+ 			isLink: this.isLink, 
+ 			postID: this.id, 
+ 			seen: this.hasSeenConvo(user.id)};
 }
 
 postSchema.statics.seenConvo = function(postID, userID){
@@ -111,5 +125,6 @@ postSchema.statics.seenConvo = function(postID, userID){
           }
     });
 }
+
 
 module.exports = mongoose.model('Post', postSchema);

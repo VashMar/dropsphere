@@ -242,16 +242,23 @@ sessionSockets.on('connection', function (err, socket, session){
     socket.on('crawl', function(data, preview){
       console.log("Crawling Link: " + data.url);
       var url = data.url; 
-      console.log(url);
-      var isImage = LinkParser.isImage(url);
+      var wrappedLink; // url wrapped in html tags for output 
+      var title;
+      var thumbnail;
+      var image = "";  
       var type; 
+      var isImage = LinkParser.isImage(url);
+     
 
       if(isImage){
           console.log("URL is Image..");
           type = "image";
-          url = LinkParser.tagWrap(url, type);
-          console.log(url);
-          preview(url);
+          image = url;
+          url = "";
+          viewWrapped();
+    /*    wrappedLink = LinkParser.tagWrap(url, type);
+          console.log(wrappedLink);
+          preview(wrappedLink); */
       }else{
 
         request(url, function(err, response, html){
@@ -259,17 +266,18 @@ sessionSockets.on('connection', function (err, socket, session){
             var $ = cheerio.load(html);
 
             type = "link";
-            var title = $("title").text();
-            var image = $("meta[property='og:image']").attr('content') ||
+            title = $("title").text();
+            thumbnail = $("meta[property='og:image']").attr('content') ||
                         $("meta[name='og:image']").attr('content');
 
-            if(!image){
+            if(!thumbnail){
+              thumbnail = "";
               console.log($('img'));
               $('img').each(function(index, img){
                     console.log(img);
                     var imgAttr = img.attribs;
                     if(imgAttr.height > 40 && imgAttr.width > 40){
-                        image = imgAttr.src;
+                        thumbnail = imgAttr.src;
                         return false;
                       } 
 
@@ -280,11 +288,17 @@ sessionSockets.on('connection', function (err, socket, session){
               }
 
             function viewWrapped(){
+              if(type === "image"){
+                wrappedLink = LinkParser.tagWrap(image, type);
+              }else{
+                wrappedLink = LinkParser.tagWrap(url, type, title, thumbnail);
+              }
+
               console.log("Image: " + image);
               console.log(title);
-              url = LinkParser.tagWrap(url, type, title, image);
-              console.log(url);
-              preview(url);
+              console.log(wrappedLink);
+
+              preview(wrappedLink, url, thumbnail, title, image);
             }
           }
         });
@@ -315,9 +329,20 @@ sessionSockets.on('connection', function (err, socket, session){
       data.timeFormatted = time;
 
       socket.broadcast.to(sphereString).emit('post', data);
-      var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
+
+      var postInfo = {content: data.post, 
+                      creator: {object: currentUser, name: data.sender}, 
+                      contentData:{
+                         url: data.url,
+                         thumbnail: data.thumbnail,
+                         image: data.image,
+                         title: data.title
+                        }
+                      };
+
+      var post = new Post(postInfo);
       Sphere.savePost(User, data.sphere, post, function(savedPost){
-          console.log("Post saved to sphere...");
+          console.log("Post saved to sphere..." + savedPost);
           returnID(savedPost.id);
           session.posts[time] = savedPost.getPostData(currentUser);
           session.feed.unshift(time);
@@ -335,43 +360,7 @@ sessionSockets.on('connection', function (err, socket, session){
       var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
       var type;   // type of post 
       var url = LinkParser.getURL(data.post);
-      console.log("Post URL: " + url);
-      if(url){
 
-         var isImage = LinkParser.isImage(url);
-
-         if(isImage){
-          type = "image";
-          data.post = LinkParser.tagWrap(data.post, type);
-          console.log(data.post);
-         }else{
-    
-          crawl.queue([{
-            "uri": url,
-            "callback":function(error,result,$){
-              if(error){
-                console.log(error);
-              }else{
-                type = "link";
-                var title = $("title").text();
-                var description = $("meta[property='og:description']").attr('content') || 
-                                  $("meta[name='og:description']").attr('content') || 
-                                  $("meta[name='description']").attr('content');
-                var image = $("meta[property='og:image']").attr('content') ||
-                            $("meta[name='og:image']").attr('content');
-
-
-                console.log("Image: " + image.length);
-                console.log(title);
-                data.post = LinkParser.tagWrap(data.post, type, title, description, image);
-                console.log(data.post);
-                emitAndSave();
-            }
-      
-            } 
-          }]);
-        }
-      }
           
 
       console.log("Non Link Post.."); 
