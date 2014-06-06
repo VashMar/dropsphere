@@ -75,28 +75,40 @@
                 if feed.length > 0 
                     each postTime in feed
                         - var post = posts[postTime];
-                        - var sender = post[0];
-                        - var content = post[1];
-                        - var isOwner = post[2];
-                        - var isLink = post[3];
-                        - var postID = post[4];
-                        - var seenConvo = post[5];
+                        - var sender = post['sender'];
+                        - var content = post['content'];
+                        - var isOwner = post['isOwner'];
+                        - var isLink = post['isLink'];
+                        - var postID = post['postID'];
+                        - var seenConvo = post['seen'];
                         - var memberNum = nicknames.indexOf(sender);
                             .post(data= postID)
-                                a(href='#')    
-                                    if seenConvo === false 
-                                        img.chatIcon(src="favicon.png")   
-                                    else 
-                                        img.chatIcon(src="/img/chat_icon.png")
-                                if isLink === true
-                                    !=content
-                                else
-                                    =content 
                                 .sender(class='user'+ memberNum)
                                     span
-                                        =sender 
-                                        <br />
-                                        =moment(postTime).format("MMM Do, h:mm a")                          
+                                        .postername=sender 
+                                        .time=moment(postTime).format("MMM Do, h:mm a")
+                                .postContent
+                                    if isLink === true
+                                        !=content
+                                    else
+                                        =content
+                                .postButtons  
+                                    ul
+                                        li
+                                            a(href='#')   
+                                                img.approveIcon(src="/img/approve_post.png")
+                                        li
+                                            a(href='#')    
+                                                if seenConvo === false 
+                                                    img.chatIcon(src="favicon.png")   
+                                                else 
+                                                    img.chatIcon(src="/img/chat_icon.png")
+                                        li
+                                            a(href='#')   
+                                                img.shareIcon(src="/img/share_post.png")
+                                        li
+                                            a(href='#')   
+                                                img.saveIcon(src="/img/sphere_add.png")
                 else
                     if nicknames.length < 2 
                         p.announcement Not that talking to yourself is weird or anything... but perhaps you should &nbsp;
