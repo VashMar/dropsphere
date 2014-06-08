@@ -32,7 +32,7 @@ $(document).ready(function(){
             chat.Connect(username);
         }else{
             // otherwise the socket and listeners already exist
-             socket.socket.connect();
+            socket.connect();
         }
     
      
