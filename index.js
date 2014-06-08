@@ -256,9 +256,6 @@ sessionSockets.on('connection', function (err, socket, session){
           image = url;
           url = "";
           viewWrapped();
-    /*    wrappedLink = LinkParser.tagWrap(url, type);
-          console.log(wrappedLink);
-          preview(wrappedLink); */
       }else{
 
         request(url, function(err, response, html){
