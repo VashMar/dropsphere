@@ -24,8 +24,17 @@ function Chat(){
         var postInput = null;
         var previewURL = null;
         var contentHeight = $("#content").height();
+
+
         var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
         var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
+
+
+        var postImage = "",
+        postTitle = "",
+        postURL = "",
+        postThumb = "";
+         
 
 
         this.Connect = function(user){ 
@@ -174,12 +183,24 @@ function Chat(){
                 if(post != ""){
                   var startTag =  previewURL.indexOf('>', previewURL.indexOf('<span')) + 1;
                   previewURL = previewURL.substring(0,startTag) + post + "</span></a>";
+                  postTitle= post; 
                 }
                
                 var memberNum = nicknames.indexOf(nickname);  
                 var time = moment().format("MMM Do, h:mm a");      
                 createPost(null, previewURL, memberNum, nickname, time, true);
-                socket.emit("postURL", {sphere: sphereID, post: previewURL, sender: nickname, time: time, memberNum: memberNum}, function(postID){
+
+                var postData = {sphere: sphereID, 
+                                post: previewURL,
+                                url: postURL,
+                                thumbnail: postThumb, 
+                                title: postTitle,
+                                image: postImage,  
+                                sender: nickname, 
+                                time: time, 
+                                memberNum: memberNum};
+
+                socket.emit("postURL", postData , function(postID){
                     $("#feed .post").first().attr("data", postID);
                 });
                 previewURL = null;
@@ -195,9 +216,13 @@ function Chat(){
         this.Preview = function Preview(link){
             $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
             $("#previewContainer").show();
-            socket.emit("crawl", {url: link}, function(url){
-                $("#previewLink").html(url);
-                previewURL = url;
+            socket.emit("crawl", {url: link}, function(wrappedLink, url, thumbnail, title, image){
+                $("#previewLink").html(wrappedLink);
+                previewURL = wrappedLink;
+                postURL = url;
+                postThumb = thumbnail;
+                postTitle = title;
+                postImage = image; 
             }); 
         };
 
@@ -366,9 +391,15 @@ function Chat(){
             var data = (postID) ? postID : '';
 
             $("#feed").prepend("<div class='post' data=" + data + ">" + 
-                chatIcon +  content + 
                 "<div class='sender user" + memberNum + "'><span>" + 
-                sender + "<br />" + time + " </span></div>");
+                "<div class='postername'>" + sender + "</div><div class='time'>" + time + "</div></span></div>" +
+                "<div class='postContent'>" + content + "</div>" +
+                "<div class='postButtons'><ul>" +
+                "<li>" + approveIcon + "</li>" +
+                "<li>" + chatIcon + " </li>" +
+                "<li>" + shareIcon + " </li>" +
+                "<li>" + saveIcon + " </li>" +
+                "</ul></div></div>");
         }
 
 
