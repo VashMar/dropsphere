@@ -340,12 +340,12 @@ function Chat(){
                 for(var i = feed.length -1 ; i > -1 ; i--){
                     var time = feed[i];
                     var post = posts[time];
-                    var sender = post[0];
-                    var content = post[1];
-                    var isOwner = post[2];
-                    var isLink = post[3];
-                    var postID = post[4];
-                    var seen = post[5];
+                    var sender = post['sender'];
+                    var content = post['content'];
+                    var isOwner = post['isOwner'];
+                    var isLink = post['isLink'];
+                    var postID = post['postID'];
+                    var seen = post['seen'];
                     var memberNum = nicknames.indexOf(sender); 
                     time = moment(time).format("MMM Do, h:mm a");
 
