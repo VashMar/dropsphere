@@ -395,18 +395,18 @@ sessionSockets.on('connection', function (err, socket, session){
     socket.on('send', function(data){
       data.msg = LinkParser.tagWrap(data.msg, "msgLink");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
-      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere 
+      var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
       var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
 
   	  io.sockets.in(sphereString).emit('message', data);
 
-      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+     // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
-        if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
-          console.log(sphereClients[i].id);
-          sphereClients[i].emit('notifySound');
-        }
-      }
+              if(clients[sessionID].indexOf(sphereClients[i]) === -1){
+                socket.broadcast.to(sphereClients[i]).emit('notifySound');
+              }
+      } 
+
 
        Post.findOne({_id: data.postID}, function(err, post){
         if(post){

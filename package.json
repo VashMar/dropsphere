@@ -19,7 +19,9 @@
         "moment": "*",
         "emailjs": "*",
         "URIjs": "*",
-        "crawler": "*"
+        "crawler": "*",
+        "cheerio": "*", 
+        "request": "*"
     },
     "author": "developer"
 }

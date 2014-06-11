@@ -151,6 +151,9 @@ input {
 #feed {
   height: 100%; }
 
+#feed .post {
+  background-color: white; }
+
 .postBox {
   position: relative;
   top: 0;
@@ -193,13 +196,7 @@ input {
 #selectedPost .chatIcon {
   display: none; }
 
-.post {
-  min-height: 120px;
-  overflow: hidden;
-  position: relative; }
-
 span.title {
-  float: left;
   font-size: 14px;
   min-width: 100px;
   max-width: 150px; }
@@ -211,16 +208,30 @@ span.title.image {
   margin-left: auto;
   margin-right: auto; }
 
-a.post_link .title {
-  margin-top: 30px; }
+.postContent {
+  min-height: 50px;
+  padding-top: 5px;
+  overflow: hidden; }
+
+.postButtons {
+  height: 20px; }
+
+.postButtons ul {
+  padding: 5px !important;
+  margin-top: 10px;
+  padding-top: 10px; }
+
+.postButtons li {
+  display: inline;
+  padding: 3px; }
 
 a.post_link img {
   /* thumbnail image from crawled page */
-  float: left;
   max-height: 60px;
   max-width: 80px;
-  margin-right: 2%;
-  margin-top: 30px; }
+  margin-left: 20px;
+  float: left;
+  padding-right: 7px; }
 
 a.post_image img {
   /* linked image url */
@@ -228,19 +239,11 @@ a.post_image img {
   max-width: 140px; }
 
 .sender {
-  display: block;
-  margin-top: 15px;
-  text-align: left;
   width: 100%;
   height: 40px; }
 
-.sender span {
-  float: right;
-  padding-top: 20px; }
-
-.chatIcon {
-  float: left;
-  padding-right: 4px; }
+.time {
+  font-size: 10px; }
 
 /* Controls */
 .controls .slimScrollDiv, .controls .slimScrollBar {
@@ -307,6 +310,9 @@ a#bookmarklet {
   border-top: 1.7px solid #eee;
   border-bottom: 1.7px solid #eee;
   color: #999;
+  min-height: 120px;
+  overflow: hidden;
+  position: relative;
   text-align: center; }
 
 .alert {

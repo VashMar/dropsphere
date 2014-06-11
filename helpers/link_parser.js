@@ -70,7 +70,7 @@ exports.tagWrap =  function(msg, type, title, image){
         	if(image){
          		res+= "<img src='" + image + "'/>";
          	}else{
-         		imageStyle= "style='float:none; padding:5px;'";
+         		imageStyle= " style='float:none; padding:5px;'";
          	}
 
         	res += (title) ? "<span" + imageStyle + "class='title'>" + title + "</span></a>" :  url + "</a>";
