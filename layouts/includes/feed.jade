@@ -84,6 +84,19 @@
                         - var memberNum = nicknames.indexOf(sender);
                             .post(data= postID)
                                 .sender(class='user'+ memberNum)
+                                    if isOwner === true 
+                                        .dropdown
+                                            a#postSettings(data-toggle="dropdown" href="#")
+                                            ul#postDropdown.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                                                li(role="presentation")
+                                                    a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#")
+                                                        span(class="glyphicon glyphicon-pencil")
+                                                        span.postOption Edit post
+                                                li(role="presentation")
+                                                    a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") 
+                                                        span(class="glyphicon glyphicon-trash")
+                                                        span.postOption Remove Post 
+
                                     span
                                         .postername=sender 
                                         .time=moment(postTime).format("MMM Do, h:mm a")

@@ -213,6 +213,13 @@ span.title.image {
   padding-top: 5px;
   overflow: hidden; }
 
+#postSettings {
+  float: right;
+  background: url("/img/post_settings.png") no-repeat;
+  height: 16px;
+  width: 16px;
+  cursor: pointer; }
+
 .postButtons {
   height: 20px; }
 
@@ -265,6 +272,13 @@ textarea {
 #urlInput {
   height: 32px;
   overflow: hidden; }
+
+#postDropdown {
+  margin-left: 80px;
+  margin-top: 10px; }
+
+.postOption {
+  margin-left: 15px; }
 
 /* Homepage */
 #bookmarklet {

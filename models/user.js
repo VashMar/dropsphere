@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
 
+
 // validatons on object attributes 
 var isEmail = validate({message: "This is not a valid email address"}, 'isEmail');
 var nameValidator = [
@@ -161,5 +162,12 @@ userSchema.statics.load = function(sessionID, next){
 }
 
 
+User = mongoose.model('User', userSchema);
+module.exports = User;
 
-module.exports = mongoose.model('User', userSchema);
+
+User.schema.path('name').validate(function (value, respond) {                                                                                           
+    User.findOne({ name: value }, function (err, user) {       
+        user ? respond(false) : respond(true);                                                                                                                                                                                                          
+    });                                                                                                                                                  
+}, 'This username is already taken');
