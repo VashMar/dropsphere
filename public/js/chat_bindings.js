@@ -81,6 +81,11 @@ $(document).ready(function(){
         }
     });
 
+    $("a#editOption").on("click", function(){
+        var text = $(this).parents('.post').find('.title').html();
+        $("#editContent").html(text);
+    });
+
 });
 
     function feedReturn(){

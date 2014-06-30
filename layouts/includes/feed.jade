@@ -89,13 +89,13 @@
                                             a#postSettings(data-toggle="dropdown" href="#")
                                             ul#postDropdown.dropdown-menu(role="menu" aria-labelledby="dLabel")
                                                 li(role="presentation")
-                                                    a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#")
+                                                    a#editOption(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#editPost" href="#")
                                                         span(class="glyphicon glyphicon-pencil")
                                                         span.postOption Edit post
                                                 li(role="presentation")
                                                     a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") 
                                                         span(class="glyphicon glyphicon-trash")
-                                                        span.postOption Remove Post 
+                                                        span#removeOption.postOption Remove Post 
 
                                     span
                                         .postername=sender 
@@ -185,6 +185,19 @@
       
       .modal-footer
         button#saveSphere.btn.btn-primary(type="button") Save changes
+#editPost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+ .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+        h4.modal-title Edit this post 
+      
+      .modal-body
+        textarea#editContent(class="form-control" )
+      
+      .modal-footer
+        button#saveSphere.btn.btn-primary(type="button") Save changes
+
 
 #preload
     img(src="/img/settings_hover.png")

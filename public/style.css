@@ -133,6 +133,9 @@ input {
 #drop, #post {
   width: 50%; }
 
+#editContent {
+  height: 100px; }
+
 /* Chat Body */
 #content {
   position: relative;
