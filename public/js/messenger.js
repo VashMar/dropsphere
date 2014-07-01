@@ -390,6 +390,8 @@ function Chat(){
             var chatIcon = (seen) ? seenIcon : unseenIcon;
             var data = (postID) ? postID : '';
 
+            alert(JSON.stringify(content));
+
             $("#feed").prepend("<div class='post' data=" + data + ">" + 
                 "<div class='sender user" + memberNum + "'><span>" + 
                 "<div class='postername'>" + sender + "</div><div class='time'>" + time + "</div></span></div>" +

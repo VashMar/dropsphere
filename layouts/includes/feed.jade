@@ -82,6 +82,7 @@
                         - var postID = post['postID'];
                         - var seenConvo = post['seen'];
                         - var memberNum = nicknames.indexOf(sender);
+                
                             .post(data= postID)
                                 .sender(class='user'+ memberNum)
                                     if isOwner === true 
@@ -102,7 +103,17 @@
                                         .time=moment(postTime).format("MMM Do, h:mm a")
                                 .postContent
                                     if isLink === true
-                                        !=content
+                                        a.post_link(target='_blank' href=content['url'])
+                                            if content["image"] === ""
+                                                if content['thumbnail'] === ""
+                                                    span.title(style='float:none; padding:5px;')=content['title']
+                                                else
+                                                    img(src=content['thumbnail'])
+                                                    span.title=content['title'] 
+                                            else
+                                                img(src=content['image'])
+                                                span.title.image=content['title']
+
                                     else
                                         =content
                                 .postButtons  
@@ -196,7 +207,7 @@
         textarea#editContent(class="form-control" )
       
       .modal-footer
-        button#saveSphere.btn.btn-primary(type="button") Save changes
+        button#saveEdits.btn.btn-primary(type="button") Save changes
 
 
 #preload

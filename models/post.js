@@ -108,7 +108,7 @@ postSchema.methods.getPostData = function(user, isMobile){
 	var postContent = isMobile == "true" ? this.contentData : this.content;
 
  	return {sender: this.creatorName(), 
- 			content: postContent, 
+ 			content: this.contentData, 
  			isOwner: this.ownedBy(user._id), 
  			isLink: this.isLink, 
  			postID: this.id, 
