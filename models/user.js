@@ -2,9 +2,12 @@ var mongoose = require('mongoose'),
     validate = require('mongoose-validator').validate;
 	bcrypt 	 = require('bcrypt'),
 	SALT_WORK_FACTOR = 9;
+
+var uniqueValidator = require('mongoose-unique-validator');
     
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
+
 
 
 // validatons on object attributes 
@@ -32,9 +35,10 @@ var userSchema = new Schema({
 });
 
 
+userSchema.plugin(uniqueValidator);
+
 userSchema.pre('save', function(next) {
     var user = this;
-
     for(var i=0; i< user.spheres.length; i++){
         if(user.spheres[i].nickname  == ""){
            user.spheres[i].nickname = user.name; 
@@ -166,8 +170,8 @@ User = mongoose.model('User', userSchema);
 module.exports = User;
 
 
-User.schema.path('name').validate(function (value, respond) {                                                                                           
+/* User.schema.path('name').validate(function (value, respond) {                                                                                           
     User.findOne({ name: value }, function (err, user) {       
         user ? respond(false) : respond(true);                                                                                                                                                                                                          
     });                                                                                                                                                  
-}, 'This username is already taken');
+}, 'This username is already taken'); */

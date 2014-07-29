@@ -196,7 +196,6 @@ exports.login = function(req, res){
 	password = req.body.password,
   isMobile = req.body.mobile;
 
-  console.log(isMobile);
 
 
   	// pull the user and belonging spheres 
