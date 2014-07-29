@@ -349,6 +349,7 @@ function Chat(){
                     var memberNum = nicknames.indexOf(sender); 
                     time = moment(time).format("MMM Do, h:mm a");
 
+                    content = buildPostContent(isLink, content);
                     createPost(postID, content, memberNum, sender, time, seen);
                 }
             }
@@ -385,12 +386,37 @@ function Chat(){
         };
 
 
+        function buildPostContent(isLink, content){
+            var thumbnail = content['thumbnail'];
+            var image = content['image'];
+            var title = content['title'];
+            var url = content['url'];
+            var htmlString;
+
+            if(isLink){
+                htmlString = "<a class='post_link' target='_blank' href='" + url + "'>";
+                if(image === ""){
+                    if(thumbnail === ""){
+                        htmlString += "<span class='title' style='float:none; padding:5px;'>" + title + "</span>";
+                    }else{
+                        htmlString += "<img src='" + thumbnail + "'/>";
+                        htmlString += "<span class='title'>"+ title + "</span>";
+                    }
+                }else{
+                    htmlString += "<img src='" + image + "'/>";
+                    htmlString += "<span class='title image'>"+ title + "</span>";
+                }
+
+              htmlString += "</a>"
+            }
+
+            return htmlString;
+        }
+
         function createPost(postID,content,memberNum,sender,time, seen){
 
             var chatIcon = (seen) ? seenIcon : unseenIcon;
             var data = (postID) ? postID : '';
-
-            alert(JSON.stringify(content));
 
             $("#feed").prepend("<div class='post' data=" + data + ">" + 
                 "<div class='sender user" + memberNum + "'><span>" + 
