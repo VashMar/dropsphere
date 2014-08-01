@@ -195,6 +195,7 @@ input{
 
 .postBox .post{
 	color:white;
+	box-shadow:none; 
 }
 
 .postBox a{
@@ -386,7 +387,6 @@ a#bookmarklet{
 	padding:14px 12px;
 	margin-top:6px;
 	box-shadow: 3px 2px 4px #888888;
-	border-bottom:1.7px solid #eee;
 	color:#999;
 	min-height: 120px;
 	overflow:hidden;
