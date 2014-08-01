@@ -497,7 +497,6 @@ sessionSockets.on('connection', function (err, socket, session){
                 else{
                   socket.join(sphere.id);
                   socket.emit('clearChat');
-                  socket.emit('announcement', {msg: "Welcome to " + sphere.name + "!<br/> <a href='#' data-toggle='modal' data-target='#shareModal'> Invite </a> your friends and start sharing the web!"});
                   socket.emit('users', sphere.nicknames); 
                    // pass the client side all the info necessary to track sphere related information 
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
