@@ -319,7 +319,10 @@ sessionSockets.on('connection', function (err, socket, session){
       // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
               if(clients[sessionID].indexOf(sphereClients[i]) === -1){
+                data.isOwner = false;
                 socket.broadcast.to(sphereClients[i]).emit('notifySound');
+              }else{
+                data.isOwner = true; 
               }
       } 
 

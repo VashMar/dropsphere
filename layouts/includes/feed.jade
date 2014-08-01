@@ -118,21 +118,21 @@
                                         =content
                                 .postButtons  
                                     ul
-                                        li
+                                        li(style="float:left;")
                                             a(href='#')   
-                                                img.approveIcon(src="/img/approve_post.png")
-                                        li
-                                            a(href='#')    
-                                                if seenConvo === false 
-                                                    img.chatIcon(src="favicon.png")   
-                                                else 
-                                                    img.chatIcon(src="/img/chat_icon.png")
+                                                img.viewedIcon(src="/img/viewed.png")
                                         li
                                             a(href='#')   
                                                 img.shareIcon(src="/img/share_post.png")
                                         li
                                             a(href='#')   
                                                 img.saveIcon(src="/img/sphere_add.png")
+                                        li
+                                            a(href='#')    
+                                                if seenConvo === false 
+                                                    img.chatIcon(src="favicon.png")   
+                                                else 
+                                                    img.chatIcon(src="/img/chat_icon.png")
                 else
                     if nicknames.length < 2 
                         p.announcement Not that talking to yourself is weird or anything... but perhaps you should &nbsp;
@@ -228,7 +228,7 @@ script.
     sphereLink = sphereMap[currentSphere].link;
     posts = sphereData.posts; 
     feed = sphereData.feed;
-    approveIcon = "<a href='#'><img class='approveIcon' src='/img/approve_post.png'/></a>";
+    viewedIcon = "<a href='#'><img class='viewedIcon' src='/img/viewed.png'/></a>";
     shareIcon = "<a href='#'><img class='shareIcon' src='/img/share_post.png'/></a>";
     saveIcon = "<a href='#'><img class='saveIcon' src='/img/sphere_add.png'/></a>";
 script.
