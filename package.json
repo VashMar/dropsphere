@@ -16,7 +16,7 @@
         "node-sass": "*",
         "bcrypt": "*",
         "mongoose-validator" : "*",
-        "mongoose-unique-validator",
+        "mongoose-unique-validator" : "*",
         "moment": "*",
         "emailjs": "*",
         "URIjs": "*",
