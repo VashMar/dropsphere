@@ -1,26 +1,40 @@
 var mongoose = require('mongoose'),
-    validate = require('mongoose-validator').validate;
+    validate = require('mongoose-validator');
 	bcrypt 	 = require('bcrypt'),
 	SALT_WORK_FACTOR = 9;
 
-var uniqueValidator = require('mongoose-unique-validator');
     
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
 
 
 
+
 // validatons on object attributes 
-var isEmail = validate({message: "This is not a valid email address"}, 'isEmail');
+var isEmail = validate({
+                validator: 'isEmail',
+                message: "This is not a valid email address"
+              });
+
 var nameValidator = [
-                     validate({message: "Names must be between 3 and 20 characters "}, 'len', 3, 20), 
-                     validate({message: "Names can only contain letters and numbers"}, 'isAlphanumeric')
+                     validate({
+                        validator: 'isLength',
+                        arguments: [3,20],
+                        message: "Names must be between 3 and 20 characters "}), 
+                     validate({
+                        validator: 'isAlphanumeric',
+                        message: "Names can only contain letters and numbers"})
                     ];
-var passValidator = [validate({message: "Passwords must be more than 6 characters "}, 'len', 6)];
+var passValidator = [
+                    validate({
+                        validator: 'isLength',
+                        arguments: 6,
+                        message: "Passwords must be more than 6 characters "})
+                    ];
 
 
 var userSchema = new Schema({
-	name: { type: String, required: true, trim: true, validate: nameValidator },
+	name: { type: String, required: true, unique:true, trim: true, validate: nameValidator },
 	password: { type: String, required: true, validate: passValidator },
 	email: { type: String, required: true, index: { unique: true }, validate: isEmail }, 
 	sessions: [String], 
@@ -35,7 +49,32 @@ var userSchema = new Schema({
 });
 
 
-userSchema.plugin(uniqueValidator);
+userSchema.path('email').validate(function(value, respond){
+    var self = this;
+    this.constructor.findOne({email: value}, function(err, user){
+        if(err) throw err;
+        if(user) {
+            if(self.id === user.id) return respond(true);
+            return respond(false);
+        }
+        respond(true);
+    });
+}, "This email address is already in use. <a href='#''>Forgot Password?</a>");
+
+userSchema.path('name').validate(function(value, respond){
+    var self = this;
+    this.constructor.findOne({name: value}, function(err, user){
+        if(err) throw err;
+        if(user) {
+            if(self.id === user.id) return respond(true);
+            return respond(false);
+        }
+        respond(true);
+    });
+}, "Uh oh, looks like this username is taken");
+
+
+
 
 userSchema.pre('save', function(next) {
     var user = this;
