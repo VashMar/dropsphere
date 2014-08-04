@@ -17,6 +17,8 @@ exports.bookmark = function(req, res){
 	var sesh = req.session;
 	if(sesh.isLogged == true){ 
   
+
+        console.log(JSON.stringify(sesh.posts[sesh.feed[0]]));
         res.render("template_feed", { data: {
                                     nickname:  sesh.nickname,
                                     username: sesh.username,

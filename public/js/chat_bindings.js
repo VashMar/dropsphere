@@ -66,7 +66,7 @@ $(document).ready(function(){
     }); 
 
     $("#feed").on("click", "a img.chatIcon", function(){
-        chat.SelectPost($(this).parent().parent());
+        chat.SelectPost($(this).parents(".post"));
     });
 
     $("#urlInput").on("change keyup paste", function(){

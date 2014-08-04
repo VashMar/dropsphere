@@ -116,10 +116,6 @@ function Chat(){
                          var time = data.time || moment().calendar();       
                          createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
                          socket.emit("seen", {sphere: data.sphere});
-                    }
-                    if(sphereMap[currentSphere].id == data.sphere){
-                        var postData = [data.sender, data.post, false, data.isLink, data.postID, true];
-                        socket.emit("updateSession", {postData: postData, time: data.timeFormatted});
                     }else{
                          // find the sphere the message is meant for and send the user an update notification
                         for(var i = 0; i < sphereNames.length; i++){
@@ -162,8 +158,10 @@ function Chat(){
 
 
             socket.on('cachePost', function(data){
-                feed = data.feed;
-                posts = data.posts;
+                if(sphereMap[currentSphere].id == data.sphereID){
+                    feed = data.feed;
+                    posts = data.posts;
+                }
             });
 
         };
@@ -231,14 +229,12 @@ function Chat(){
             currentPost = selected.attr('data');
             postInput = $(".postBox").html();
             var itemNum = selected.index();
-            var itemHeight = selected.height();
             $(".postBox").html("");
             $(".postBox").prepend("<a id='feedReturn' href='#' onclick='feedReturn();'> Return to Feed </a>");
             $(".controls").show();
             $("#feed").empty();
             $(".slimScrollDiv").css('height', '98%');
             $("#feed").css('height', '96%');
-            $("#feed").append(selected);
             requestMessages();
             seenConvo(itemNum);
         };

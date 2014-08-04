@@ -348,8 +348,8 @@ sessionSockets.on('connection', function (err, socket, session){
           session.posts[time] = savedPost.getPostData(currentUser);
           session.feed.unshift(time);
           session.save();
-          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts});
-          console.log("Saved Session Data: " + session.posts[time]);
+          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
+          console.log("Saved Session Data: " + JSON.stringify(session.posts[time]));
       });  
     });
 
