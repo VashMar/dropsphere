@@ -62,13 +62,13 @@
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
             #feed 
                 if feed.length > 0 
-                    each postTime in feed
-                        - var post = posts[postTime];
+                    each postID in feed
+                        - var post = posts[postID];
                         - var sender = post['sender'];
                         - var content = post['content'];
                         - var isOwner = post['isOwner'];
                         - var isLink = post['isLink'];
-                        - var postID = post['postID'];
+                        - var postTime = post['postTime'];
                         - var seenConvo = post['seen'];
                         - var memberNum = nicknames.indexOf(sender);
                 

@@ -292,6 +292,10 @@ function Chat(){
             });
         };
 
+        this.EditPost = function EditPost(postID, newtext){
+            socket.emit('editPost', {postID: postID, newtext: newtext});
+        };
+
         this.ChangeName = function ChangeName(newName, sphereWide){
              // update name on client side first   
            $("#users").children('p').each(function(){
@@ -334,16 +338,16 @@ function Chat(){
             $("#feed").empty();
             if(feed.length > 0){
                 for(var i = feed.length -1 ; i > -1 ; i--){
-                    var time = feed[i];
-                    var post = posts[time];
+                    var postID = feed[i];
+                    var post = posts[postID];
                     var sender = post['sender'];
                     var content = post['content'];
                     var isOwner = post['isOwner'];
                     var isLink = post['isLink'];
-                    var postID = post['postID'];
+                    var postTime = post['postTime'];
                     var seen = post['seen'];
                     var memberNum = nicknames.indexOf(sender); 
-                    time = moment(time).format("MMM Do, h:mm a");
+                    time = moment(postTime).format("MMM Do, h:mm a");
 
                     content = buildPostContent(isLink, content);
                     createPost(postID, content, memberNum, sender, time, seen, isOwner);

@@ -344,9 +344,10 @@ sessionSockets.on('connection', function (err, socket, session){
       var post = new Post(postInfo);
       Sphere.savePost(User, data.sphere, post, function(savedPost){
           console.log("Post saved to sphere..." + savedPost);
-          returnID(savedPost.id);
-          session.posts[time] = savedPost.getPostData(currentUser);
-          session.feed.unshift(time);
+          var postID = savedPost.id;
+          returnID(postID);
+          session.posts[postID] = savedPost.getPostData(currentUser);
+          session.feed.unshift(postID);
           session.save();
           io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
           console.log("Saved Session Data: " + JSON.stringify(session.posts[time]));
@@ -386,9 +387,8 @@ sessionSockets.on('connection', function (err, socket, session){
            Sphere.savePost(User, data.sphere, post, function(savedPost){
               console.log("Saved Post: " + savedPost);
               console.log("Current User: " + currentUser.id);
-              var time = moment().format();
-              session.posts[time] = savedPost.getPostData(currentUser);
-              session.feed.unshift(time);
+              session.posts[savedPost.id] = savedPost.getPostData(currentUser);
+              session.feed.unshift(savedPost.id);
               session.save();
            });
      }
@@ -460,6 +460,22 @@ sessionSockets.on('connection', function (err, socket, session){
     });
   }); // end seen  
 
+
+  socket.on('editPost', function(data){
+    console.log("Editing Post: " + data.postID);
+    Post.update({_id: data.postID}, {'$set': {'contentData.title' : data.newtext}}, function(err, numAffected){
+          if(err){console.log(err);}
+
+          else{
+            console.log(numAffected);
+          }
+    });
+
+    session.posts[data.postID]['content']['title'] = data.newtext;
+    session.save();
+    
+  });
+
   socket.on('updateSession', function(data){
     console.log("Updating Session Data..");
     console.log(data.time);
@@ -474,7 +490,7 @@ sessionSockets.on('connection', function (err, socket, session){
   socket.on('seenConvo', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     Post.seenConvo(data.postID, currentUser.id);
-    session.posts[data.time][5] = true;
+    session.posts[data.postID][5] = true;
     session.save();
   });
 

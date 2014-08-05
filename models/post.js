@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
 
-
+var moment = require("moment");
 var postSchema = mongoose.Schema({
 	content: String,			
 	contentData: {
@@ -111,7 +111,7 @@ postSchema.methods.getPostData = function(user, isMobile){
  			content: this.contentData, 
  			isOwner: this.ownedBy(user._id), 
  			isLink: this.isLink, 
- 			postID: this.id, 
+ 			postTime: moment(this.date).format(), 
  			seen: this.hasSeenConvo(user.id)};
 }
 

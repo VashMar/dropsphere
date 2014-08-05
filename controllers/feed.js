@@ -293,8 +293,7 @@ exports.login = function(req, res){
 	             for(var i = sphere.posts.length - 1; i > -1 ; i--){
                     var currentPost = sphere.posts[i];
                     var post = currentPost.getPostData(user, isMobile);
-                    var time = moment(sphere.posts[i].date);
-                    var key = time.format();
+                    var key = currentPost.id;
                     feed.push(key);
                     posts[key] = post;
                 }   

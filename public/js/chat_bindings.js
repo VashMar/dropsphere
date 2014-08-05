@@ -85,18 +85,18 @@ $(document).ready(function(){
         var post = $(this).parents('.post');
         var postID = post.attr('data');
         var text = post.find('.title').html();
-        $("#editContent").html(text);
+        $("#editContent").val($.trim(text));
         $("#editContent").attr('data', postID);
     });
 
     $("#saveEdits").click(function(){
-        var newText = $("#editContent").val();
+        var newText = $("#editContent").val().trim();
         var postID =  $("#editContent").attr('data');
         var post =  $(".post[data=" + postID + "]");
         $('#editPost').modal('hide');  
         post.find('.title').html(newText);
         var newContent = post.find('.postContent').html();
-        //chat.EditPost(postID,newText);
+        chat.EditPost(postID,newText);
     });
 
 });
