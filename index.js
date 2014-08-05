@@ -473,7 +473,14 @@ sessionSockets.on('connection', function (err, socket, session){
 
     session.posts[data.postID]['content']['title'] = data.newtext;
     session.save();
-    
+
+  });
+
+  socket.on('deletePost', function(data){
+    console.log("Deleting Post: " + data.postID);
+    Post.delete(data.postID, currentUser.id);
+    session.feed.splice(session.feed.indexOf(data.postID), 1);
+    session.save();
   });
 
   socket.on('updateSession', function(data){

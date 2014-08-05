@@ -408,9 +408,20 @@ a#bookmarklet{
 .gray{
 	color:$txt-light;
 }
+
 .bold{
 	font-weight:700;
 }
+
 #dropperControl{
 	display:none;
+}
+
+#acceptDeletion{
+	width:45%;
+	float:left;
+}
+
+#rejectDeletion{
+	width:45%;
 }

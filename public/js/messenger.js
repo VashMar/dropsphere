@@ -296,6 +296,10 @@ function Chat(){
             socket.emit('editPost', {postID: postID, newtext: newtext});
         };
 
+        this.DeletePost = function DeletePost(postID){
+            socket.emit('deletePost', {postID: postID});
+        };
+
         this.ChangeName = function ChangeName(newName, sphereWide){
              // update name on client side first   
            $("#users").children('p').each(function(){
@@ -420,7 +424,7 @@ function Chat(){
             var options = "";
 
             if(isOwner){
-                options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a role='menuitem' tabindex='-1' data-toggle='modal' data-target='#nickChange' href='#'><span class='glyphicon glyphicon-trash'></span><span id='removeOption' class='postOption'>Remove Post </span></a></li></ul></div>";
+                options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";
             }
 
             $("#feed").prepend("<div class='post' data=" + data + ">" + 

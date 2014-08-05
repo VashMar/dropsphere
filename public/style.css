@@ -352,3 +352,10 @@ a#bookmarklet {
 
 #dropperControl {
   display: none; }
+
+#acceptDeletion {
+  width: 45%;
+  float: left; }
+
+#rejectDeletion {
+  width: 45%; }

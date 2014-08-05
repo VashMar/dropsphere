@@ -126,5 +126,14 @@ postSchema.statics.seenConvo = function(postID, userID){
     });
 }
 
+postSchema.statics.delete = function(postID, userID){
+	this.findOne({$and: [{_id: postID}, {'creator.object': userID}]}, function(err, post){
+		if(post){
+			post.remove();
+			console.log("Post Deleted");
+		}
+	});
+}
+
 
 module.exports = mongoose.model('Post', postSchema);

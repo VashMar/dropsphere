@@ -83,9 +83,9 @@
                                                         span(class="glyphicon glyphicon-pencil")
                                                         span.postOption Edit post
                                                 li(role="presentation")
-                                                    a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") 
+                                                    a#removeOption(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#removePost" href="#") 
                                                         span(class="glyphicon glyphicon-trash")
-                                                        span#removeOption.postOption Remove Post 
+                                                        span.postOption Remove Post 
 
                                     span
                                         .postername=sender 
@@ -190,7 +190,16 @@
       
       .modal-footer
         button#saveEdits.btn.btn-primary(type="button") Save changes
-
+#removePost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+ .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+        h4.modal-title Are you sure you want to remove this post?  
+      
+      .modal-body
+        button#acceptDeletion.btn.btn-primary(type="button") Yes
+        button#rejectDeletion.btn.btn-primary(type="button") No
 
 #preload
     img(src="/img/settings_hover.png")

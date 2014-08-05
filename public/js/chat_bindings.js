@@ -99,6 +99,21 @@ $(document).ready(function(){
         chat.EditPost(postID,newText);
     });
 
+
+    $("a#removeOption").on("click", function(){
+        var post = $(this).parents('.post');
+        var postID = post.attr('data');
+        $("#removePost").attr('data', postID);
+    });
+
+    $("#acceptDeletion").click(function(){
+        var postID =  $("#removePost").attr('data');
+        var post =  $(".post[data=" + postID + "]");
+        $('#removePost').modal('hide'); 
+        post.fadeOut(550, "linear");
+        chat.DeletePost(postID);
+    });
+
 });
 
     function feedReturn(){
