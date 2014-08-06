@@ -295,7 +295,9 @@ sessionSockets.on('connection', function (err, socket, session){
               console.log(title);
               console.log(wrappedLink);
 
+              socket.emit('previewIOS', {url: url, thumbnail: thumbnail, title: title, image: image});
               preview(wrappedLink, url, thumbnail, title, image);
+
             }
           }
         });
@@ -478,9 +480,13 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('deletePost', function(data){
     console.log("Deleting Post: " + data.postID);
+    var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
     Post.delete(data.postID, currentUser.id);
+    delete session.posts[data.postID]
     session.feed.splice(session.feed.indexOf(data.postID), 1);
     session.save();
+    io.sockets.in(sphereString).emit('removePost', {postID: data.postID});
+    io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
   });
 
   socket.on('updateSession', function(data){
@@ -601,8 +607,7 @@ sessionSockets.on('connection', function (err, socket, session){
                for(var i = sphere.posts.length - 1; i > -1 ; i--){
                   var currentPost = sphere.posts[i];
                   var post = currentPost.getPostData(currentUser);
-                  var time = moment(sphere.posts[i].date);
-                  var key = time.format();
+                  var key = currentPost.id;
 
                   posts[key] = post;
                   feed.push(key);

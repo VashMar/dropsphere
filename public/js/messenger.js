@@ -157,6 +157,10 @@ function Chat(){
             });
 
 
+            socket.on('removePost', function(data){
+                $(".post[data=" + data.postID + "]").fadeOut(550, "linear");
+            });
+
             socket.on('cachePost', function(data){
                 if(sphereMap[currentSphere].id == data.sphereID){
                     feed = data.feed;
@@ -297,7 +301,7 @@ function Chat(){
         };
 
         this.DeletePost = function DeletePost(postID){
-            socket.emit('deletePost', {postID: postID});
+            socket.emit('deletePost', {postID: postID, sphere: sphereID });
         };
 
         this.ChangeName = function ChangeName(newName, sphereWide){
