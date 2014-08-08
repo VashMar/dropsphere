@@ -240,6 +240,20 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
     socket.on('crawl', function(data, preview){
+
+      var json; 
+      
+      try {
+        json = JSON.parse(data);
+      } catch (exception) {
+        console.log("This isn't JSON");
+      }
+
+      if (json) {
+        console.log("this is json");
+      }
+
+      console.log(data);
       console.log("Crawling Link: " + data.url);
       var url = data.url; 
       var wrappedLink; // url wrapped in html tags for output 
