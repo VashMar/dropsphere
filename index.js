@@ -271,8 +271,9 @@ sessionSockets.on('connection', function (err, socket, session){
 
         request(url, function(err, response, html){
           if (!err && response.statusCode == 200){
+            console.log("URL crawled");
             var $ = cheerio.load(html);
-
+            console.log("the html " + html);
             type = "link";
             title = $("title").text();
             thumbnail = $("meta[property='og:image']").attr('content') ||
