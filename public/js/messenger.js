@@ -168,6 +168,15 @@ function Chat(){
                 }
             });
 
+            socket.on('preview', function(data){
+                $("#previewLink").html(data.wrappedLink);
+                previewURL = data.wrappedLink;
+                postURL = data.url;
+                postThumb = data.thumbnail;
+                postTitle = data.title;
+                postImage = data.image; 
+            });
+
         };
 
         this.Disconnect = function(){
@@ -218,14 +227,7 @@ function Chat(){
         this.Preview = function Preview(link){
             $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
             $("#previewContainer").show();
-            socket.emit("crawl", link, function(wrappedLink, url, thumbnail, title, image){
-                $("#previewLink").html(wrappedLink);
-                previewURL = wrappedLink;
-                postURL = url;
-                postThumb = thumbnail;
-                postTitle = title;
-                postImage = image; 
-            }); 
+            socket.emit("crawl", link);
         };
 
         this.SelectPost = function SelectPost(selected){

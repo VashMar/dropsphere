@@ -307,9 +307,7 @@ sessionSockets.on('connection', function (err, socket, session){
               console.log(title);
               console.log(wrappedLink);
 
-              socket.emit('previewIOS', {url: url, thumbnail: thumbnail, title: title, image: image});
-              preview(wrappedLink, url, thumbnail, title, image);
-
+              socket.emit('preview', {wrappedLink: wrappedLink, url: url, thumbnail: thumbnail, title: title, image: image});
             }
           } else{
             console.log(err);
