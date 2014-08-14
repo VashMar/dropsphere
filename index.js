@@ -312,7 +312,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
             }
           } else{
-            console.log(err + response.statusCode);
+            console.log(err);
           }
         });
 
