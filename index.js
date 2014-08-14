@@ -260,7 +260,7 @@ sessionSockets.on('connection', function (err, socket, session){
       var image = "";  
       var type; 
       var isImage = LinkParser.isImage(url);
-  
+      console.log(isImage);
       if(isImage){
           console.log("URL is Image..");
           type = "image";
@@ -311,6 +311,8 @@ sessionSockets.on('connection', function (err, socket, session){
               preview(wrappedLink, url, thumbnail, title, image);
 
             }
+          } else{
+            console.log(err + response.statusCode);
           }
         });
 
