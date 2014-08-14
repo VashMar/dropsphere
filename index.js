@@ -240,9 +240,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
     socket.on('crawl', function(data, preview){
-
       var json; 
-      
       try {
         json = JSON.parse(data);
       } catch (exception) {
@@ -254,16 +252,15 @@ sessionSockets.on('connection', function (err, socket, session){
       }
 
       console.log(data);
-      console.log("Crawling Link: " + data.url);
-      var url = data.url; 
+      console.log("Crawling Link: " + data);
+      var url = data; 
       var wrappedLink; // url wrapped in html tags for output 
       var title;
       var thumbnail;
       var image = "";  
       var type; 
       var isImage = LinkParser.isImage(url);
-     
-
+  
       if(isImage){
           console.log("URL is Image..");
           type = "image";

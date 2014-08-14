@@ -218,7 +218,7 @@ function Chat(){
         this.Preview = function Preview(link){
             $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
             $("#previewContainer").show();
-            socket.emit("crawl", {url: link}, function(wrappedLink, url, thumbnail, title, image){
+            socket.emit("crawl", link, function(wrappedLink, url, thumbnail, title, image){
                 $("#previewLink").html(wrappedLink);
                 previewURL = wrappedLink;
                 postURL = url;
