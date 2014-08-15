@@ -317,8 +317,9 @@ sessionSockets.on('connection', function (err, socket, session){
     } 
   });
 
-
-  socket.on('postURL', function(data, returnID){
+  
+  // if the posted content is a link
+  socket.on('urlPost', function(data){
 
       console.log(currentUser.name + " is posting URL..");
       console.log("Sender: " + data.sender);
@@ -359,54 +360,56 @@ sessionSockets.on('connection', function (err, socket, session){
       Sphere.savePost(User, data.sphere, post, function(savedPost){
           console.log("Post saved to sphere..." + savedPost);
           var postID = savedPost.id;
-          returnID(postID);
+          socket.emit('getPostID', {postID : postID});
           session.posts[postID] = savedPost.getPostData(currentUser);
           session.feed.unshift(postID);
           session.save();
           io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
-          console.log("Saved Session Data: " + JSON.stringify(session.posts[time]));
+          console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
       });  
     });
 
-    socket.on('post', function(data){
+    // if the posted content is text
+    socket.on('textPost', function(data){
       
-      console.log("Posting Data..");
+      console.log("Posting Data for Text Post..");
 
-      var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
-      var sphereClients = io.sockets.clients(sphereString);        // get all the user connections in the sphere
-      var type;   // type of post 
-      var url = LinkParser.getURL(data.post);
-
-          
-
-      console.log("Non Link Post.."); 
-      emitAndSave(); 
-
-  
-     
-     function emitAndSave(){
-
-        // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
-        for(var i = 0; i< sphereClients.length; i++){
-              if(clients[sessionID].indexOf(sphereClients[i].id) === -1){
-                console.log(sphereClients[i].id);
-                sphereClients[i].emit('notifySound');
+      var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
+      var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
+      var title = data.post;
+      data.post = "<p class='textPost'>" + data.post + "</p>";
+      
+      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+      for(var i = 0; i< sphereClients.length; i++){
+              if(clients[sessionID].indexOf(sphereClients[i]) === -1){
+                data.isOwner = false;
+                socket.broadcast.to(sphereClients[i]).emit('notifySound');
+              }else{
+                data.isOwner = true; 
               }
-        } 
+      } 
 
+      socket.broadcast.to(sphereString).emit('post', data);
 
-           io.sockets.in(sphereString).emit('post', data);
-           var post = new Post({content: data.post, creator: {object: currentUser, name: data.sender}});
+      var postInfo = {content: data.post, 
+                      creator: {object: currentUser, name: data.sender}, 
+                      contentData:{
+                         title: title
+                        }
+                    };
 
-           Sphere.savePost(User, data.sphere, post, function(savedPost){
-              console.log("Saved Post: " + savedPost);
-              console.log("Current User: " + currentUser.id);
-              session.posts[savedPost.id] = savedPost.getPostData(currentUser);
-              session.feed.unshift(savedPost.id);
-              session.save();
-           });
-     }
-  
+      var post = new Post(postInfo);
+      
+      Sphere.savePost(User, data.sphere, post, function(savedPost){
+          console.log("Post saved to sphere..." + savedPost);
+          var postID = savedPost.id;
+          socket.emit('getPostID', {postID : postID});
+          session.posts[postID] = savedPost.getPostData(currentUser);
+          session.feed.unshift(postID);
+          session.save();
+          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
+          console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
+      });  
 
     }); // end post 
     

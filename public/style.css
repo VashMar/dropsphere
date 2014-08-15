@@ -200,6 +200,10 @@ input {
 #selectedPost .chatIcon {
   display: none; }
 
+.textPost {
+  font-size: 16px;
+  color: #082230; }
+
 span.title {
   font-size: 14px;
   min-width: 100px;

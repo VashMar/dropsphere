@@ -177,6 +177,10 @@ function Chat(){
                 postImage = data.image; 
             });
 
+            socket.on('getPostID', function(data){
+                $("#feed .post").first().attr("data", data.postID);
+            });
+
         };
 
         this.Disconnect = function(){
@@ -190,6 +194,10 @@ function Chat(){
    
         
         this.Post = function Post(post){
+
+            var memberNum = nicknames.indexOf(nickname);  
+            var time = moment().format("MMM Do, h:mm a");  
+
             if(previewURL){
                 if(post != ""){
                   var startTag =  previewURL.indexOf('>', previewURL.indexOf('<span')) + 1;
@@ -197,8 +205,6 @@ function Chat(){
                   postTitle= post; 
                 }
                
-                var memberNum = nicknames.indexOf(nickname);  
-                var time = moment().format("MMM Do, h:mm a");      
                 createPost(null, previewURL, memberNum, nickname, time, true, true);
 
                 var postData = {sphere: sphereID, 
@@ -211,12 +217,12 @@ function Chat(){
                                 time: time, 
                                 memberNum: memberNum};
 
-                socket.emit("postURL", postData , function(postID){
-                    $("#feed .post").first().attr("data", postID);
-                });
+                socket.emit("urlPost", postData);
                 previewURL = null;
             }else{
-                socket.emit("post", {sphere: sphereID, post: post, sender: nickname});
+                createdPost = "<p class='textPost'>" + post + "</p>";
+                createPost(null, createdPost, memberNum, nickname, time, true, true);
+                socket.emit("textPost", {sphere: sphereID, post: post, sender: nickname});
             }
         };
 
