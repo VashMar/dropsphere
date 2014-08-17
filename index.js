@@ -517,6 +517,8 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('seenConvo', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
+    console.log(data.postID);
+    console.log(session.posts[data.postID]);
     Post.seenConvo(data.postID, currentUser.id);
     session.posts[data.postID][5] = true;
     session.save();

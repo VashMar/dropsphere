@@ -89,9 +89,7 @@ function Chat(){
 
                 $("#inviteLink").val(sphereLink);
 
-                if(data.justmade === undefined){
-                    requestMessages();
-                }
+        
             });
 
             socket.on('message', function(data){
@@ -236,19 +234,25 @@ function Chat(){
             socket.emit("crawl", link);
         };
 
+
+
         this.SelectPost = function SelectPost(selected){
-            selected.attr('id', 'selectedPost');
+            // track what the current post is by id 
             currentPost = selected.attr('data');
+            // store the posting text box view which disappears 
             postInput = $(".postBox").html();
-            var itemNum = selected.index();
+            // swap posting text boxes with return to feed button
             $(".postBox").html("");
             $(".postBox").prepend("<a id='feedReturn' href='#' onclick='feedReturn();'> Return to Feed </a>");
+            // show the messaging text box and buttton
             $(".controls").show();
+            //empty the chat space
             $("#feed").empty();
+            // resize the scroller for sphere chat view
             $(".slimScrollDiv").css('height', '98%');
             $("#feed").css('height', '96%');
             requestMessages();
-            seenConvo(itemNum);
+            seenConvo(postID);
         };
 
         this.FeedReturn = function FeedReturn(){
@@ -372,7 +376,7 @@ function Chat(){
         };
 
 
-        var requestMessages = function(){
+        var requestMessages = function(postID){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
             socket.emit('requestMessages', {postID: currentPost}, function(messages){
 
@@ -452,10 +456,8 @@ function Chat(){
         }
 
 
-        function seenConvo(postNum){
-            var time = feed[postNum];
-            posts[time][5] = true;
-            socket.emit("seenConvo", {postID: posts[time][4], time:time});
+        function seenConvo(postID){
+            socket.emit("seenConvo", {postID: postID});
         }
     
 
