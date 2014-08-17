@@ -81,7 +81,7 @@ $(document).ready(function(){
         }
     });
 
-    $("a#editOption").on("click", function(){
+    $("#feed").on("click", "a#editOption", function(){
         var post = $(this).parents('.post');
         var postID = post.attr('data');
         var text = post.find('.title').html();

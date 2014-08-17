@@ -487,7 +487,7 @@ sessionSockets.on('connection', function (err, socket, session){
             console.log(numAffected);
           }
     });
-
+  
     session.posts[data.postID]['content']['title'] = data.newtext;
     session.save();
 
