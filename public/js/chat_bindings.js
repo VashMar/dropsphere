@@ -100,7 +100,7 @@ $(document).ready(function(){
     });
 
 
-    $("a#removeOption").on("click", function(){
+     $("#feed").on("click", "a#removeOption", function(){
         var post = $(this).parents('.post');
         var postID = post.attr('data');
         $("#removePost").attr('data', postID);
