@@ -179,6 +179,14 @@ function Chat(){
                 $("#feed .post").first().attr("data", data.postID);
             });
 
+            socket.on('updateViewers', function(data){
+                var viewers = data.viewers;
+                var post =  $(".post[data=" + data.postID + "]");
+
+               post.find(".postButtons ul li a").first().append("<span class='viewedNum'>" + viewers.length + "</span>");
+
+            });
+
         };
 
         this.Disconnect = function(){
@@ -211,9 +219,7 @@ function Chat(){
                                 thumbnail: postThumb, 
                                 title: postTitle,
                                 image: postImage,  
-                                sender: nickname, 
-                                time: time, 
-                                memberNum: memberNum};
+                                sender: nickname};
 
                 socket.emit("urlPost", postData);
                 previewURL = null;
@@ -252,7 +258,8 @@ function Chat(){
             $(".slimScrollDiv").css('height', '98%');
             $("#feed").css('height', '96%');
             requestMessages();
-            seenConvo(postID);
+            // the chat for this post will be seen by this user 
+            seenChat(postID);
         };
 
         this.FeedReturn = function FeedReturn(){
@@ -308,6 +315,10 @@ function Chat(){
             });
         };
 
+        this.ViewedPost = function ViewedPost(postID){
+            socket.emit('viewedPost', {postID: postID, sphere: sphereID});
+        };
+
         this.EditPost = function EditPost(postID, newtext){
             socket.emit('editPost', {postID: postID, newtext: newtext});
         };
@@ -315,6 +326,7 @@ function Chat(){
         this.DeletePost = function DeletePost(postID){
             socket.emit('deletePost', {postID: postID, sphere: sphereID });
         };
+
 
         this.ChangeName = function ChangeName(newName, sphereWide){
              // update name on client side first   
@@ -376,7 +388,7 @@ function Chat(){
         };
 
 
-        var requestMessages = function(postID){
+        var requestMessages = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
             socket.emit('requestMessages', {postID: currentPost}, function(messages){
 
@@ -456,8 +468,8 @@ function Chat(){
         }
 
 
-        function seenConvo(postID){
-            socket.emit("seenConvo", {postID: postID});
+        function seenChat(postID){
+            socket.emit("seenChat", {postID: postID});
         }
     
 

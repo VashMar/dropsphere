@@ -71,7 +71,7 @@
                         - var postTime = post['postTime'];
                         - var seenConvo = post['seen'];
                         - var memberNum = nicknames.indexOf(sender);
-                
+                        - var viewers = post['viewers'];
                             .post(data= postID)
                                 .sender(class='user'+ memberNum)
                                     if isOwner === true 
@@ -111,6 +111,9 @@
                                         li(style="float:left;")
                                             a(href='#')   
                                                 img.viewedIcon(src="/img/viewed.png")
+                                                if viewers.length > 0
+                                                    span.viewedNum
+                                                        =viewers.length 
                                         li
                                             a(href='#')   
                                                 img.shareIcon(src="/img/share_post.png")

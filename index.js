@@ -329,7 +329,7 @@ sessionSockets.on('connection', function (err, socket, session){
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
       console.log("clients: " + sphereClients);
-      var time = moment().format();
+      data.time = moment().format("MMM Do, h:mm a");
   
       // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
@@ -342,7 +342,7 @@ sessionSockets.on('connection', function (err, socket, session){
       } 
 
       data.isLink = true;
-      data.timeFormatted = time;
+
 
       socket.broadcast.to(sphereString).emit('post', data);
 
@@ -435,7 +435,7 @@ sessionSockets.on('connection', function (err, socket, session){
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
     
-          post.updatedConvo(currentUser.id); // update conversation notifier 
+          post.updatedChat(currentUser.id); // update conversation notifier 
 
           message.save(function(err, msg){
             if(err){
@@ -477,6 +477,27 @@ sessionSockets.on('connection', function (err, socket, session){
     });
   }); // end seen  
 
+  socket.on('viewedPost', function(data){
+    console.log("Current User has viewed post: " + data.postID);
+
+
+    Post.findOne({_id: data.postID}, function(err, post){
+        if(post){
+          console.log("Marking post as viewed by this user..");
+          var sphereString = String(data.sphere);    
+          post.viewedPost(currentUser.id, currentUser.name);
+          post.save(function(err, savedPost){
+            if(savedPost){
+              console.log("Post marked as viewed");
+              data.viewers = savedPost.getViewers();
+              io.sockets.in(sphereString).emit('updateViewers', data);
+              session.posts[data.postID]['viewers'] = data.viewers;
+              session.save();
+            }
+          });
+        }
+    }) 
+  }); //end viewed post
 
   socket.on('editPost', function(data){
     console.log("Editing Post: " + data.postID);
@@ -504,6 +525,8 @@ sessionSockets.on('connection', function (err, socket, session){
     io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
   });
 
+
+
   socket.on('updateSession', function(data){
     console.log("Updating Session Data..");
     console.log(data.time);
@@ -515,11 +538,11 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
 
-  socket.on('seenConvo', function(data){
+  socket.on('seenChat', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     console.log(data.postID);
     console.log(session.posts[data.postID]);
-    Post.seenConvo(data.postID, currentUser.id);
+    Post.seenChat(data.postID, currentUser.id);
     session.posts[data.postID][5] = true;
     session.save();
   });

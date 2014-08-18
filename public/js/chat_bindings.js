@@ -65,10 +65,6 @@ $(document).ready(function(){
 
     }); 
 
-    $("#feed").on("click", "a img.chatIcon", function(){
-        chat.SelectPost($(this).parents(".post"));
-    });
-
     $("#urlInput").on("change keyup paste", function(){
         if($("#urlInput").val().trim() == ""){
              $("#previewContainer").hide();
@@ -81,12 +77,30 @@ $(document).ready(function(){
         }
     });
 
+    $("#feed").on("click", "a span.title", function(){
+        var post = $(this).parents('.post').attr('data');
+        chat.ViewedPost(post);
+    });
+
+
+    $("#feed").on("click", "a img.chatIcon", function(){
+        chat.SelectPost($(this).parents(".post"));
+    });
+
     $("#feed").on("click", "a#editOption", function(){
         var post = $(this).parents('.post');
         var postID = post.attr('data');
         var text = post.find('.title').html();
         $("#editContent").val($.trim(text));
         $("#editContent").attr('data', postID);
+    });
+
+
+
+    $("#feed").on("click", "a#removeOption", function(){
+        var post = $(this).parents('.post');
+        var postID = post.attr('data');
+        $("#removePost").attr('data', postID);
     });
 
     $("#saveEdits").click(function(){
@@ -100,11 +114,6 @@ $(document).ready(function(){
     });
 
 
-     $("#feed").on("click", "a#removeOption", function(){
-        var post = $(this).parents('.post');
-        var postID = post.attr('data');
-        $("#removePost").attr('data', postID);
-    });
 
     $("#acceptDeletion").click(function(){
         var postID =  $("#removePost").attr('data');

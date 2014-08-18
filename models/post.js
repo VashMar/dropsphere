@@ -19,7 +19,9 @@ var postSchema = mongoose.Schema({
 		},
 	viewers: [{
 		id: {type: String},
-		seen: {type: Boolean, default: true}
+		name: {type: String},
+		seenChat: {type: Boolean, default: true},
+		seenPost: {type:Boolean, default: false}
 	}],
 	isLink: {type: Boolean, default: false},
 	messages: [{type: ObjectId, ref: 'Message'}]
@@ -43,40 +45,69 @@ postSchema.methods.creatorName = function(){
 }
 
 
-postSchema.methods.hasConvo = function(){
+postSchema.methods.hasChat = function(){
    if(this.messages.length > 0){
    		return true;
    }
    return false; 
 }
 
-postSchema.methods.hasSeenConvo = function(userID){
+// returns a list of users who've viewed the post
+postSchema.methods.getViewers = function(){
+	var viewers = this.viewers;
+	var viewerList = [];
+	for(var v = 0; v < viewers.length; v++){
+		if(viewers[v].seenPost === true){
+			viewerList.push(viewers[v].name);
+		}
+	}
+
+	return viewerList;
+}
+
+// returns whether a user has seen the post's chat or not 
+postSchema.methods.hasSeenChat = function(userID){
 	var viewers = this.viewers;
 	console.log("USERID: " + userID);
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id == userID){
 			console.log("VIEWERID: " + viewers[v].id + ": " + viewers[v].seen);
-			return viewers[v].seen;
+			return viewers[v].seenChat;
 		}
 	}
 	return false; 
 }
 
-postSchema.methods.convoSeen = function(userID){
+
+// marks a post as seen by a specific user 
+postSchema.methods.viewedPost = function(userID,name){
 	var viewers = this.viewers;
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id == userID){
-			viewers[v].seen = true;
+			console.log("Post viewed by:  " + name);
+			viewers[v].seenPost = true;
+			viewers[v].name = name;
+		}
+	}
+
+}
+
+// marks a post's chat as seen by a specific user 
+postSchema.methods.chatSeen = function(userID){
+	var viewers = this.viewers;
+	for(var v = 0; v < viewers.length; v++){
+		if(viewers[v].id == userID){
+			viewers[v].seenChat = true;
 		}
 	}
 }
 
-postSchema.methods.updatedConvo = function(senderID){
+postSchema.methods.updatedChat = function(senderID){
 	var viewers = this.viewers;
 	console.log(senderID);
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id != senderID){
-			viewers[v].seen = false;	
+			viewers[v].seenChat = false;	
 		};
 	}
 }
@@ -112,12 +143,30 @@ postSchema.methods.getPostData = function(user, isMobile){
  			isOwner: this.ownedBy(user._id), 
  			isLink: this.isLink, 
  			postTime: moment(this.date).format(), 
- 			seen: this.hasSeenConvo(user.id)};
+ 			seen: this.hasSeenChat(user.id),
+ 			viewers: this.getViewers()
+ 		};
 }
 
-postSchema.statics.seenConvo = function(postID, userID){
 
-	this.update({$and: [{_id: postID},{'viewers.id': userID}] }, {'$set': {'viewers.$.seen' : true}}, function(err, numAffected){
+postSchema.statics.viewedPost = function(postID, userID, userName, next){
+
+	this.update({$and: [{_id: postID},{'viewers.id': userID}] }, {'$set': {'viewers.$.seenPost' : true, 'viewers.$.name' : userName}}, function(err, numAffected){
+          if(err){console.log(err);}
+
+          else{
+          	if(numAffected > 0){
+          		console.log(numAffected + " post was marked as seen");
+          		next(true);
+          	}
+          }
+    });
+}
+
+
+postSchema.statics.seenChat = function(postID, userID){
+
+	this.update({$and: [{_id: postID},{'viewers.id': userID}] }, {'$set': {'viewers.$.seenChat' : true}}, function(err, numAffected){
           if(err){console.log(err);}
 
           else{
