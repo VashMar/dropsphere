@@ -78,13 +78,19 @@ $(document).ready(function(){
     });
 
     $("#feed").on("click", "a span.title", function(){
-        var post = $(this).parents('.post').attr('data');
-        chat.ViewedPost(post);
+        var postID = $(this).parents('.post').attr('data');
+        chat.ViewedPost(postID);
     });
 
 
     $("#feed").on("click", "a img.chatIcon", function(){
         chat.SelectPost($(this).parents(".post"));
+    });
+
+    $("#feed").on("click", "a.textPost", function(){
+        var post = $(this).parents(".post");
+        chat.ViewedPost(post.attr('data'));
+        chat.SelectPost(post);
     });
 
     $("#feed").on("click", "a#editOption", function(){

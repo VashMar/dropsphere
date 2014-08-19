@@ -32,7 +32,7 @@ var postSchema = mongoose.Schema({
 postSchema.pre('save', function(next){
 	var message = this.content;
 
-	if(message.indexOf("<a") > -1 || message.indexOf("<img") > -1 || message.indexOf("<iframe") > -1){
+	if(message.indexOf("http://") > -1 || message.indexOf("www.") > -1 ){
 		this.isLink = true;
 	}
 	
@@ -148,20 +148,6 @@ postSchema.methods.getPostData = function(user, isMobile){
  		};
 }
 
-
-postSchema.statics.viewedPost = function(postID, userID, userName, next){
-
-	this.update({$and: [{_id: postID},{'viewers.id': userID}] }, {'$set': {'viewers.$.seenPost' : true, 'viewers.$.name' : userName}}, function(err, numAffected){
-          if(err){console.log(err);}
-
-          else{
-          	if(numAffected > 0){
-          		console.log(numAffected + " post was marked as seen");
-          		next(true);
-          	}
-          }
-    });
-}
 
 
 postSchema.statics.seenChat = function(postID, userID){

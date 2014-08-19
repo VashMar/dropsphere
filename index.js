@@ -377,7 +377,7 @@ sessionSockets.on('connection', function (err, socket, session){
       var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
       var title = data.post;
-      data.post = "<p class='textPost'>" + data.post + "</p>";
+      data.post = "<a href='#' class='textPost'>" + data.post + "</a>";
       
       // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
@@ -492,6 +492,7 @@ sessionSockets.on('connection', function (err, socket, session){
               data.viewers = savedPost.getViewers();
               io.sockets.in(sphereString).emit('updateViewers', data);
               session.posts[data.postID]['viewers'] = data.viewers;
+              io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
               session.save();
             }
           });

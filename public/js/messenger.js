@@ -183,7 +183,7 @@ function Chat(){
                 var viewers = data.viewers;
                 var post =  $(".post[data=" + data.postID + "]");
 
-               post.find(".postButtons ul li a").first().append("<span class='viewedNum'>" + viewers.length + "</span>");
+                post.find(".postButtons ul li a").first().append("<span class='viewedNum'>" + viewers.length + "</span>");
 
             });
 
@@ -224,7 +224,7 @@ function Chat(){
                 socket.emit("urlPost", postData);
                 previewURL = null;
             }else{
-                createdPost = "<p class='textPost'>" + post + "</p>";
+                createdPost = "<a href='#' class='textPost'>" + post + "</a>";
                 createPost(null, createdPost, memberNum, nickname, time, true, true);
                 socket.emit("textPost", {sphere: sphereID, post: post, sender: nickname});
             }
@@ -259,7 +259,7 @@ function Chat(){
             $("#feed").css('height', '96%');
             requestMessages();
             // the chat for this post will be seen by this user 
-            seenChat(postID);
+            seenChat(currentPost);
         };
 
         this.FeedReturn = function FeedReturn(){
@@ -378,11 +378,12 @@ function Chat(){
                     var isLink = post['isLink'];
                     var postTime = post['postTime'];
                     var seen = post['seen'];
+                    var viewers = post['viewers'];
                     var memberNum = nicknames.indexOf(sender); 
-                    time = moment(postTime).format("MMM Do, h:mm a");
 
+                    time = moment(postTime).format("MMM Do, h:mm a");
                     content = buildPostContent(isLink, content);
-                    createPost(postID, content, memberNum, sender, time, seen, isOwner);
+                    createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length);
                 }
             }
         };
@@ -440,19 +441,29 @@ function Chat(){
                 }
 
               htmlString += "</a>"
+            }else{
+                htmlString = "<a href='#' class='textPost'>" + title + "</a>";
             }
+
+
 
             return htmlString;
         }
 
-        function createPost(postID,content,memberNum,sender,time,seen, isOwner){
+        function createPost(postID,content,memberNum,sender,time,seen, isOwner, viewedNum){
 
             var chatIcon = (seen) ? seenIcon : unseenIcon;
             var data = (postID) ? postID : '';
             var options = "";
+            var viewed = "";
+
 
             if(isOwner){
                 options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";
+            }
+
+            if(viewedNum > 0){
+                viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
             }
 
             $("#feed").prepend("<div class='post' data=" + data + ">" + 
@@ -460,7 +471,7 @@ function Chat(){
                 "<div class='postername'>" + sender + "</div><div class='time'>" + time + "</div></span></div>" + 
                 "<div class='postContent'>" + content + "</div>" +
                 "<div class='postButtons'><ul>" +
-                "<li style='float:left;'>" + viewedIcon + " </li>" +
+                "<li style='float:left;'>" + viewedIcon +  viewed + " </li>" +
                 "<li>" + chatIcon + " </li>" +
                 "<li>" + shareIcon + " </li>" +
                 "<li>" + saveIcon + " </li>" +
