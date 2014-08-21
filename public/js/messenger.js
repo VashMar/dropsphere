@@ -179,6 +179,28 @@ function Chat(){
                 $("#feed .post").first().attr("data", data.postID);
             });
 
+            socket.on('newSphere', function(newMap){
+                
+                // track new sphere data 
+                sphereMap = newMap;
+                sphereNames = Object.keys(sphereMap);
+                sphereIndex = sphereNames.length - 1;
+                currentSphere = sphereNames[sphereIndex];
+                sphereID = sphereMap[currentSphere].id;
+                sphereLink = sphereMap[currentSphere].link;
+                nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
+    
+                // the current sphere is the newly created one 
+                $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
+
+                $("#sphereNames").append("<a class='sphere' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
+                  sphereIndex + "' class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
+                  "<span class='sphereName'>" + currentSphere + "</span>");
+
+                $("#inviteLink").val(sphereLink); 
+
+            });
+
             socket.on('updateViewers', function(data){
                 var viewers = data.viewers;
                 var post =  $(".post[data=" + data.postID + "]");
@@ -186,6 +208,8 @@ function Chat(){
                 post.find(".postButtons ul li a").first().append("<span class='viewedNum'>" + viewers.length + "</span>");
 
             });
+
+
 
         };
 
@@ -293,26 +317,7 @@ function Chat(){
 
         this.CreateSphere = function CreateSphere(sphereName){
             // create a new sphere and return the updated sphereMap with the sphere's data  
-            socket.emit('createSphere', {sphereName: sphereName}, function(newMap){
-
-                // track sphere data 
-                sphereMap = newMap;
-                sphereNames = Object.keys(sphereMap);
-                sphereIndex = sphereNames.length - 1;
-                currentSphere = sphereNames[sphereIndex];
-                sphereID = sphereMap[currentSphere].id;
-                sphereLink = sphereMap[currentSphere].link;
-                nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
-    
-                // the current sphere is the newly created one 
-                $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
-
-                $("#sphereNames").append("<a class='sphere' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
-                  sphereIndex + "' class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
-                  "<span class='sphereName'>" + currentSphere + "</span>");
-
-                $("#inviteLink").val(sphereLink); 
-            });
+            socket.emit('createSphere', {sphereName: sphereName});
         };
 
         this.ViewedPost = function ViewedPost(postID){

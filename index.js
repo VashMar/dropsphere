@@ -582,8 +582,7 @@ sessionSockets.on('connection', function (err, socket, session){
                                                     };
 
                   session.sphereNames.push(sphere.name);
-
-                  sphereMap(session.sphereMap);
+                  socket.emit('newSphere', session.sphereMap);
                   session.nicknames = sphere.nicknames;
                   session.currentSphere = sphere.name;
                   session.messages = {};
