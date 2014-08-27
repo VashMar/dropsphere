@@ -14,11 +14,13 @@ var ENV = process.env.NODE_ENV;
 // show action
 exports.bookmark = function(req, res){
 
-	var sesh = req.session;
-	if(sesh.isLogged == true){ 
-  
+  console.log("Bookmarklet launching..");
 
-        console.log(JSON.stringify(sesh.posts[sesh.feed[0]]));
+	var sesh = req.session;
+
+	if(sesh.isLogged == true){ 
+
+        console.log(JSON.stringify(sesh.posts));
         res.render("template_feed", { data: {
                                     nickname:  sesh.nickname,
                                     username: sesh.username,
@@ -281,6 +283,7 @@ exports.login = function(req, res){
           		 			});
                   } else{
                     console.log("User already exists in sphere");
+                    res.redirect('/bookmark');
                   }
                 } else {
                   console.log("Sphere is full");
@@ -298,7 +301,7 @@ exports.login = function(req, res){
                     posts[key] = post;
                 }   
 
-                console.log(posts);
+                console.log("Here are the posts: " + JSON.stringify(posts));
 
 	           }
 
@@ -381,19 +384,6 @@ exports.invite = function(req,res){
 
    req.session.inviteID = inviteID;
    req.session.invite = true; 
-   var sesh = req.session;
-
-   var username = sesh.username,
-       nicknames = [],
-       nickname =  username,
-       currentSphere = "",
-       sphereMap = sesh.sphereMap,
-       sphereNames = sesh.sphereNames, 
-       totalUpdates = sesh.totalUpdates,
-       posts = {},
-       feed = [],
-       announcements = {};
-
 
    if(req.session.isLogged == true){
     User.findOne({sessions: {$in : [req.sessionID]}}, function(err, user){
@@ -407,6 +397,20 @@ exports.invite = function(req,res){
               console.log("The sphere:" + sphere);
               if(sphere.members.length < 6){
                 if(!user.isMember(sphere)){       // if the user isn't already  member plop them in 
+
+                 var sesh = req.session;
+
+                 var username = sesh.username,
+                     nicknames = [],
+                     nickname =  username,
+                     currentSphere = "",
+                     sphereMap = sesh.sphereMap,
+                     sphereNames = sesh.sphereNames, 
+                     totalUpdates = sesh.totalUpdates,
+                     posts = {},
+                     feed = [],
+                     announcements = {};
+
 
                   // update both tracking lists and the users current sphere index 
                   user.spheres.push({object: sphere._id, nickname: user.name}); 
@@ -425,19 +429,13 @@ exports.invite = function(req,res){
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
+                  user.addSphereContacts(sphere.ids); // add the sphere members to user's contacts 
+
                   user.save(function(err){console.log(err);});
                   sphere.save(function(err){console.log(err);});
 
-                }else{
-                  console.log("User already exists in sphere");
 
-                }
-              }else{
-                 console.log("sphere is full")
-              } 
-            }
-
-          res.render("template_feed", { data: {
+                  res.render("template_feed", { data: {
                                     nickname:  nickname,
                                     username:  username,
                                     nicknames: nicknames,
@@ -452,15 +450,25 @@ exports.invite = function(req,res){
 
                                   });       
           
-          // store session data 
-          req.session.sphereMap = sphereMap;
-          req.session.sphereNames = sphereNames;
-          req.session.username = username;
-          req.session.nickname = nickname;
-          req.session.nicknames = nicknames;
-          req.session.announcements = announcements;
-          req.session.currentSphere = currentSphere;
-          req.session.totalUpdates = totalUpdates;
+                  // store session data 
+                  req.session.sphereMap = sphereMap;
+                  req.session.sphereNames = sphereNames;
+                  req.session.username = username;
+                  req.session.nickname = nickname;
+                  req.session.nicknames = nicknames;
+                  req.session.announcements = announcements;
+                  req.session.currentSphere = currentSphere;
+                  req.session.totalUpdates = totalUpdates;
+
+
+                }else{
+                  exports.bookmark(req,res);
+                }
+              }else{
+                 console.log("sphere is full")
+              } 
+            }
+
          
         });
       

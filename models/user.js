@@ -2,11 +2,11 @@ var mongoose = require('mongoose'),
     validate = require('mongoose-validator');
 	bcrypt 	 = require('bcrypt'),
 	SALT_WORK_FACTOR = 9;
+  
 
     
 var Schema = mongoose.Schema,
 	ObjectId = Schema.Types.ObjectId;
-
 
 
 
@@ -44,8 +44,8 @@ var userSchema = new Schema({
         joined: {type: Date, default: Date.now},    // when the user joined the sphere
         updates: {type: Number, default: 0}        // notification counter for each sphere 
         }],
-    currentSphere: {type: Number, default: 0} // index of the user's current sphere 
-
+    currentSphere: {type: Number, default: 0}, // index of the user's current sphere 
+    contacts: [{type: ObjectId, ref: 'User'}]
 });
 
 
@@ -111,6 +111,21 @@ userSchema.methods.comparePassword = function(sentPassword, callback) {
     });
 };
 
+
+// auto adds new contacts on sphere join 
+userSchema.methods.addSphereContacts = function(contactIds){
+   var contacts =  this.contacts;
+   var ObjectID = mongoose.Types.ObjectId;
+   console.log(contacts);
+   for(var i =0; i < contactIds.length; i++){
+        var contact = ObjectID(contactIds[i]);
+        if(contacts.indexOf(contact) < 0 && contact != this.id){
+            console.log("New contact being added..");
+            contacts.push(contact);
+        }
+    }
+};
+
 // checks if user is a member of a given sphere 
 userSchema.methods.isMember = function(sphere){
  
@@ -123,7 +138,7 @@ userSchema.methods.isMember = function(sphere){
     }
 
     return isMember; 
-}
+};
 
 // returns the information about all clients spheres with one loop
 userSchema.methods.sphereData = function(ENV){

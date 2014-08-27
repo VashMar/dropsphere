@@ -30,9 +30,9 @@
                     span.caret 
             ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
                 li.dropdown-header(role="presentation") My Spheres
-                each sphereName, i in sphereNames 
-                    - var updates = sphereMap[sphereName].updates;
-                    li(role="presentation" id="sphereNames")
+                li(role="presentation" id="sphereNames")
+                    each sphereName, i in sphereNames 
+                        - var updates = sphereMap[sphereName].updates;
                         a(class = "sphere" role="menuitem" tabindex="-1" data-toggle="modal" href="#")
                             if updates > 0
                                 span.sphereUpdates(id="updates-" + i)
@@ -72,60 +72,67 @@
                         - var seenConvo = post['seen'];
                         - var memberNum = nicknames.indexOf(sender);
                         - var viewers = post['viewers'];
-                            .post(data= postID)
-                                .sender(class='user'+ memberNum)
-                                    if isOwner === true 
-                                        .dropdown
-                                            a#postSettings(data-toggle="dropdown" href="#")
-                                            ul#postDropdown.dropdown-menu(role="menu" aria-labelledby="dLabel")
-                                                li(role="presentation")
-                                                    a#editOption(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#editPost" href="#")
-                                                        span(class="glyphicon glyphicon-pencil")
-                                                        span.postOption Edit post
-                                                li(role="presentation")
-                                                    a#removeOption(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#removePost" href="#") 
-                                                        span(class="glyphicon glyphicon-trash")
-                                                        span.postOption Remove Post 
+                        - var viewerNames = "";
+                        each viewerName, index in viewers 
+                            - viewerNames += viewerName
+                            if index < viewers.length - 1
+                                - viewerNames +=  ", ";
+                        if viewerNames.length > 0
+                            - viewerNames = "Viewed by: " + viewerNames; 
+                        .post(data= postID)
+                            .sender(class='user'+ memberNum)
+                                if isOwner === true 
+                                    .dropdown
+                                        a#postSettings(data-toggle="dropdown" title="Settings" href="#")
+                                        ul#postDropdown.dropdown-menu(role="menu" aria-labelledby="dLabel")
+                                            li(role="presentation")
+                                                a#editOption(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#editPost" href="#")
+                                                    span(class="glyphicon glyphicon-pencil")
+                                                    span.postOption Edit post
+                                            li(role="presentation")
+                                                a#removeOption(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#removePost" href="#") 
+                                                    span(class="glyphicon glyphicon-trash")
+                                                    span.postOption Remove Post 
 
-                                    span
-                                        .postername=sender 
-                                        .time=moment(postTime).format("MMM Do, h:mm a")
-                                .postContent
-                                    if isLink === true
-                                        a.post_link(target='_blank' href=content['url'])
-                                            if content["image"] === ""
-                                                if content['thumbnail'] === ""
-                                                    span.title(style='float:none; padding:5px;')=content['title']
-                                                else
-                                                    img(src=content['thumbnail'])
-                                                    span.title=content['title'] 
+                                span
+                                    .postername=sender 
+                                    .time=moment(postTime).format("MMM Do, h:mm a")
+                            .postContent
+                                if isLink === true
+                                    a.post_link(target='_blank' href=content['url'])
+                                        if content["image"] === ""
+                                            if content['thumbnail'] === ""
+                                                span.title(style='float:none; padding:5px;')=content['title']
                                             else
-                                                img(src=content['image'])
-                                                span.title.image=content['title']
+                                                img(src=content['thumbnail'])
+                                                span.title=content['title'] 
+                                        else
+                                            img(src=content['image'])
+                                            span.title.image=content['title']
 
-                                    else
-                                        a.textPost
-                                            =content['title']
-                                .postButtons  
-                                    ul
-                                        li(style="float:left;")
-                                            a(href='#')   
-                                                img.viewedIcon(src="/img/viewed.png")
-                                                if viewers.length > 0
-                                                    span.viewedNum
-                                                        =viewers.length 
-                                        li
-                                            a(href='#')   
-                                                img.shareIcon(src="/img/share_post.png")
-                                        li
-                                            a(href='#')   
-                                                img.saveIcon(src="/img/sphere_add.png")
-                                        li
-                                            a(href='#')    
-                                                if seenConvo === false 
-                                                    img.chatIcon(src="favicon.png")   
-                                                else 
-                                                    img.chatIcon(src="/img/chat_icon.png")
+                                else
+                                    a.textPost
+                                        =content['title']
+                            .postButtons  
+                                ul
+                                    li(style="float:left;")
+                                        a(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
+                                            img.viewedIcon(src="/img/viewed.png")
+                                            if viewers.length > 0
+                                                span.viewedNum
+                                                    =viewers.length 
+                                    li
+                                        a(href='#' title="Share Link")   
+                                            img.shareIcon(src="/img/share_post.png")
+                                    li
+                                        a(href='#' title="Save Link")   
+                                            img.saveIcon(src="/img/sphere_add.png")
+                                    li
+                                        a(href='#' title="Comments")    
+                                            if seenConvo === false 
+                                                img.chatIcon(src="favicon.png")   
+                                            else 
+                                                img.chatIcon(src="/img/chat_icon.png")
         .controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -223,8 +230,8 @@ script.
     sphereLink = sphereMap[currentSphere].link;
     posts = sphereData.posts; 
     feed = sphereData.feed;
-    viewedIcon = "<a href='#'><img class='viewedIcon' src='/img/viewed.png'/></a>";
-    shareIcon = "<a href='#'><img class='shareIcon' src='/img/share_post.png'/></a>";
+    viewedIcon = "<a href='#' data-toggle='tooltip' data-placement='top' title=''><img class='viewedIcon' src='/img/viewed.png'/></a>";
+    shareIcon = "<a href='#' data-toggle='tooltip' data-placement='top' title='Share'><img class='shareIcon' src='/img/share_post.png'/></a>";
     saveIcon = "<a href='#'><img class='saveIcon' src='/img/sphere_add.png'/></a>";
 script.
     $(document).ready(function(){

@@ -179,17 +179,19 @@ function Chat(){
                 $("#feed .post").first().attr("data", data.postID);
             });
 
-            socket.on('newSphere', function(newMap){
-                
+            socket.on('newSphere', function(data){
+
                 // track new sphere data 
-                sphereMap = newMap;
-                sphereNames = Object.keys(sphereMap);
+                sphereMap = data.sphereMap;
+                sphereNames = data.sphereNames;
                 sphereIndex = sphereNames.length - 1;
-                currentSphere = sphereNames[sphereIndex];
+                currentSphere = data.currentSphere
+                sphereIndex = sphereNames.indexOf(currentSphere);
                 sphereID = sphereMap[currentSphere].id;
                 sphereLink = sphereMap[currentSphere].link;
                 nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
-    
+
+
                 // the current sphere is the newly created one 
                 $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
 
@@ -296,6 +298,8 @@ function Chat(){
         };
 
         this.SwitchSphere = function SwitchSphere(current){
+            
+            currentSphere = current;         
 
             if(currentPost){
                 $(".controls").hide();
@@ -304,11 +308,14 @@ function Chat(){
             }
 
             // set the user's name to their name in the new sphere 
-            nickname = sphereMap[current].nickname;
-            sphereID = sphereMap[current].id;
-            sphereIndex = sphereNames.indexOf(current);   
-            sphereLink = sphereMap[current].link;
-            currentSphere = current;
+            nickname = sphereMap[currentSphere].nickname;
+            sphereID = sphereMap[currentSphere].id;
+            sphereIndex = sphereNames.indexOf(currentSphere);   
+            sphereLink = sphereMap[currentSphere].link;
+            
+
+            $("#inviteLink").val(sphereLink); 
+                
             socket.emit('requestUsers', {sphereID : sphereID});
             requestFeed();
         };

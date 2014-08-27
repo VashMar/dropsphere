@@ -528,7 +528,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
 
-  socket.on('updateSession', function(data){
+  socket.on('updateSession', function(data){ 
     console.log("Updating Session Data..");
     console.log(data.time);
     console.log(currentUser.name);
@@ -574,7 +574,7 @@ sessionSockets.on('connection', function (err, socket, session){
                   var addedSphere =  user.spheres[user.spheres.length - 1];
 
                
-
+                  console.log(addedSphere);
                   session.sphereMap[sphere.name] = { id: addedSphere.object._id, 
                                                      nickname: addedSphere.nickname, 
                                                      link: addedSphere.object.link(ENV),
@@ -582,11 +582,13 @@ sessionSockets.on('connection', function (err, socket, session){
                                                     };
 
                   session.sphereNames.push(sphere.name);
-                  socket.emit('newSphere', session.sphereMap);
                   session.nicknames = sphere.nicknames;
                   session.currentSphere = sphere.name;
                   session.messages = {};
                   session.nickname = user.name;
+
+                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereNames: session.sphereNames, currentSphere: session.currentSphere });
+                
                   console.log(session);
 
                   session.save();

@@ -7,6 +7,11 @@ $(document).ready(function(){
     	start: 'top'
     });
 
+     $("#feed").tooltip({
+     	html: true,
+     	selector: "[data-toggle='showViewers']",
+     	container:'.postButtons'
+     });
 
     /*$('#postInput').slimScroll({
     	width:'100%',

@@ -28,6 +28,19 @@ sphereSchema.virtual('nicknames').get(function(){
 });
 
 
+
+sphereSchema.virtual('ids').get(function(){
+  var ids = [];
+  for(var i = 0; i< this.members.length ; i++){
+      var memberId = this.members[i].id;
+      ids.push(memberId);
+  }
+  return ids;
+});
+
+
+
+
 sphereSchema.methods.link = function(ENV){
 	if(ENV == "production"){
 	  return "http://dropsphere.herokuapp.com/invite/" + this.id;	
