@@ -252,7 +252,7 @@ function Chat(){
             }else{
                 createdPost = "<a href='#' class='textPost'>" + post + "</a>";
                 createPost(null, createdPost, memberNum, nickname, time, true, true);
-                socket.emit("textPost", {sphere: sphereID, post: post, sender: nickname});
+                socket.emit("textPost", {sphere: sphereID, title: post, sender: nickname});
             }
         };
 

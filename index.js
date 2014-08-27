@@ -376,8 +376,8 @@ sessionSockets.on('connection', function (err, socket, session){
 
       var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
-      var title = data.post;
-      data.post = "<a href='#' class='textPost'>" + data.post + "</a>";
+      var title = data.title;
+      data.post = "<a href='#' class='textPost'>" + data.title + "</a>";
       
       // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
