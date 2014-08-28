@@ -374,19 +374,9 @@ sessionSockets.on('connection', function (err, socket, session){
       
       if(typeof data == 'string' || data instanceof String){
         console.log("hashing string: " + data);
-         var data2hash = data.split(",");
-         var keyVal;
-         data = {}; // create a hash from the string inputs 
-         for(var i =0; i< data2hash.length; i++){
-            keyVal = data2hash[i].split(":") // key : value => [key,value]
-            data[keyVal[0]] = keyVal[1];    // data[key] = value
-
-            // save and emit after last key/val is hashed 
-            if( i == data2hash.length - 1){
-              saveAndEmit(data);
-            }
-         }
-      
+        LinkParser.hashMeBaby(data, function(data){
+            saveAndEmit(data);
+        });  
       }else{
         saveAndEmit(data);
       }
