@@ -376,7 +376,7 @@ sessionSockets.on('connection', function (err, socket, session){
          var data2hash = data.split(",");
          var keyVal;
          data = {}; // create a hash from the string inputs 
-         for(var i =0; i< data2hash.length, i++){
+         for(var i =0; i< data2hash.length; i++){
             keyVal = data2hash[i].split(":") // key : value => [key,value]
             data[keyVal[0]] = keyVal[1];    // data[key] = value
          }
