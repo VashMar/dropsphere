@@ -382,45 +382,50 @@ sessionSockets.on('connection', function (err, socket, session){
             data[keyVal[0]] = keyVal[1];    // data[key] = value
          }
          console.log(data);
+         saveAndEmit(data);
+      }else{
+        saveAndEmit(data);
       }
     
-      var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
-      var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
-      var title = data.title;
-      data.post = "<a href='#' class='textPost'>" + data.title + "</a>";
-      
-      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
-      for(var i = 0; i< sphereClients.length; i++){
-              if(clients[sessionID].indexOf(sphereClients[i]) === -1){
-                data.isOwner = false;
-                socket.broadcast.to(sphereClients[i]).emit('notifySound');
-              }else{
-                data.isOwner = true; 
-              }
-      } 
 
-      socket.broadcast.to(sphereString).emit('post', data);
+      function saveAndEmit(data){
+          var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
+          var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
+          var title = data.title;
+          data.post = "<a href='#' class='textPost'>" + data.title + "</a>";
+          
+          // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
+          for(var i = 0; i< sphereClients.length; i++){
+                  if(clients[sessionID].indexOf(sphereClients[i]) === -1){
+                    data.isOwner = false;
+                    socket.broadcast.to(sphereClients[i]).emit('notifySound');
+                  }else{
+                    data.isOwner = true; 
+                  }
+          } 
 
-      var postInfo = {content: data.post, 
-                      creator: {object: currentUser, name: data.sender}, 
-                      contentData:{
-                         title: title
-                        }
-                    };
+          socket.broadcast.to(sphereString).emit('post', data);
 
-      var post = new Post(postInfo);
-      
-      Sphere.savePost(User, data.sphere, post, function(savedPost){
-          console.log("Post saved to sphere..." + savedPost);
-          var postID = savedPost.id;
-          socket.emit('getPostID', {postID : postID});
-          session.posts[postID] = savedPost.getPostData(currentUser);
-          session.feed.unshift(postID);
-          session.save();
-          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
-          console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
-      });  
+          var postInfo = {content: data.post, 
+                          creator: {object: currentUser, name: data.sender}, 
+                          contentData:{
+                             title: title
+                            }
+                        };
 
+          var post = new Post(postInfo);
+          
+          Sphere.savePost(User, data.sphere, post, function(savedPost){
+              console.log("Post saved to sphere..." + savedPost);
+              var postID = savedPost.id;
+              socket.emit('getPostID', {postID : postID});
+              session.posts[postID] = savedPost.getPostData(currentUser);
+              session.feed.unshift(postID);
+              session.save();
+              io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
+              console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
+          });  
+       }
     }); // end post 
     
     socket.on('send', function(data){
