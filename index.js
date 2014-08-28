@@ -389,6 +389,7 @@ sessionSockets.on('connection', function (err, socket, session){
     
 
       function saveAndEmit(data){
+          console.log(data.sphere);
           var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
           var title = data.title;
