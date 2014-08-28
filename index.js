@@ -372,24 +372,10 @@ sessionSockets.on('connection', function (err, socket, session){
     // if the posted content is text
     socket.on('textPost', function(data){
       
-      var json; 
-      try {
-        json = JSON.parse(data);
-      } catch (exception) {
-        console.log("This isn't JSON");
+      if(typeof data == 'string' || data instanceof String){
+        console.log(data + "is a string");
       }
-
-      if (json) {
-        console.log("this is json");
-      }
-
-
-
-      console.log("Posting Data for Text Post.." + data);
-      console.log(data[0]);
-
-
-
+    
       var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
       var title = data.title;
