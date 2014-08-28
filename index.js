@@ -373,7 +373,6 @@ sessionSockets.on('connection', function (err, socket, session){
     socket.on('textPost', function(data){
       
       if(typeof data == 'string' || data instanceof String){
-        console.log("hashing string: " + data);
         LinkParser.hashMeBaby(data, function(data){
             saveAndEmit(data);
         });  
