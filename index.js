@@ -377,15 +377,17 @@ sessionSockets.on('connection', function (err, socket, session){
             saveAndEmit(data);
         });  
       }else{
+        console.log("Sent as hash");
         saveAndEmit(data);
       }
     
 
       function saveAndEmit(data){
-          console.log(data.sphere);
-          var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
-          console.log(io.sockets.adapter.rooms);
-          console.log(io.sockets.adapter.rooms[sphereString]);
+          console.log("Id at sphere key: " + data.sphere);
+          var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting
+          console.log("sphereString: " + sphereString); 
+          console.log("Rooms: " + io.sockets.adapter.rooms);
+          console.log("Rooms at sphereString: " + io.sockets.adapter.rooms[sphereString]);
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
           var title = data.title;
           data.post = "<a href='#' class='textPost'>" + data.title + "</a>";
