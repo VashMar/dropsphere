@@ -413,7 +413,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
           var post = new Post(postInfo);
           
-          Sphere.savePost(User, data.sphere, post, function(savedPost){
+          Sphere.savePost(User, sphereString, post, function(savedPost){
               console.log("Post saved to sphere..." + savedPost);
               var postID = savedPost.id;
               socket.emit('getPostID', {postID : postID});
