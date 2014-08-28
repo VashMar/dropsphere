@@ -384,7 +384,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
       function saveAndEmit(data){
           console.log("Id at sphere key: " + data.sphere);
-          var sphereString = data.sphere;               // we need the sphere id in string format for emitting
+          var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting
           console.log("sphereString: " + sphereString); 
           console.log("Rooms: " + io.sockets.adapter.rooms);
           console.log("Rooms at sphereString: " + io.sockets.adapter.rooms[sphereString]);
