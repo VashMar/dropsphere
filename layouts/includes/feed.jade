@@ -14,6 +14,8 @@
                 ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
                     li(role="presentation" class="dropdown-header") Profile Settings
                     li(role="presentation")
+                        a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#contactList" href="#") Contact List 
+                    li(role="presentation")
                         a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") Set Nickname 
@@ -152,7 +154,15 @@
               
               .modal-body
                 label Copy and Paste the link below
-                input#inviteLink(class="form-control" placeholder="New Name" value= sphereMap[currentSphere].link readonly="readonly")              
+                input#inviteLink(class="form-control" placeholder="New Name" value= sphereMap[currentSphere].link readonly="readonly")
+#contactList.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+         .modal-dialog
+            .modal-content
+              .modal-header
+                button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+                h4.modal-title Contacts
+              
+              .modal-body            
 
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
