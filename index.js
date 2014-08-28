@@ -373,6 +373,7 @@ sessionSockets.on('connection', function (err, socket, session){
     socket.on('textPost', function(data){
       
       if(typeof data == 'string' || data instanceof String){
+        console.log("hashing string: " + data);
          var data2hash = data.split(",");
          var keyVal;
          data = {}; // create a hash from the string inputs 
@@ -380,6 +381,7 @@ sessionSockets.on('connection', function (err, socket, session){
             keyVal = data2hash[i].split(":") // key : value => [key,value]
             data[keyVal[0]] = keyVal[1];    // data[key] = value
          }
+         console.log(data);
       }
     
       var sphereString = String(data.sphere);               // we need the sphere id in string format for emitting 
