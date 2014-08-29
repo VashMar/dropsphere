@@ -203,7 +203,7 @@ exports.login = function(req, res){
 
 
   	// pull the user and belonging spheres 
-    User.findOne({email: email}).populate('spheres.object').exec(function(err, user){
+    User.findOne({email: email}).populate('spheres.object contacts').exec(function(err, user){
       if(!user || err){ 
         console.log("Invalid Email"); 
         res.json(400, {message: "The entered email doesn't exist", type: "email"});
@@ -225,7 +225,9 @@ exports.login = function(req, res){
           		  nickname,
           		  currentSphere,
           		  joined,
-          		  sphereID;
+          		  sphereID,
+                contacts;
+
 
             var posts = {},
                 feed = [],
@@ -265,7 +267,7 @@ exports.login = function(req, res){
         		 	if(req.session.invite == true){
         		 		if(sphere.members.length < 6){
                     if(!user.isMember(sphere)){  
-          		 			// add the user to the sphere adn the sphere to the user's sphere list 
+          		 			// add the user to the sphere and the sphere to the user's sphere list 
           		 			sphere.members.push({id: user.id , name: user.name});
           		 			user.spheres.push({object: sphere, nickname: user.name});
 
@@ -299,11 +301,15 @@ exports.login = function(req, res){
                     var key = currentPost.id;
                     feed.push(key);
                     posts[key] = post;
-                }   
+              }   
 
                 console.log("Here are the posts: " + JSON.stringify(posts));
 
 	           }
+
+             // get all the user contacts 
+             contacts = user.getContacts();
+             console.log("Here are the contacts: " + contacts);
 
             if(isMobile == "true"){
               res.json(200, { data: {
@@ -316,7 +322,8 @@ exports.login = function(req, res){
                 sphereMap: sphereMap,
                 sphereNames: sphereNames,
                 currentSphere: currentSphere,
-                totalUpdates: totalUpdates
+                totalUpdates: totalUpdates,
+                contacts: contacts
                 }
               }); 
             }else{
@@ -330,7 +337,8 @@ exports.login = function(req, res){
                 sphereMap: sphereMap,
                 sphereNames: sphereNames,
                 currentSphere: currentSphere,
-                totalUpdates: totalUpdates
+                totalUpdates: totalUpdates,
+                contacts: contacts
                 }
               }); 
             } 
@@ -347,6 +355,7 @@ exports.login = function(req, res){
          req.session.announcements = announcements;
 	       req.session.currentSphere = currentSphere;
 	       req.session.totalUpdates = totalUpdates;
+         req.session.contacts = contacts; 
 
 	 			 // flag user as logged in 
 	       req.session.isLogged = true;

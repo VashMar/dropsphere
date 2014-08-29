@@ -5,7 +5,8 @@
 - var posts = data.posts; 
 - var announcements = Object.keys(data.announcements);
 - var sphereMap = data.sphereMap;
-
+- var contacts = data.contacts;
+- var contactIds = Object.keys(contacts);
 #container
     #chat
         .dropdown
@@ -162,7 +163,13 @@
                 button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
                 h4.modal-title Contacts
               
-              .modal-body            
+              .modal-body
+                ul
+                    each contactId in contactIds
+                        - var contact = contacts[contactId];
+                        li 
+                            =contact 
+
 
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog

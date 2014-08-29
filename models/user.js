@@ -126,6 +126,17 @@ userSchema.methods.addSphereContacts = function(contactIds){
     }
 };
 
+// retrieve the contact names and ids
+userSchema.methods.getContacts = function(){
+    var contacts = this.contacts;
+    var contactInfo = {};
+    for(var i = 0; i < contacts.length; i++){
+        contactInfo[contacts[i].id] = contacts[i].name; 
+    }
+
+    return contacts; 
+}
+
 // checks if user is a member of a given sphere 
 userSchema.methods.isMember = function(sphere){
  
