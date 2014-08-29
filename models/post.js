@@ -30,9 +30,8 @@ var postSchema = mongoose.Schema({
 
 // check if the message item is a link before saving 
 postSchema.pre('save', function(next){
-	var message = this.content;
-
-	if(message.indexOf("http://") > -1 || message.indexOf("www.") > -1 ){
+	var content = this.contentData;
+	if(content.url || content.thumbnail || content.image ){
 		this.isLink = true;
 	}
 	
