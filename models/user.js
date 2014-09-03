@@ -103,6 +103,10 @@ userSchema.pre('save', function(next) {
 });
 
 
+userSchema.methods.targetSphere = function(){
+   return this.spheres[this.currentSphere];
+};
+
 // compares user submitted pass to saved salted one
 userSchema.methods.comparePassword = function(sentPassword, callback) {
     bcrypt.compare(sentPassword, this.password, function(err, isMatch){
@@ -134,7 +138,7 @@ userSchema.methods.getContacts = function(){
         contactInfo[contacts[i].id] = contacts[i].name; 
     }
 
-    return contacts; 
+    return contactInfo; 
 }
 
 // checks if user is a member of a given sphere 

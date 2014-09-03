@@ -7,36 +7,20 @@ var mongoose = require("mongoose"),
 var moment = require("moment");
 var ENV = process.env.NODE_ENV;
 
-
+var Session = require("../controllers/sessions");
 
 
 
 // show action
 exports.bookmark = function(req, res){
-
   console.log("Bookmarklet launching..");
-
 	var sesh = req.session;
 
 	if(sesh.isLogged == true){ 
-
-        console.log(JSON.stringify(sesh.posts));
-        res.render("template_feed", { data: {
-                                    nickname:  sesh.nickname,
-                                    username: sesh.username,
-                                    nicknames: sesh.nicknames,
-                                    feed: sesh.feed, 
-                                    posts: sesh.posts,
-                                    announcements: sesh.announcements, 
-                                    sphereMap: sesh.sphereMap,
-                                    sphereNames: sesh.sphereNames,
-                                    currentSphere: sesh.currentSphere,
-                                    totalUpdates: sesh.totalUpdates
-                                    }
-                                  });       
-   }else{
-        res.render("template_login");
-   } 
+    Session.render(res, "template_feed", sesh);
+  }else{
+    Session.render(res, "template_login");
+  }
 }
 
 // create action 
@@ -67,17 +51,7 @@ exports.signup = function(req, res){
          var inviteID = req.session.inviteID;
 
          // construct data variables for client side tracking
-         var username = user.name,
-         	  nicknames = [],
-         	  nickname = username,
-         	  currentSphere = "",
-         	  sphereData = {},
-         	  sphereMap = {},
-         	  sphereNames = [], 
-         	  totalUpdates = 0,
-         	  posts = {},
-            feed = [],
-            announcements = {};
+         var sessionData = Session.createSessionData(); 
 
          console.log(req.session.invite);
 
@@ -94,7 +68,7 @@ exports.signup = function(req, res){
           		else{
           			if(invitedSphere.members.length < 6){	// make sure sphere isn't full
           				newSphere = invitedSphere;
-          				announcements["joined"] = user.name + " joined the sphere";
+          				sessionData.announcements["joined"] = user.name + " joined the sphere";
           				console.log("Adding user to sphere: " + invitedSphere.id);
           				add_and_render(newSphere);
           			}
@@ -107,7 +81,7 @@ exports.signup = function(req, res){
          	  console.log("Creating sphere for new user..");
          	  newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id });
          	  // create a welcome message 
-    			  announcements["welcome"] = "Welcome to your sphere!";
+    			  sessionData.announcements["welcome"] = "Welcome to your sphere!";
     			  add_and_render(newSphere);
          }
 
@@ -124,46 +98,20 @@ exports.signup = function(req, res){
          			user.spheres.push({object: newSphere, nickname: user.name }); // add the sphere to user's sphere list 
 
              	// build chat data for client side 
-    					sphereNames = [sphere.name],
-    					nicknames = sphere.nicknames,
-    					nickname = user.name,
-    					currentSphere = sphere.name,
+    					sessionData.sphereNames = [sphere.name],
+    					sessionData.nicknames = sphere.nicknames,
+    					sessionData.nickname = user.name,
+    					sessionData.currentSphere = sphere.name,
 		
 
 			      	// build a map of sphere data for the client 
-			      	sphereMap[sphere.name] =  {id: sphere._id, nickname: nickname, link: sphere.link(ENV) , updates: 0}; 
+			      	sessionData.sphereMap[sphere.name] =  {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0}; 
 
-			      	console.log(sphereMap);
+			      	console.log(sessionData.sphereMap);
 
-                    res.render("includes/feed", { data: {
-                   									nickname:  nickname,
-                    								username: username,
-                    								nicknames: nicknames,
-                    								announcements: announcements,
-                                    feed: feed,
-                                    posts: posts,
-                    								sphereMap: sphereMap,
-                    								sphereNames: sphereNames,
-                    								currentSphere: currentSphere,
-                    								totalUpdates: totalUpdates
-                    								}
-                    							}); 
+              Session.render(res, "includes/feed", sessionData);
 
-
-
-
-                // store session data 
-			          req.session.sphereMap = sphereMap;
-		            req.session.sphereNames = sphereNames;
-		            req.session.username = username;
-		            req.session.nickname = nickname;
-		            req.session.nicknames = nicknames;
-                req.session.feed = feed;
-		            req.session.posts = posts;
-                req.session.announcements = announcements;
-		            req.session.currentSphere = currentSphere;
-		            req.session.totalUpdates = totalUpdates;
-		            req.session.newMember = true;
+              Session.storeData(req, sessionData);
 
 					    // flag user as logged in 
 		        	req.session.isLogged = true;
@@ -200,70 +148,56 @@ exports.login = function(req, res){
 	password = req.body.password,
   isMobile = req.body.mobile;
 
+  // pull the user and belonging spheres 
+  User.findOne({email: email}).populate('spheres.object contacts').exec(function(err, user){
+    if(!user || err){ 
+      console.log("Invalid Email"); 
+      res.json(400, {message: "The entered email doesn't exist", type: "email"});
+    }else{
+      //authorize 
+      user.comparePassword(password, function(err, isMatch){
+        if(!isMatch || err){ 
+          console.log("Incorrect Login Credentials");
+          res.json(400, {message: "The email or password you entered is incorrect"});
+        }else{
+          // track target sphereID depending on login situation and join date to get all relevant posts
+          var sphereID,
+              joined;
 
+          // create hash for session tracking
+          sessionData = Session.createSessionData();
+          sessionData.username = user.name;
 
-  	// pull the user and belonging spheres 
-    User.findOne({email: email}).populate('spheres.object contacts').exec(function(err, user){
-      if(!user || err){ 
-        console.log("Invalid Email"); 
-        res.json(400, {message: "The entered email doesn't exist", type: "email"});
-      }
+          // gather data about all of the current user's spheres 
+          var sphereData = user.sphereData(ENV);
+          sessionData.sphereMap = sphereData["sphereMap"],
+          sessionData.sphereNames = sphereData["sphereNames"],
+          sessionData.totalUpdates = sphereData["totalUpdates"];
+          
 
-      else{
-      	//authorize 
-        user.comparePassword(password, function(err, isMatch){
-          if(!isMatch || err){ 
-             console.log("Incorrect Login Credentials");
-             res.json(400, {message: "The email or password you entered is incorrect"});
-          }
-
-          else{
-
-          	// data about current user and their current sphere
-          	var username = user.name,
-          		  nicknames,
-          		  nickname,
-          		  currentSphere,
-          		  joined,
-          		  sphereID,
-                contacts;
-
-
-            var posts = {},
-                feed = [],
-                announcements = {};
-
-          	// if the user is being invited to a sphere just track the nickname and sphere id for now
-            if(req.session.invite == true){
-              	nickname = user.name;
-            		sphereID = req.session.inviteID;
-            		joined = moment(); // track the time the user joined the sphere as now 
-          	} else{	// otherwise we already have the target sphere so track its data 
-                console.log(user);
-            	 	var targetSphere = user.spheres[user.currentSphere];
-                targetSphere.updates = 0; // served sphere doesn't need update notifications
-        			 	nicknames = targetSphere.object.nicknames;
-                nickname = targetSphere.nickname;
-                currentSphere = targetSphere.object.name;
-      				  sphereID = targetSphere.object._id;
-      				  joined = targetSphere.joined;
-    	  	  }
-            
-            // data about all of the current user's spheres 
-      			var sphereData = user.sphereData(ENV);
-
-      			var	sphereMap = sphereData["sphereMap"],
-      				  sphereNames = sphereData["sphereNames"],
-      				  totalUpdates = sphereData["totalUpdates"];
-  			 	
-
-            Sphere.findOne({_id: sphereID}).populate('posts', null, {date: {$gte: joined }}).exec(function(err, sphere){ 
-            	console.log(sphere);
-            	if(err|!sphere){
-            		console.log("unable to populate messages for sphere");
-            	} else {
-            		 
-            		 // if the user has been invited to a sphere, make sure its open and plop them in with a joined message 
+          // if the user is being invited to a sphere just track the nickname and sphere id for now
+          if(req.session.invite == true){
+              nickname = user.name;
+            	sphereID = req.session.inviteID;
+            	joined = moment(); // track the time the user joined the sphere as now 
+          }else{	
+              console.log(user);
+              // otherwise we already have the target sphere so track its data 
+              targetSphere = user.targetSphere();
+              targetSphere.updates = 0; // served sphere doesn't need update notifications
+        			sessionData.nicknames = targetSphere.object.nicknames;
+              sessionData.nickname = targetSphere.nickname;
+              sessionData.currentSphere = targetSphere.object.name;
+      				sphereID = targetSphere.object._id;
+      				joined = targetSphere.joined;
+    	  	}
+          
+          Sphere.findOne({_id: sphereID}).populate('posts', null, {date: {$gte: joined }}).exec(function(err, sphere){ 
+            console.log(sphere);
+            if(err|!sphere){
+            	console.log("unable to populate messages for sphere");
+            }else{
+            	// if the user has been invited to a sphere, make sure its open and plop them in with a joined message 
         		 	if(req.session.invite == true){
         		 		if(sphere.members.length < 6){
                     if(!user.isMember(sphere)){  
@@ -272,12 +206,12 @@ exports.login = function(req, res){
           		 			user.spheres.push({object: sphere, nickname: user.name});
 
           		 			// create a sphere map key/value for the invited sphere and add the name to the list of user's spheres 
-          		 			currentSphere = sphere.name;
-          		 			nicknames = sphere.nicknames;
-          		 			sphereMap[currentSphere] = {id: sphere._id, nickname: nickname, link: sphere.link(ENV) , updates: 0}
-          		 			sphereNames.push(currentSphere); 
+          		 			sessionData.currentSphere = sphere.name;
+          		 			sessionData.nicknames = sphere.nicknames;
+          		 			sessionData.sphereMap[sessionData.currentSphere] = {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0}
+          		 			sessionData.sphereNames.push(sessionData.currentSphere); 
 
-          		 			announcements["joined"] = user.name + " joined the sphere";
+          		 			sessionData.announcements["joined"] = user.name + " joined the sphere";
           		 			req.session.invite = false; 
           		 			req.session.newMember = true;
           		 			sphere.save(function(err){
@@ -287,75 +221,34 @@ exports.login = function(req, res){
                     console.log("User already exists in sphere");
                     res.redirect('/bookmark');
                   }
-                } else {
+                }else{
                   console.log("Sphere is full");
                 }
         		 	 // otherwise just get all the recorded messages since the user has joined the sphere 
-        		 	} else {
-        		 		 console.log(sphere.posts[sphere.posts.length-1]);
-	                    
-                console.log(user);
-	             for(var i = sphere.posts.length - 1; i > -1 ; i--){
+        		 	}else{
+	              for(var i = sphere.posts.length - 1; i > -1 ; i--){
                     var currentPost = sphere.posts[i];
                     var post = currentPost.getPostData(user, isMobile);
                     var key = currentPost.id;
-                    feed.push(key);
-                    posts[key] = post;
-              }   
-
-                console.log("Here are the posts: " + JSON.stringify(posts));
-
+                    sessionData.feed.push(key);
+                    sessionData.posts[key] = post;
+                }   
 	           }
 
              // get all the user contacts 
-             contacts = user.getContacts();
-             console.log("Here are the contacts: " + contacts);
+             sessionData.contacts = user.getContacts();
 
+            // if the user is logging in through a mobile platform respond with JSON session data 
             if(isMobile == "true"){
-              res.json(200, { data: {
-                nickname:  nickname,
-                username: username,
-                nicknames: nicknames,
-                feed: feed, 
-                posts: posts,
-                announcements: announcements,
-                sphereMap: sphereMap,
-                sphereNames: sphereNames,
-                currentSphere: currentSphere,
-                totalUpdates: totalUpdates,
-                contacts: contacts
-                }
-              }); 
+                Session.respondJSON(res, sessionData);
             }else{
-              res.render("includes/feed", { data: {
-                nickname:  nickname,
-                username: username,
-                nicknames: nicknames,
-                feed: feed, 
-                posts: posts,
-                announcements: announcements,
-                sphereMap: sphereMap,
-                sphereNames: sphereNames,
-                currentSphere: currentSphere,
-                totalUpdates: totalUpdates,
-                contacts: contacts
-                }
-              }); 
+              Session.render(res, "includes/feed", sessionData);
             } 
 
 
 	       // store session data 
-	       req.session.sphereMap = sphereMap;
-	       req.session.sphereNames = sphereNames;
-	       req.session.username = username;
-	       req.session.nickname = nickname;
-	       req.session.nicknames = nicknames;
-         req.session.feed = feed;
-	       req.session.posts = posts;
-         req.session.announcements = announcements;
-	       req.session.currentSphere = currentSphere;
-	       req.session.totalUpdates = totalUpdates;
-         req.session.contacts = contacts; 
+         Session.storeData(req, sessionData);
+
 
 	 			 // flag user as logged in 
 	       req.session.isLogged = true;
@@ -407,69 +300,36 @@ exports.invite = function(req,res){
               if(sphere.members.length < 6){
                 if(!user.isMember(sphere)){       // if the user isn't already  member plop them in 
 
-                 var sesh = req.session;
-
-                 var username = sesh.username,
-                     nicknames = [],
-                     nickname =  username,
-                     currentSphere = "",
-                     sphereMap = sesh.sphereMap,
-                     sphereNames = sesh.sphereNames, 
-                     totalUpdates = sesh.totalUpdates,
-                     posts = {},
-                     feed = [],
-                     announcements = {};
-
-
+                 var sessionData = Session.createSessionData();
+                 sessionData.username = user.name 
+                 sessionData.contacts = user.getContacts();
+                
                   // update both tracking lists and the users current sphere index 
                   user.spheres.push({object: sphere._id, nickname: user.name}); 
                   sphere.members.push({id: user.id , name: user.name});
                   user.currentSphere = sphere.members.length - 1;
 
                   // update the client side session data to contain info on this sphere 
-                  currentSphere = sphere.name;
-                  nicknames = sphere.nicknames;
-                  sphereNames.push(currentSphere);
-                  sphereMap[currentSphere] = {id: sphere._id, nickname: nickname, link: sphere.link(ENV), updates: 0}; 
-                  console.log(sphereMap);
-                  console.log(sphereMap[currentSphere]);
+                  sessionData.currentSphere = sphere.name;
+                  sessionData.nicknames = sphere.nicknames;
+                  sessionData.sphereNames.push(sessionData.currentSphere);
+                  sessionData.sphereMap[sessionData.currentSphere] = {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV), updates: 0}; 
+               
                   // show the joined message 
-                  announcements["joined"] = username + " joined the sphere";
+                  sessionData.announcements["joined"] = user.name + " joined the sphere";
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
                   user.addSphereContacts(sphere.ids); // add the sphere members to user's contacts 
 
                   user.save(function(err){console.log(err);});
-                  sphere.save(function(err){console.log(err);});
+                  sphere.save(function(err){console.log(err);})
 
-
-                  res.render("template_feed", { data: {
-                                    nickname:  nickname,
-                                    username:  username,
-                                    nicknames: nicknames,
-                                    announcements: announcements,
-                                    feed: feed, 
-                                    posts:  posts,
-                                    sphereMap: sphereMap,
-                                    sphereNames: sphereNames,
-                                    currentSphere: currentSphere,
-                                    totalUpdates: totalUpdates
-                                    }
-
-                                  });       
-          
+                  //render feed 
+                  Session.render(res, "template_feed", sessionData);
                   // store session data 
-                  req.session.sphereMap = sphereMap;
-                  req.session.sphereNames = sphereNames;
-                  req.session.username = username;
-                  req.session.nickname = nickname;
-                  req.session.nicknames = nicknames;
-                  req.session.announcements = announcements;
-                  req.session.currentSphere = currentSphere;
-                  req.session.totalUpdates = totalUpdates;
-
-
+                  Session.storeData(req, sessionData);
+       
                 }else{
                   exports.bookmark(req,res);
                 }

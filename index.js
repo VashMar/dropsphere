@@ -570,7 +570,7 @@ sessionSockets.on('connection', function (err, socket, session){
     session.save();
   });
 
-   socket.on('createSphere', function(data, sphereMap){
+   socket.on('createSphere', function(sphereName){
     console.log("Started sphere creation");
       // find the user and make sure they're under the sphere limit 
       User.findOne({sessions: {$in : [sessionID]}}).populate('spheres.object').exec(function(err, user){
@@ -580,7 +580,7 @@ sessionSockets.on('connection', function (err, socket, session){
           if(user){
             if(user.spheres.length < 6){
               // create the sphere 
-              var sphere = new Sphere({name: data.sphereName, owner: user._id });
+              var sphere = new Sphere({name: sphereName, owner: user._id });
               // add user as sphere member
               sphere.members.push({id: user.id , name: user.name});
               sphere.save(function(err, sphere){

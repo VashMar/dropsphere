@@ -324,7 +324,7 @@ function Chat(){
 
         this.CreateSphere = function CreateSphere(sphereName){
             // create a new sphere and return the updated sphereMap with the sphere's data  
-            socket.emit('createSphere', {sphereName: sphereName});
+            socket.emit('createSphere', sphereName);
         };
 
         this.ViewedPost = function ViewedPost(postID){
