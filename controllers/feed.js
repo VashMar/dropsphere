@@ -237,10 +237,11 @@ exports.login = function(req, res){
 
              // get all the user contacts 
              sessionData.contacts = user.getContacts();
+             console.log("The users contacts: " + JSON.stringify(sessionData.contacts));
 
             // if the user is logging in through a mobile platform respond with JSON session data 
             if(isMobile == "true"){
-                Session.respondJSON(res, sessionData);
+              Session.respondJSON(res, sessionData);
             }else{
               Session.render(res, "includes/feed", sessionData);
             } 
@@ -302,8 +303,7 @@ exports.invite = function(req,res){
 
                  var sessionData = Session.createSessionData();
                  sessionData.username = user.name 
-                 sessionData.contacts = user.getContacts();
-                
+
                   // update both tracking lists and the users current sphere index 
                   user.spheres.push({object: sphere._id, nickname: user.name}); 
                   sphere.members.push({id: user.id , name: user.name});
@@ -320,16 +320,23 @@ exports.invite = function(req,res){
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
-                  user.addSphereContacts(sphere.ids); // add the sphere members to user's contacts 
+                  // add the sphere members to invited user's contacts 
+                  user.addSphereContacts(sphere.memberIds, function(members){
+                    sessionData.contacts = user.getContacts();
+                    user.save(function(err){
+                      if(err){
+                        console.log(err);
+                      }else{
+                        //render feed 
+                        Session.render(res, "template_feed", sessionData);
+                        // store session data 
+                        Session.storeData(req, sessionData);
+                      }
+                    });
+                    sphere.save(function(err){console.log(err);})
+                    User.updateMemberContacts(members, user);
+                  }); 
 
-                  user.save(function(err){console.log(err);});
-                  sphere.save(function(err){console.log(err);})
-
-                  //render feed 
-                  Session.render(res, "template_feed", sessionData);
-                  // store session data 
-                  Session.storeData(req, sessionData);
-       
                 }else{
                   exports.bookmark(req,res);
                 }

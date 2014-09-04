@@ -29,7 +29,7 @@ sphereSchema.virtual('nicknames').get(function(){
 
 
 
-sphereSchema.virtual('ids').get(function(){
+sphereSchema.virtual('memberIds').get(function(){
   var ids = [];
   for(var i = 0; i< this.members.length ; i++){
       var memberId = this.members[i].id;

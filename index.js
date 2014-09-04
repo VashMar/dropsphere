@@ -435,7 +435,7 @@ sessionSockets.on('connection', function (err, socket, session){
        }
     }); // end post 
     
-    socket.on('send', function(data){
+    socket.on('sendMessage', function(data){
       data.msg = LinkParser.tagWrap(data.msg, "msgLink");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere

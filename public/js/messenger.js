@@ -257,7 +257,7 @@ function Chat(){
         };
 
         this.Send = function Send(msg){
-            socket.emit("send", {postID: currentPost, sphere: sphereID, msg: msg, sender: nickname});  
+            socket.emit("sendMessage", {postID: currentPost, sphere: sphereID, msg: msg, sender: nickname});  
         };
 
         this.Preview = function Preview(link){

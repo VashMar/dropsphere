@@ -116,8 +116,12 @@ userSchema.methods.comparePassword = function(sentPassword, callback) {
 };
 
 
+userSchema.methods.addContact = function(contact){
+
+};
+
 // auto adds new contacts on sphere join 
-userSchema.methods.addSphereContacts = function(contactIds){
+userSchema.methods.addSphereContacts = function(contactIds, next){
    var contacts =  this.contacts;
    var ObjectID = mongoose.Types.ObjectId;
    console.log(contacts);
@@ -128,6 +132,8 @@ userSchema.methods.addSphereContacts = function(contactIds){
             contacts.push(contact);
         }
     }
+
+    next(contactIds);
 };
 
 // retrieve the contact names and ids
@@ -234,6 +240,26 @@ userSchema.statics.load = function(sessionID, next){
     });
 }
 
+userSchema.statics.updateMemberContacts = function(members, user){
+    console.log("Updating Contact List of other sphere members..");
+    this.find({_id: {$in: members}}, function(err, docs){
+        console.log(docs);
+        for(var i = 0; i < docs.length; i++){
+            var member = docs[i];
+            var contactList = member.contacts;
+            if(contactList.indexOf(user._id) < 0 && member != user){
+                contactList.push(user);
+                member.save(function(err){
+                    if(err){
+                        console.log(err);
+                    }else{
+                        console.log("Sphere member contact list updated");
+                    }
+                });
+            }
+        }
+    });
+}
 
 User = mongoose.model('User', userSchema);
 module.exports = User;
