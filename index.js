@@ -228,9 +228,10 @@ sessionSockets.on('connection', function (err, socket, session){
   }
 
 
-
+ console.log("New to sphere? : " + session.newMember);
   // if the user has newly joined a sphere update the member list for everyone currently on
   if(session.newMember == true){  
+      console.log("New sphere member..");
       var sphere = sphereMap[sphereNames[sphereNames.length - 1]].id; // the new sphere will be the last one on the list
       sphere = String(sphere);
       io.sockets.in(sphere).emit('users', session.nicknames);
@@ -608,9 +609,8 @@ sessionSockets.on('connection', function (err, socket, session){
                   session.currentSphere = sphere.name;
                   session.messages = {};
                   session.nickname = user.name;
-                  session.feed = [];
 
-                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereNames: session.sphereNames, currentSphere: session.currentSphere});
+                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereNames: session.sphereNames, currentSphere: session.currentSphere });
                 
                   console.log(session);
 
