@@ -137,17 +137,28 @@ input {
 #settings:hover {
   background: url("/img/settings_hover.png") no-repeat; }
 
-#share {
+#contacts {
   float: left;
   display: block;
   cursor: pointer;
   margin-top: 1px;
-  background: url("/img/share.png") no-repeat;
-  width: 30px;
-  height: 30px; }
+  background: url("/img/contacts.png") no-repeat;
+  width: 32px;
+  height: 32px; }
 
-#share:hover {
-  background: url("/img/share_hover.png") no-repeat; }
+#contacts:hover {
+  background: url("/img/contacts_hover.png") no-repeat; }
+
+#share_small {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  background: url("/img/share_small.png") no-repeat;
+  width: 16px;
+  height: 16px; }
+
+#share_small:hover {
+  background: url("/img/share_small_hover.png") no-repeat; }
 
 #drop, #post {
   width: 50%; }
