@@ -608,8 +608,9 @@ sessionSockets.on('connection', function (err, socket, session){
                   session.currentSphere = sphere.name;
                   session.messages = {};
                   session.nickname = user.name;
+                  session.feed = [];
 
-                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereNames: session.sphereNames, currentSphere: session.currentSphere });
+                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereNames: session.sphereNames, currentSphere: session.currentSphere});
                 
                   console.log(session);
 

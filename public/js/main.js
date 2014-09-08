@@ -7,6 +7,8 @@ $(document).ready(function(){
     	start: 'top'
     });
 
+    $("#feed").css("height", "91.4%");
+
      $("#feed").tooltip({
      	html: true,
      	selector: "[data-toggle='showViewers']",
