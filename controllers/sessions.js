@@ -84,5 +84,4 @@ exports.storeData = function(req, sessionData){
 	req.session.currentSphere = sessionData.currentSphere;
 	req.session.totalUpdates = sessionData.totalUpdates;
 	req.session.contacts = sessionData.contacts; 
-	req.session.newMember = sessionData.true;
 }

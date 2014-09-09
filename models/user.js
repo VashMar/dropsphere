@@ -247,7 +247,7 @@ userSchema.statics.updateMemberContacts = function(members, user){
         for(var i = 0; i < docs.length; i++){
             var member = docs[i];
             var contactList = member.contacts;
-            if(contactList.indexOf(user._id) < 0 && member != user){
+            if(contactList.indexOf(user._id) < 0 && member != user.id){
                 contactList.push(user);
                 member.save(function(err){
                     if(err){

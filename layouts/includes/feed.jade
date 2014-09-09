@@ -15,15 +15,13 @@
                 ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
                     li(role="presentation" class="dropdown-header") Profile Settings
                     li(role="presentation")
-                        a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#contactList" href="#") Contact List 
-                    li(role="presentation")
                         a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") Set Nickname 
                     li(role="presentation" class="divider")
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" href="#" onclick="logout();") Logout 
-                a#contacts(data-toggle="modal" data-target="#shareModal")
+                a#contacts(data-toggle="modal" data-target="#contactList")
         img#chatLogo(src="/img/dropsphere_sm.png")
         .dropdown
             a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
