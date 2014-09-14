@@ -11,7 +11,7 @@ var sphereSchema = mongoose.Schema({
 			  name:  {type: String} 			// username
 			 }],								
 	posts: [{type: ObjectId, ref: 'Post'}],
-	owner: {type: ObjectId, ref: 'User'},
+	owner: {type: ObjectId, ref: 'User'}
 });
 
 sphereSchema.virtual('nicknames').get(function(){
@@ -39,6 +39,16 @@ sphereSchema.virtual('memberIds').get(function(){
 });
 
 
+sphereSchema.methods.isMain = function(sphere){
+  console.log("Checking if mainSphere...");
+  if(this.id == sphere){
+    console.log("mainsSphere matched..");
+    return true;
+  }
+
+  return false; 
+}
+
 
 
 sphereSchema.methods.link = function(ENV){
@@ -53,8 +63,8 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
 	this.findOne({_id: sphereID}, function(err, sphere){
 		 if(sphere){
           console.log("sphere found")
-        
-          post.fillViewers(sphere.members, function(filledPost){
+          post.addLoc(sphere.id, sphere.name);
+          post.fillViewers(sphere.members, sphere.id, sphere.name, function(filledPost){
             filledPost.save(function(err, msg){
               if(err){
                 console.log(err);

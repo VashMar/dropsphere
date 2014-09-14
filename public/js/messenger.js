@@ -52,6 +52,8 @@ function Chat(){
                 for(var i = 0; i < users.length; i++){
                     $("#users").append("<p>" + users[i] + "</p>");
                 }
+
+                $("#users").prepend("<a id='share_small' data-toggle='modal' data-target='#shareModal'></a>");
             });
 
             socket.on('sphereMap', function(data){
@@ -247,12 +249,12 @@ function Chat(){
                                 image: postImage,  
                                 sender: nickname};
 
-                socket.emit("urlPost", postData);
+                socket.emit("post", postData);
                 previewURL = null;
             }else{
                 createdPost = "<a href='#' class='textPost'>" + post + "</a>";
                 createPost(null, createdPost, memberNum, nickname, time, true, true);
-                socket.emit("textPost", {sphere: sphereID, title: post, sender: nickname});
+                socket.emit("post", {sphere: sphereID, title: post, sender: nickname});
             }
         };
 

@@ -55,7 +55,7 @@ exports.signup = function(req, res){
 
          console.log(req.session.invite);
 
-         var newSphere = new Sphere();
+         var newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id });
       	 // if the new user is being invited to an open sphere, assign them to it 
          if(req.session.invite == true){
          	req.session.invite = false; // turn the flag off 
@@ -67,10 +67,9 @@ exports.signup = function(req, res){
 
           		else{
           			if(invitedSphere.members.length < 6){	// make sure sphere isn't full
-          				newSphere = invitedSphere;
           				sessionData.announcements["joined"] = user.name + " joined the sphere";
           				console.log("Adding user to sphere: " + invitedSphere.id);
-          				add_and_render(newSphere);
+          				add_and_render(newSphere, invitedSphere);
           			}
           		}	
           	});
@@ -79,14 +78,13 @@ exports.signup = function(req, res){
 
          }else {	// create the user a sphere and plop them inside 
          	  console.log("Creating sphere for new user..");
-         	  newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id });
          	  // create a welcome message 
     			  sessionData.announcements["welcome"] = "Welcome to your sphere!";
     			  add_and_render(newSphere);
          }
 
 
-         function add_and_render(newSphere){
+         function add_and_render(newSphere, invitedSphere){
          	newSphere.members.push({id: user.id , name: user.name});
 
          	newSphere.save(function(err, sphere){
@@ -94,37 +92,52 @@ exports.signup = function(req, res){
          		if(err || !sphere){ console.log("Error saving sphere"); }
 
          		else{
-         			console.log("The saved sphere: " + sphere);
+         			console.log("The saved main sphere: " + sphere);
+              user.mainSphere = sphere; // set the newly created sphere as the user's mainsphere 
          			user.spheres.push({object: newSphere, nickname: user.name }); // add the sphere to user's sphere list 
+              if(invitedSphere){
+                invitedSphere.members.push({id: user.id, name: user.name});
+                invitedSphere.save(function(err, sphere){
+                  console.log("The saved invited sphere: " + sphere);
+                  user.spheres.push({object:sphere, nickname: user.name });
+                  updateSessionData(user,sphere);
+                });
+              }else{
+                updateSessionData(user,sphere);
+              }
 
-             	// build chat data for client side 
-    					sessionData.sphereNames = [sphere.name],
-    					sessionData.nicknames = sphere.nicknames,
-    					sessionData.nickname = user.name,
-    					sessionData.currentSphere = sphere.name,
-		
+              user.save(function(err,user){
+                if(err){console.log(err);}
 
-			      	// build a map of sphere data for the client 
-			      	sessionData.sphereMap[sphere.name] =  {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0}; 
+                else{
+                  console.log(user);
+                }
+              });
 
-			      	console.log(sessionData.sphereMap);
+              function updateSessionData(user, sphere){
+               	// build chat data for client side 
+      					sessionData.sphereNames = [sphere.name],
+      					sessionData.nicknames = sphere.nicknames,
+      					sessionData.nickname = user.name,
+      					sessionData.currentSphere = sphere.name,
+  		
 
-              Session.render(res, "includes/feed", sessionData);
+  			      	// build a map of sphere data for the client 
+  			      	sessionData.sphereMap[sphere.name] =  {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0, isMain: sphere.isMain(user.mainSphere)}; 
 
-              Session.storeData(req, sessionData);
+  			      	console.log("Session's sphereMap: "  + sessionData.sphereMap);
 
-					    // flag user as logged in 
-		        	req.session.isLogged = true;
+                Session.render(res, "includes/feed", sessionData);
 
-		        	user.save(function(err,user){
-		        		if(err){console.log(err);}
+                Session.storeData(req, sessionData);
 
-		        		else{
-		        			console.log(user);
-		        		}
-		        	});
+  					    // flag user as logged in 
+  		        	req.session.isLogged = true;
 
-		         }
+              }
+
+
+		        }
 
 
 	      
@@ -208,7 +221,7 @@ exports.login = function(req, res){
           		 			// create a sphere map key/value for the invited sphere and add the name to the list of user's spheres 
           		 			sessionData.currentSphere = sphere.name;
           		 			sessionData.nicknames = sphere.nicknames;
-          		 			sessionData.sphereMap[sessionData.currentSphere] = {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0}
+          		 			sessionData.sphereMap[sessionData.currentSphere] = {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0, isMain: sphere.isMain(user.mainSphere)}
           		 			sessionData.sphereNames.push(sessionData.currentSphere); 
 
           		 			sessionData.announcements["joined"] = user.name + " joined the sphere";
@@ -228,7 +241,7 @@ exports.login = function(req, res){
         		 	}else{
 	              for(var i = sphere.posts.length - 1; i > -1 ; i--){
                     var currentPost = sphere.posts[i];
-                    var post = currentPost.getPostData(user, isMobile);
+                    var post = currentPost.getPostData(user, sphere.id, isMobile);
                     var key = currentPost.id;
                     sessionData.feed.push(key);
                     sessionData.posts[key] = post;
@@ -313,7 +326,7 @@ exports.invite = function(req,res){
                   sessionData.currentSphere = sphere.name;
                   sessionData.nicknames = sphere.nicknames;
                   sessionData.sphereNames.push(sessionData.currentSphere);
-                  sessionData.sphereMap[sessionData.currentSphere] = {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV), updates: 0}; 
+                  sessionData.sphereMap[sessionData.currentSphere] = {id: sphere._id, nickname: sessionData.nickname, link: sphere.link(ENV), updates: 0, isMain: sphere.isMain(user.mainSphere)}; 
                
                   // show the joined message 
                   sessionData.announcements["joined"] = user.name + " joined the sphere";
@@ -323,6 +336,8 @@ exports.invite = function(req,res){
                   // add the sphere members to invited user's contacts 
                   user.addSphereContacts(sphere.memberIds, function(members){
                     sessionData.contacts = user.getContacts();
+                    console.log("The user's contacts: " + JSON.stringify(sessionData.contacts));
+                    console.log("Members: " + members);
                     user.save(function(err){
                       if(err){
                         console.log(err);

@@ -48,8 +48,9 @@
                 li(role="presentation")
                     a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
         audio#notifySound(src="/sounds/waterDrop.ogg" preload="auto")
-        #users  
-            a#share_small(data-toggle="modal" data-target="#shareModal")
+        #users 
+            if !sphereMap[currentSphere].isMain  
+                a#share_small(data-toggle="modal" data-target="#shareModal")
             each nickname in nicknames
                 p=nickname
         #content(class="form-control")

@@ -45,6 +45,7 @@ var userSchema = new Schema({
         updates: {type: Number, default: 0}        // notification counter for each sphere 
         }],
     currentSphere: {type: Number, default: 0}, // index of the user's current sphere 
+    mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 
     contacts: [{type: ObjectId, ref: 'User'}]
 });
 
@@ -136,12 +137,12 @@ userSchema.methods.addSphereContacts = function(contactIds, next){
     next(contactIds);
 };
 
-// retrieve the contact names and ids
+// retrieve the contact names and their mainsphere
 userSchema.methods.getContacts = function(){
     var contacts = this.contacts;
     var contactInfo = {};
     for(var i = 0; i < contacts.length; i++){
-        contactInfo[contacts[i].id] = contacts[i].name; 
+        contactInfo[contacts[i].mainSphere] = contacts[i].name; 
     }
 
     return contactInfo; 
@@ -225,29 +226,31 @@ userSchema.methods.joinedCurrent = function(){
 userSchema.methods.endSession = function(sessionID){
   console.log("Exiting Session " + sessionID + " in session list: " + this.sessions);
   this.sessions.splice(this.sessions.indexOf(sessionID), 1);
-  console.log("Remaining sessions " + this.sessions);
+  console.log("Remaining sessions " + this.sessions); 
 }
 
 userSchema.statics.load = function(sessionID, next){
     console.log("Loading Current User.. " + sessionID);
-    this.findOne({sessions: {$in : [sessionID]}}, function(err, user){
+    this.findOne({sessions: {$in : [sessionID]}}).populate('mainSphere').exec(function(err, user, mainSphere){
         if(err || !user){
             next(err);
         } else{
             console.log("User found..");
-            next(false, user);
+            next(false, user, user.mainSphere);
         }
     });
 }
 
+// update the contact list of sphere members when a new user joins the sphere
 userSchema.statics.updateMemberContacts = function(members, user){
     console.log("Updating Contact List of other sphere members..");
     this.find({_id: {$in: members}}, function(err, docs){
         console.log(docs);
         for(var i = 0; i < docs.length; i++){
             var member = docs[i];
-            var contactList = member.contacts;
-            if(contactList.indexOf(user._id) < 0 && member != user.id){
+            var contactList = member.contacts; // current contactList of a given sphere member 
+            // add the user to the member's contact list if he/she doesn't already exist in it and the user is not the member
+            if(contactList.indexOf(user._id) < 0 && member.id != user.id){ 
                 contactList.push(user);
                 member.save(function(err){
                     if(err){
