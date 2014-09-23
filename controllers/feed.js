@@ -32,7 +32,7 @@ exports.signup = function(req, res){
     var name = req.body.name,
         password = req.body.password,
         email = req.body.email,
-        session = req.sessionID;	
+        session = req.sessionID,
         isMobile = req.body.mobile;
 
     //try to create
