@@ -11,7 +11,8 @@ var sphereSchema = mongoose.Schema({
 			  name:  {type: String} 			// username
 			 }],								
 	posts: [{type: ObjectId, ref: 'Post'}],
-	owner: {type: ObjectId, ref: 'User'}
+	owner: {type: ObjectId, ref: 'User'},
+  type: {type: String, default: "Group"}
 });
 
 sphereSchema.virtual('nicknames').get(function(){
@@ -39,6 +40,34 @@ sphereSchema.virtual('memberIds').get(function(){
 });
 
 
+sphereSchema.methods.getName = function(userID){
+  if(this.type === "Group" || this.type === "Main"){
+    return this.name;
+  }else{
+    var members = this.members;
+    for(var i = 0; i < members.length; i++){
+      if(members[i].id != userID){
+          console.log("Direct Message Member Name Found");
+          return members[i].name
+      }
+    }
+  } 
+}
+
+sphereSchema.methods.getOtherMembers = function(userID){
+  var members = this.members;
+  var contacts = {};
+  for(var i =0; i < members.length; i++){
+    var member = members[i];
+     if(member.id != userID){
+        contacts[member.id] = member.name;
+     }
+  }
+
+  return contacts;
+}
+
+// checks if the sphere is the users mainSphere 
 sphereSchema.methods.isMain = function(sphere){
   console.log("Checking if mainSphere...");
   if(this.id == sphere){
@@ -49,14 +78,29 @@ sphereSchema.methods.isMain = function(sphere){
   return false; 
 }
 
-
-
+// returns link to sphere for invites, the base url differs locally vs on the server
 sphereSchema.methods.link = function(ENV){
 	if(ENV == "production"){
 	  return "http://dropsphere.herokuapp.com/invite/" + this.id;	
 	}
 	return "http://localhost:3500/invite/" + this.id;
 };
+
+
+
+// Finds a {type: "Personal"} sphere between two users, returns false if a personal sphere doesn't exist
+sphereSchema.statics.getPersonal = function(sender, reciever, next){
+  this.findOne({$and: [{'members.id': sender}, {'members.id': reciever}, {'type': "Personal"}]}).populate('posts').exec(function(err,sphere){
+      if(sphere){
+        next(sphere);
+      }else{
+        next(false); 
+      }
+  });
+}
+
+
+
 
 // saves post for all users in a sphere 
 sphereSchema.statics.savePost = function(User, sphereID, post, next){

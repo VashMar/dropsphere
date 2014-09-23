@@ -3,6 +3,7 @@
 exports.render = function(res, layout, hash){
 	console.log("Session rendering...");
 	if(hash){
+        console.log("rendering hash:" + hash);
 		res.render(layout, { data: {
                     nickname:  hash.nickname,
                     username: hash.username,
@@ -11,7 +12,7 @@ exports.render = function(res, layout, hash){
                     posts: hash.posts,
                     announcements: hash.announcements, 
                     sphereMap: hash.sphereMap,
-                    sphereNames: hash.sphereNames,
+                    sphereIDs: hash.sphereIDs,
                     currentSphere: hash.currentSphere,
                     totalUpdates: hash.totalUpdates,
                     contacts: hash.contacts
@@ -35,7 +36,7 @@ exports.respondJSON = function(res, hash){
                     posts: hash.posts,
                     announcements: hash.announcements, 
                     sphereMap: hash.sphereMap,
-                    sphereNames: hash.sphereNames,
+                    sphereIDs: hash.sphereIDs,
                     currentSphere: hash.currentSphere,
                     totalUpdates: hash.totalUpdates,
                     contacts: hash.contacts
@@ -52,11 +53,12 @@ exports.createSessionData = function(){
 
 	sessionData.username = "",
 	sessionData.nickname = "",
+    sessionData.userID = "",
 	sessionData.nicknames = [],
 	sessionData.currentSphere = "",
 	sessionData.sphereData = {},
     sessionData.sphereMap = {},
-    sessionData.sphereNames = [], 
+    sessionData.sphereIDs = [], 
     sessionData.totalUpdates = 0,
     sessionData.posts = {},
     sessionData.feed = [],
@@ -74,7 +76,7 @@ exports.storeData = function(req, sessionData){
 	console.log("Storing Session Data..");
     // store session data 
 	req.session.sphereMap = sessionData.sphereMap;
-	req.session.sphereNames = sessionData.sphereNames;
+	req.session.sphereIDs = sessionData.sphereIDs;
 	req.session.username = sessionData.username;
 	req.session.nickname = sessionData.nickname;
 	req.session.nicknames = sessionData.nicknames;
@@ -84,4 +86,5 @@ exports.storeData = function(req, sessionData){
 	req.session.currentSphere = sessionData.currentSphere;
 	req.session.totalUpdates = sessionData.totalUpdates;
 	req.session.contacts = sessionData.contacts; 
+    req.session.userID = sessionData.userID;
 }

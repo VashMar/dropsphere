@@ -105,6 +105,8 @@ userSchema.pre('save', function(next) {
 
 
 userSchema.methods.targetSphere = function(){
+    console.log(this.spheres);
+
    return this.spheres[this.currentSphere];
 };
 
@@ -138,14 +140,16 @@ userSchema.methods.addSphereContacts = function(contactIds, next){
 };
 
 // retrieve the contact names and their mainsphere
-userSchema.methods.getContacts = function(){
+userSchema.methods.getContacts = function(next){
+
     var contacts = this.contacts;
     var contactInfo = {};
     for(var i = 0; i < contacts.length; i++){
-        contactInfo[contacts[i].mainSphere] = contacts[i].name; 
+        console.log("adding contact for retrieval");
+        contactInfo[contacts[i].id] = contacts[i].name; 
     }
 
-    return contactInfo; 
+    next(contactInfo); 
 }
 
 // checks if user is a member of a given sphere 
@@ -166,41 +170,42 @@ userSchema.methods.isMember = function(sphere){
 userSchema.methods.sphereData = function(ENV){
 
     var sphereData = {},
-        sphereMap = {};
-        sphereNames = [];
-        totalUpdates = 0;
-        index = this.currentSphere;
+        sphereMap = {},
+        sphereIDs = [],
+        totalUpdates = 0,
+        index = this.currentSphere,
         link = "";
 
     for(var i = 0; i < this.spheres.length ; i++){
 
-        var sphere = this.spheres[i];             
-        var sphereName = this.spheres[i].object.name;
+        var sphere = this.spheres[i],             
+            sphereName = sphere.object.getName(this.id),
+            sphereID = sphere.object.id;
 
         // get the updates on all spheres       
         totalUpdates += sphere.updates;
 
-        // set invite link depending on environment (cannot call sphere.link on an objectid so code had to go in here)
+        // set invite link depending on environment 
         if(ENV == "production"){
-            link = "http://dropsphere.herokuapp.com/invite/" + sphere.object.id; 
+            link = "http://dropsphere.herokuapp.com/invite/" + sphereID; 
         }else{
-            link = "http://localhost:3500/invite/" + sphere.object.id;
+            link = "http://localhost:3500/invite/" + sphereID;
         }
        
 
-        // build the spheremap of the users spheres 
-         sphereMap[sphereName] = { id: sphere.object._id, 
-                                    nickname: sphere.nickname, 
-                                    link: link,
-                                    updates: sphere.updates
+        // add each sphere to the sphereMap for client side tracking 
+        sphereMap[sphereID] = {name: sphereName, 
+                                nickname: sphere.nickname, 
+                                link: link,
+                                updates: sphere.updates
                                 };
 
-        sphereNames.push(sphereName);
+        sphereIDs.push(sphereID);
 
     }
 
     sphereData["sphereMap"] = sphereMap;
-    sphereData["sphereNames"] = sphereNames;
+    sphereData["sphereIDs"] = sphereIDs;
     sphereData["totalUpdates"] = totalUpdates;
 
 
@@ -237,6 +242,18 @@ userSchema.statics.load = function(sessionID, next){
         } else{
             console.log("User found..");
             next(false, user, user.mainSphere);
+        }
+    });
+}
+
+
+userSchema.statics.reload = function(userID, next){
+    this.findOne({_id: userID}, function(err, user){
+        if(user){
+            console.log("current user reloaded");
+            next(user);
+        }else{
+            next(false);
         }
     });
 }

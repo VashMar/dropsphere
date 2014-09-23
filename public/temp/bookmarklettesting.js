@@ -102,7 +102,7 @@ javascript:(function(){
 
     function dropsphereXDM(){
           socketxdm = new easyXDM.Socket({
-            remote: 'http://localhost:3500/bookmark',
+            remote: 'http://localhost:3500/invite/',
             container:'dropsphere',
 
             onMessage: function(message, origin){

@@ -67,6 +67,25 @@ postSchema.methods.findLoc = function(sphereID){
 	return loc; 
 }
 
+// retrieves a location asynchronously 
+postSchema.methods.getLoc = function(sphereID, next){
+	var loc = this.findLoc(sphereID);
+	next(loc);
+}
+
+// adds a message to a a conversation involving this post at a certain sphere location
+postSchema.methods.addMessage = function(message, sphereID){
+	var loc = this.findLoc(sphereID);
+
+	loc.messages.push(message);
+
+	this.save(function(err, post){
+		if(post){
+			console.log("Message added to post");
+		}
+	});
+}
+
 postSchema.methods.creatorName = function(){
 	return this.creator.name; 
 }
@@ -134,22 +153,29 @@ postSchema.methods.viewedPost = function(userID, name, sphereID){
 }
 
 // marks a post's chat as seen by a specific user 
-postSchema.methods.chatSeen = function(userID){
-	var viewers = this.viewers;
+postSchema.methods.chatSeen = function(userID, sphereID){
+
+	var loc = this.findLoc(sphereID);
+	var viewers = loc.viewers;
+
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id == userID){
-			viewers[v].seenChat = true;
+			viewers[v].seenChat = true;	
+			console.log("Chat marked as seen")
 		}
 	}
 }
 
-postSchema.methods.updatedChat = function(senderID){
-	var viewers = this.viewers;
+postSchema.methods.updatedChat = function(senderID, sphereID){
+
+	var loc = this.findLoc(sphereID);
+	var viewers = loc.viewers;
+
 	console.log(senderID);
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id != senderID){
 			viewers[v].seenChat = false;	
-		};
+		}
 	}
 }
 
@@ -201,9 +227,9 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
 
 
 
-postSchema.statics.seenChat = function(postID, userID){
+postSchema.statics.seenChat = function(postID, userID, sphereID){
 
-	this.update({$and: [{_id: postID},{'viewers.id': userID}] }, {'$set': {'viewers.$.seenChat' : true}}, function(err, numAffected){
+	this.update({$and: [{_id: postID},{'locations.sphere': sphereID}, {'locations.viewers.id': userID}] }, {'$set': {'viewers.$.seenChat' : true}}, function(err, numAffected){
           if(err){console.log(err);}
 
           else{

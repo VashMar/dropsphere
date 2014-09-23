@@ -13,11 +13,11 @@ $(document).ready(function(){
 
     // get and display the new current sphere when the user chooses to switch
     $("#sphereList").on("click", "a.sphere", function(e){
-        var current = $(this).children('.sphereName').text().trim();
+        
+        var sphereID = $(this).attr('data');
 
-        if(currentSphere != current){    //doesn't switch if the user chooses the sphere they're already in
-            $("span#currentSphere").html(current);
-            chat.SwitchSphere(current);
+        if(currentSphere != sphereID){    //doesn't switch if the user chooses the sphere they're already in
+            chat.SwitchSphere(sphereID);
         } 
     });
 
@@ -109,6 +109,13 @@ $(document).ready(function(){
         $("#removePost").attr('data', postID);
     });
 
+    $("#contactList").on("click", "a", function(){
+        var userID = $(this).parents("li").attr('data');
+        chat.OpenPersonal(userID);
+        $('#contactList').modal('hide');
+
+    });
+
     $("#saveEdits").click(function(){
         var newText = $("#editContent").val().trim();
         var postID =  $("#editContent").attr('data');
@@ -122,7 +129,7 @@ $(document).ready(function(){
 
 
     $("#acceptDeletion").click(function(){
-        var postID =  $("#removePost").attr('data');
+        var postID =  $("#removePost").attr('data')
         var post =  $(".post[data=" + postID + "]");
         $('#removePost').modal('hide'); 
         post.fadeOut(550, "linear");

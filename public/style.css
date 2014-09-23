@@ -110,7 +110,7 @@ input {
 #users p:first-child {
   margin-left: 0; }
 
-/* Menus */
+/************************************* Menus **********************************/
 .dropdown a {
   text-align: left; }
 
@@ -137,6 +137,7 @@ input {
 #settings:hover {
   background: url("/img/settings_hover.png") no-repeat; }
 
+/* Contacts Menu */
 #contacts {
   float: left;
   display: block;
@@ -146,8 +147,30 @@ input {
   width: 32px;
   height: 32px; }
 
+#contactsContent {
+  margin-right: 150px; }
+
 #contacts:hover {
   background: url("/img/contacts_hover.png") no-repeat; }
+
+#contactNames {
+  list-style: none;
+  padding: 0px;
+  margin-top: 5px; }
+
+#contactNames li {
+  font-weight: 300;
+  margin-right: 10px; }
+
+#contactNames li a {
+  color: #222; }
+
+#contactNames li a:hover {
+  text-decoration: none;
+  color: #2a6496; }
+
+#contactList h5 {
+  margin-top: 0px; }
 
 #share_small {
   display: inline-block;

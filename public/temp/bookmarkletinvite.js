@@ -170,22 +170,21 @@ function launchBookmark(inviteURL){
 
     function book2(){
           socketxdm = new easyXDM.Socket({
-            remote: "http://dropsphere.herokuapp.com/" + inviteURL,
-            container:"dropsphere",
+            remote: 'http://localhost:3500/bookmark',
+            container:'dropsphere',
 
             onMessage: function(message, origin){
-                console.log("Received '" + message + "' from '" + origin + "'");
-                if(message=="#draggify"){
-                  draggify();
-                }
+              if(message == 'getURL'){
+                  console.log('URL requested from ' + origin);
+                  socketxdm.postMessage(document.URL);
+              }
             },
             onReady : function() {
-
-                    socketxdm.postMessage("Yay, it works!");
+                    socketxdm.postMessage('bookmarkletSuccess');
             }
           });
-        draggify()
     }
+    
     function draggify(){
       $("p, a, h1, h2, h3, h4").draggable({
           stack: 'div',

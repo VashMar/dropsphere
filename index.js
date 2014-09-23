@@ -132,11 +132,13 @@ app.post('/signup', Feed.signup);
 
 app.get("/invite/:id", function(req, res){
   var inviteID = req.param('id');
-  var url = "bookmark/invite/" + inviteID;
+  var url = "/bookmark/invite/" + inviteID;
 
   if(ENV == 'production'){
+     url = "http://dropsphere.herokuapp.com/" + url;
      res.render("invite", {url: url});
   } else {
+     url = "http://localhost:3500/" + url;
      res.render("dev_invite", {url: url});
   }
 });
@@ -200,8 +202,9 @@ sessionSockets.on('connection', function (err, socket, session){
   var sessionID = session.id,
       socketID = socket.id,
       sphereMap = session.sphereMap,
-      sphereNames = session.sphereNames,  
-      nickname = session.nickname,
+      sphereIDs = session.sphereIDs, 
+      contacts = session.contacts, 
+      username = session.username,
       currentUser,
       mainSphere;
 
@@ -221,8 +224,8 @@ sessionSockets.on('connection', function (err, socket, session){
 
   console.log("Joining Spheres..");
 
-  for(var i = 0; i < sphereNames.length; i++){
-      var sphere = sphereMap[sphereNames[i]].id;
+  for(var i = 0; i < sphereIDs.length; i++){
+      var sphere = sphereIDs[i];
       sphere = String(sphere);
       socket.join(sphere);
       console.log(io.sockets.adapter.rooms);
@@ -234,10 +237,13 @@ sessionSockets.on('connection', function (err, socket, session){
   // if the user has newly joined a sphere update the member list for everyone currently on
   if(session.newMember == true){  
       console.log("New sphere member..");
-      var sphere = sphereMap[sphereNames[sphereNames.length - 1]].id; // the new sphere will be the last one on the list
+      var sphere = session.currentSphere; // the new sphere will be the last one on the list
       sphere = String(sphere);
       io.sockets.in(sphere).emit('users', session.nicknames);
-      socket.broadcast.to(sphere).emit('announcement', {msg: nickname +  " joined the sphere" });
+      socket.broadcast.to(sphere).emit('announcement', {msg: username +  " joined the sphere" });
+      socket.broadcast.to(sphere).emit('addContact', {id: session.userID, name: username});
+      console.log("User contacts: " + JSON.stringify(contacts));
+      // socket.emit('updateContacts', contacts);
       session.newMember = false; 
   }
 
@@ -320,6 +326,28 @@ sessionSockets.on('connection', function (err, socket, session){
     } 
   });
 
+  function isConnected(sphere){
+    if(socket.rooms.indexOf(sphere) > 0){
+      return true;
+    }
+
+    return false; 
+  }
+
+  socket.on('connectSocket', function(sphere){
+      if(!isConnected(sphere)){
+           socket.join(sphere);
+           console.log("Joined " + sphere);
+           User.reload(currentUser.id, function(user){
+             if(user){
+              currentUser = user; 
+              console.log("reloaded current user: " + currentUser);
+              console.log("reloaded user's sphere's: " + currentUser.spheres);
+             }
+           });
+      }
+      console.log(socket.rooms);
+  });
   
   // if the posted content is a link
   socket.on('post', function(data){
@@ -340,6 +368,7 @@ sessionSockets.on('connection', function (err, socket, session){
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
           console.log("clients: " + sphereClients);
           data.time = moment().format("MMM Do, h:mm a");
+        //  data.connected = isConnected(sphereString);
 
           var url = data.url || "",
               thumbnail = data.thumbnail || "",
@@ -350,7 +379,7 @@ sessionSockets.on('connection', function (err, socket, session){
           if(url){
             data.isLink = true;
           }
-      
+
           // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
           for(var i = 0; i< sphereClients.length; i++){
                   if(clients[sessionID].indexOf(sphereClients[i]) === -1){
@@ -361,7 +390,13 @@ sessionSockets.on('connection', function (err, socket, session){
                   }
           } 
 
-          // emits the post data to other spheres 
+      /*    // emits the post data to other clients 
+          if(connected && sphereIDs.indexOf(sphereString) > 0 ){
+            socket.broadcast.to(sphereString).emit('post', data);
+          }else if(connected){
+            session.sphereMap[sphereString] = "missing";
+          } */
+
           socket.broadcast.to(sphereString).emit('post', data);
 
           var postInfo = {content: data.post, 
@@ -384,7 +419,7 @@ sessionSockets.on('connection', function (err, socket, session){
               session.feed.unshift(postID);
               session.save();
               io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
-              console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
+              console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]) );
           });  
       }
 
@@ -402,9 +437,9 @@ sessionSockets.on('connection', function (err, socket, session){
 
      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
       for(var i = 0; i< sphereClients.length; i++){
-              if(clients[sessionID].indexOf(sphereClients[i]) === -1){
-                socket.broadcast.to(sphereClients[i]).emit('notifySound');
-              }
+          if(clients[sessionID].indexOf(sphereClients[i]) === -1){
+            socket.broadcast.to(sphereClients[i]).emit('notifySound');
+          }
       } 
 
 
@@ -414,7 +449,7 @@ sessionSockets.on('connection', function (err, socket, session){
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
     
-          post.updatedChat(currentUser.id); // update conversation notifier 
+          post.updatedChat(currentUser.id, sphereString); // update conversation notifier 
 
           message.save(function(err, msg){
             if(err){
@@ -423,24 +458,11 @@ sessionSockets.on('connection', function (err, socket, session){
 
             if(msg){
               console.log("Message Saved: " + msg);
-
-              post.messages.push(message);
-              post.save(function(err, sphere){
-                console.log(sphere.messages.length);
-              });
+              post.addMessage(message, sphereString);
             }
 
           });
 
-       /*  for(var i = 0; i < sphere.members.length; i++){
-             var member = sphere.members[i].id;
-              User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
-                  if(err){console.log(err);}
-                  else{
-                    console.log("notifications updated");
-                  }
-              });
-          } */
         }
       });
 
@@ -476,7 +498,7 @@ sessionSockets.on('connection', function (err, socket, session){
             }
           });
         }
-    }) 
+    }); 
   }); //end viewed post
 
   socket.on('editPost', function(data){
@@ -520,9 +542,63 @@ sessionSockets.on('connection', function (err, socket, session){
     console.log("Conversation Seen by: " + currentUser.name );
     console.log(data.postID);
     console.log(session.posts[data.postID]);
-    Post.seenChat(data.postID, currentUser.id);
-    session.posts[data.postID][5] = true;
+    Post.findOne({_id: data.postID}, function(err, post){
+      if(post){
+        post.chatSeen(currentUser.id, data.sphereID);
+        post.save(function(err, post){
+          if(post){
+            console.log("Saved Post...: " + post);
+          }
+        });
+      }
+    });
+    //Post.seenChat(data.postID, currentUser.id, data.sphereID);
+    session.posts[data.postID].seen = true;
+    console.log(session.posts[data.postID]);
+    socket.emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphereID});
     session.save();
+  });
+
+  // locates or creates a personal sphere between two users and renders it
+  socket.on('personalSphere', function(userID){
+      User.findOne({_id: userID}, function(err, user){
+       if(user){
+          console.log("Searching for personal sphere between users..");
+          var sphere = Sphere.getPersonal(currentUser.id, userID, function(sphere){
+          if(sphere){
+            // gather and send the feed between the two users 
+            console.log("Personal Sphere Exists");
+            console.log(sphere);
+            socket.emit('updateCurrent', sphere.id);
+            sendFeed(sphere);
+
+            console.log(io.sockets.adapter.rooms);
+            io.sockets.in(user.mainSphere.id).emit('joinSphere', sphere.id);
+          }else{
+          // create a sphere between both users 
+          console.log("No personal sphere found, creating one..");
+        
+              var members = [{id: currentUser.id, name:currentUser.name}, {id: user.id, name: user.name}];
+              sphere = new Sphere({members: members, type:"Personal"});
+              sphere.save(function(err, newSphere){
+                if(newSphere){
+                  console.log("Personal Sphere Created: " + newSphere);
+                  newSphereMade(newSphere, currentUser, "Personal");
+                  
+
+                  user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
+                  user.save(function(err,user){
+                    if(!err){
+                      console.log("recipient spheres updated: " + user.spheres);
+                      io.sockets.in(user.mainSphere).emit('joinSphere', sphere.id);
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
   });
 
    socket.on('createSphere', function(sphereName){
@@ -533,7 +609,7 @@ sessionSockets.on('connection', function (err, socket, session){
           if(err){console.log(err);}
 
           if(user){
-            if(user.spheres.length < 6){
+            
               // create the sphere 
               var sphere = new Sphere({name: sphereName, owner: user._id });
               // add user as sphere member
@@ -542,41 +618,10 @@ sessionSockets.on('connection', function (err, socket, session){
                 if(err){ console.log("Error saving sphere"); }
 
                 else{
-                  socket.join(sphere.id);
-                  socket.emit('clearChat');
-                  socket.emit('users', sphere.nicknames); 
-                   // pass the client side all the info necessary to track sphere related information 
-                  user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
-
-                  var addedSphere =  user.spheres[user.spheres.length - 1];
-
-               
-                  console.log(addedSphere);
-                  session.sphereMap[sphere.name] = { id: addedSphere.object._id, 
-                                                     nickname: addedSphere.nickname, 
-                                                     link: addedSphere.object.link(ENV),
-                                                     updates: addedSphere.updates          
-                                                    };
-
-                  session.sphereNames.push(sphere.name);
-                  session.nicknames = sphere.nicknames;
-                  session.currentSphere = sphere.name;
-                  session.messages = {};
-                  session.nickname = user.name;
-
-                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereNames: session.sphereNames, currentSphere: session.currentSphere });
-                
-                  console.log(session);
-
-                  session.save();
-
-                  user.save();
-                  console.log(user.name + " and " + sphere.name + "sync'd");
-                }
+                  newSphereMade(sphere,user,"Group");
+                } 
               }); 
-            }else{
-              socket.emit("chatError", "You've reached the 5 sphere limit! Delete a sphere to create a new one.");
-            }
+          
           } else{
             console.log("User not found");
           }
@@ -584,6 +629,19 @@ sessionSockets.on('connection', function (err, socket, session){
 
     }); // end create sphere
 
+
+   socket.on('cacheSphere', function(sphere){
+    console.log("Caching New Sphere..");
+    Sphere.findOne({_id:sphere}, function(err,sphere){
+      if(sphere){
+        session.sphereMap[sphere.id] = {name: sphere.getName(currentUser.id),  nickname: username, link: sphere.link(ENV), updates: 1, type: sphere.type };
+        session.sphereIDs.push(sphere.id);
+        session.save();
+        console.log(session.sphereMap);
+        socket.emit("addSphereAndNotify", {map: session.sphereMap, sphere: sphere.id});
+      }
+    });
+   });
 
   socket.on('requestUsers', function(data){
     console.log("Requesting users..");
@@ -599,13 +657,14 @@ sessionSockets.on('connection', function (err, socket, session){
       });
   }); // end request users 
 
-
-  socket.on('requestFeed', function(data, fillFeed){
+  socket.on('requestFeed', function(data){
       console.log("Requesting Feed..");
  
       var targetSphere = null;
       var posts = {};
       var feed = [];
+      console.log(currentUser.spheres);
+      console.log(data.sphereIndex);
       if(currentUser.spheres[data.sphereIndex].object == data.sphereID){
         targetSphere = currentUser.spheres[data.sphereIndex];
       } else{
@@ -620,46 +679,19 @@ sessionSockets.on('connection', function (err, socket, session){
 
       if(targetSphere){
          console.log("Retrieving posts from Sphere: " + targetSphere + "..");
-         Sphere.findOne({_id: data.sphereID}).populate('posts', null, {date: {$gte: targetSphere.joined }}).exec(function(err, sphere){ 
-           if(sphere){             
+         Sphere.findOne({_id: data.sphereID}).populate('posts').exec(function(err, sphere){ 
+           if(sphere){      
 
-               for(var i = sphere.posts.length - 1; i > -1 ; i--){
-                  var currentPost = sphere.posts[i];
-                  var post = currentPost.getPostData(currentUser);
-                  var key = currentPost.id;
+            // resets the notifications in a sphere to 0 once the user has accessed it 
+            targetSphere.updates = 0;
+            currentUser.currentSphere = data.sphereIndex;       
 
-                  posts[key] = post;
-                  feed.push(key);
-              }
-
-              console.log(feed);
-
-              fillFeed(posts, feed);
-
-              // resets the notifications in a sphere to 0 once the user has accessed it 
-              targetSphere.updates = 0;
-              currentUser.currentSphere = data.sphereIndex;
-
-              // update the currentSphere session info 
-              session.currentSphere = sphere.name; 
-              session.feed = feed;    
-              session.posts = posts;
-              session.save();
-
-              currentUser.save(function(err){
-                  if(err){console.log(err);}
-
-                  else{
-                    console.log("user updates reset on requested sphere");
-                  }
-              });
+            sendFeed(sphere);
            } else{
             console.log("User requested a sphere that magically doesn't exist!");
            }
          });
       }
-
-
   });
 
   socket.on('getPostConvo', function(data){
@@ -695,9 +727,8 @@ sessionSockets.on('connection', function (err, socket, session){
       console.log("Requesting Messages...");
       
       var postID = data.postID;
-      var joined = currentUser.joinedCurrent();
 
-      Post.findOne({_id: postID}).populate('messages', null, {date: {$gte: joined }}).exec(function(err, post){ 
+      Post.findOne({_id: postID}, function(err, post){ 
 
         if(err){
           console.log(err);
@@ -705,57 +736,66 @@ sessionSockets.on('connection', function (err, socket, session){
 
         if(post){
 
-          console.log("Extracting Messages from Post..");
-          var messages = {},
+
+          console.log("Extracting Messages from Post.." + post);
+          console.log("Sphere: " + data.sphereID);
+          post.getLoc(data.sphereID, function(loc){
+            console.log(loc);
+            Message.populate(loc, {path:'messages'}, function(err, loc){
+              var messages = loc.messages; 
+
+              var convo = {},
               key,
               currentMsg,
               msg1, 
               time1;
 
-
-
-          // if theres only one message just display it
-          if(post.messages.length == 1){
-            currentMsg = post.messages[0];
-            msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
-            time1 = moment(currentMsg.date);
-            key =  time1.format();
-            messages[key] = [msg1];
-          }else{
-            // otherwise loop through and sort the messages based on conversation time 
-            for(var i = 0; i < post.messages.length - 1; i++ ){
-                currentMsg = post.messages[i];
+              // if theres only one message just display it
+              if(messages.length == 1){
+                currentMsg = messages[0];
                 msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
                 time1 = moment(currentMsg.date);
+                key =  time1.format();
+                convo[key] = [msg1];
+              }else{
+                // otherwise loop through and sort the messages based on conversation time 
+                for(var i = 0; i < messages.length - 1; i++ ){
+                    currentMsg = messages[i];
+                    msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+                    time1 = moment(currentMsg.date);
 
-                // create a hash key for the date of the first message that points to an array, and store the message in the array
-                if(i == 0){
-                  key =  time1.format();
-                  messages[key] = [msg1];
-                }
+                    // create a hash key for the date of the first message that points to an array, and store the message in the array
+                    if(i == 0){
+                      key =  time1.format();
+                      convo[key] = [msg1];
+                    }
 
-                if(post.messages.length > 1 && i < post.messages.length - 1){
-                  var nextMsg = post.messages[i+1];
-                  var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
-                  var time2 = moment(nextMsg.date);
+                    if(messages.length > 1 && i < messages.length - 1){
+                      var nextMsg = messages[i+1];
+                      var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
+                      var time2 = moment(nextMsg.date);
 
-                  // compare each message to the one after it
-                  if(time2.diff(time1, "minutes") <= 30 ){
-                    // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-                    messages[key].push(msg2);
-                  }else{
-                    // if the difference is greater than 30 minutes create a new hash key for the message date
-                    key = time2.format();
-                    messages[key] = [msg2];
-                  }
-                }
-            } 
-          }
+                      // compare each message to the one after it
+                      if(time2.diff(time1, "minutes") <= 30 ){
+                        // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                        convo[key].push(msg2);
+                      }else{
+                        // if the difference is greater than 30 minutes create a new hash key for the message date
+                        key = time2.format();
+                        convo[key] = [msg2];
+                      }
+                    }
+                } 
+              }
 
-          console.log(messages);
+            console.log(convo);
 
-          fillMessages(messages);
+            fillMessages(convo);
+         
+          });
 
+        });
+  
         }else{
           console.log("Couldn't obtain post");
         }
@@ -848,6 +888,77 @@ sessionSockets.on('connection', function (err, socket, session){
         socket.leave((String(sphereID)));
     }
   });
+
+
+  function newSphereMade(sphere, user, type){
+          socket.join(sphere.id);
+          socket.emit('clearChat');
+          socket.emit('users', sphere.nicknames); 
+          // pass the client side all the info necessary to track sphere related information 
+          user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
+
+          var addedSphere =  user.spheres[user.spheres.length - 1];
+          var link = (sphere.type === "Group" ? addedSphere.object.link(ENV) : "");
+
+          var sphereID = (addedSphere.object._id) ? addedSphere.object._id : addedSphere.object;     
+
+          var sphereName = sphere.getName(user.id);
+          session.sphereMap[sphereID] = { name: sphereName, 
+                                             nickname: addedSphere.nickname, 
+                                             link: link,
+                                             updates: addedSphere.updates          
+                                          };
+
+                  session.sphereIDs.push(sphereID);
+                  session.nicknames = sphere.nicknames;
+                  session.currentSphere = sphereID;
+                  session.messages = {};
+                  session.nickname = user.name;
+
+                  socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: session.currentSphere });
+                
+                  console.log(session);
+
+                  session.save();
+
+                  user.save();
+                  console.log(user.name + " and " + sphere.getName(user.id) + "sync'd");   
+
+  }
+
+  function sendFeed(sphere){
+      var posts = {};
+      var feed = [];
+
+      for(var i = sphere.posts.length - 1; i > -1 ; i--){
+          var currentPost = sphere.posts[i];
+          var post = currentPost.getPostData(currentUser, sphere.id);
+          var key = currentPost.id;
+
+          posts[key] = post;
+          feed.push(key);
+      }
+
+      console.log(feed);
+
+      socket.emit('updateAndView', {feed: feed, posts: posts, sphereID: sphere.id});
+
+      // update the currentSphere session info 
+      session.currentSphere = sphere.id; 
+      session.feed = feed;    
+      session.posts = posts;
+      session.save();
+
+      currentUser.save(function(err){
+          if(err){console.log(err);}
+
+          else{
+            console.log("user updates reset on requested sphere");
+          }
+      });
+  }
+
+
 
 }); // end connection 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

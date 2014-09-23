@@ -58,23 +58,24 @@ function Chat(){
 
             socket.on('sphereMap', function(data){
                 sphereMap = data.sphereMap;
-                sphereNames = Object.keys(sphereMap);
-                currentSphere = sphereNames[data.index];
+                sphereIDs = Object.keys(sphereMap);
+                currentSphere = sphereIDs[data.index];
                 nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
                 totalUpdates = data.totalUpdates;
 
                 $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
                 $(".sphere").parent().remove();
 
-                for(var i = 0; i < sphereNames.length; i++){
-
+                for(var i = 0; i < sphereIDs.length; i++){
+                    var sphereName = sphereIDs[i].name,
+                        updates = sphereIDs[i].updates;
                     $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
-                    sphereNames[i] + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
+                    sphereName + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
                     .insertBefore("#sphereDivider");
 
                     // post the updates next to their appropriate sphere dropdown item, ignore the current sphere because thats already being viewed
-                    if(sphereMap[sphereNames[i]].updates > 0 && sphereNames[i] !== currentSphere){
-                        $("#updates-" + i ).html(sphereMap[sphereNames[i]].updates);
+                    if(updates > 0 && sphereIDs[i] !== currentSphere){
+                        $("#updates-" + i ).html(sphereMap[sphereIDs[i]].updates);
                     }
 
                 }
@@ -85,8 +86,8 @@ function Chat(){
                  }
 
                 // track sphere data 
-                sphereID = sphereMap[currentSphere].id;
-                sphereIndex = sphereNames.indexOf(currentSphere);
+                sphereName = sphereMap[currentSphere].name;
+                sphereIndex = sphereIDs.indexOf(currentSphere);
                 sphereLink = sphereMap[currentSphere].link;
 
                 $("#inviteLink").val(sphereLink);
@@ -98,42 +99,45 @@ function Chat(){
                    
                 if(data.msg){
                     // if the message is being sent to the currently viewed chat, append it
-                    if(sphereMap[currentSphere].id == data.sphere && currentPost == data.postID) {    
+                    if(currentSphere == data.sphere && currentPost == data.postID) {    
                          var memberNum = nicknames.indexOf(data.sender);         
                          $("#feed").append("<p class='message'><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                          scrollBottom();
-                    }else if(sphereMap[currentSphere].id == data.sphere){
+                    }else if(currentSphere == data.sphere){
                         $(".post[data='" + data.postID + "']").find(".chatIcon").attr('src', 'favicon.png');
                     }
                 }           
             });
 
             socket.on('post', function(data){
+
                 if(data.post){
                     // if the message is being sent to the current sphere being looked at, add it to the chat 
-                    if(sphereMap[currentSphere].id == data.sphere && currentPost == null){    
+                    if(currentSphere == data.sphere && currentPost == null){    
                          var memberNum = data.memberNum || nicknames.indexOf(data.sender);  
                          var time = data.time || moment().calendar();       
                          createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
                          socket.emit("seen", {sphere: data.sphere});
-                    }else{
+                    }else if(sphereIDs.indexOf(data.sphere) > 0){
                          // find the sphere the message is meant for and send the user an update notification
-                        for(var i = 0; i < sphereNames.length; i++){
-                            if(sphereMap[sphereNames[i]].id == data.sphere){
-                                sphereMap[sphereNames[i]].updates++;            // increment this spheres updates on client side 
-                                var updates = sphereMap[sphereNames[i]].updates;
+                        for(var i = 0; i < sphereIDs.length; i++){
+                            if(sphereIDs[i] == data.sphere){
+                                sphereMap[sphereIDs[i]].updates++;            // increment this spheres updates on client side 
+                                var updates = sphereMap[sphereIDs[i]].updates;
                                 totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
                                 $("#notifications").html(totalUpdates); 
 
                                 if($("#updates-" + i ).length){
                                   $("#updates-" + i ).html(updates);
-                                } else {
+                                }else{
                                   var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
                                   $("#okcircle-" + i).replaceWith(updateIcon);
                                 } 
                             }
                              
                         } 
+                    }else{
+                        socket.emit("cacheSphere", data.sphere);
                     }
                 }        
             });
@@ -162,10 +166,32 @@ function Chat(){
             });
 
             socket.on('cachePost', function(data){
-                if(sphereMap[currentSphere].id == data.sphereID){
+                if(currentSphere == data.sphereID){
                     feed = data.feed;
                     posts = data.posts;
                 }
+            });
+
+            socket.on('updateAndView', function(data){
+
+                    feed = data.feed;
+                    posts = data.posts;
+                    socket.emit('requestUsers', {sphereID : currentSphere});
+                    viewFeed();
+            });
+
+            socket.on('updateCurrent', function(sphereID){
+                currentSphere = sphereID;
+                sphereName = sphereMap[currentSphere].name;
+                
+                $("span#currentSphere").html(sphereName);
+
+                // set the user's name to their name in the new sphere 
+                nickname = sphereMap[currentSphere].nickname;
+                sphereName = sphereMap[currentSphere].name;
+                sphereIndex = sphereIDs.indexOf(currentSphere);   
+                sphereLink = sphereMap[currentSphere].link;
+
             });
 
             socket.on('preview', function(data){
@@ -185,21 +211,20 @@ function Chat(){
 
                 // track new sphere data 
                 sphereMap = data.sphereMap;
-                sphereNames = data.sphereNames;
-                sphereIndex = sphereNames.length - 1;
-                currentSphere = data.currentSphere
-                sphereIndex = sphereNames.indexOf(currentSphere);
-                sphereID = sphereMap[currentSphere].id;
+                sphereIDs = data.sphereIDs;
+                currentSphere = data.currentSphere;
+                sphereIndex = sphereIDs.indexOf(currentSphere);
+                sphereName = sphereMap[currentSphere].name;
                 sphereLink = sphereMap[currentSphere].link;
                 nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
 
 
                 // the current sphere is the newly created one 
-                $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
+                $("span#currentSphere").html(sphereName).append("<span class='caret'></span>");   
 
-                $("#sphereNames").append("<a class='sphere' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
+                $("#sphereNames").append("<a class='sphere' data='"+ currentSphere +"' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
                   sphereIndex + "' class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
-                  "<span class='sphereName'>" + currentSphere + "</span>");
+                  "<span class='sphereName'>" + sphereName + "</span>");
 
                 $("#inviteLink").val(sphereLink); 
 
@@ -214,14 +239,35 @@ function Chat(){
             });
 
 
+            socket.on('addContact', function(data){
+                 $("#contactNames").append("<li data='"+ data.id +"'><a href='#'>" + data.name + "</a></li>");
+            });
+
+
+            socket.on('joinSphere', function(sphere){
+                socket.emit('connectSocket', sphere);
+            });
+
+            socket.on('addSphereAndNotify', function(data){
+    
+                sphereIDs.push(data.sphere);
+                sphereMap = data.map;
+                sphereName = sphereMap[data.sphere].name;
+                sphereIndex = sphereIDs.length - 1;
+                updates = sphereMap[data.sphere].updates;
+
+                $("#sphereNames").append("<a class='sphere' data='" + data.sphere +  "'href='#' tabindex='-1' role='menuitem'> <span id='updates-" + 
+                sphereIndex + "' class='sphereUpdates'>" + updates + "</span> &nbsp;" + 
+                  "<span class='sphereName'>" + sphereName + "</span>");
+
+                totalUpdates++;  // because this sphere's updates have been incremented, so has the total
+                $("#notifications").html(totalUpdates); 
+
+            });
 
         };
 
         this.Disconnect = function(){
-            var sphereIDs = [];
-            for(var i = 0; i< sphereNames.length; i++){
-                sphereIDs.push(sphereMap[sphereNames[i]].id);
-            }
             socket.emit('leaveRooms', {spheres: sphereIDs} );
             socket.disconnect();
         };
@@ -241,7 +287,7 @@ function Chat(){
                
                 createPost(null, previewURL, memberNum, nickname, time, true, true);
 
-                var postData = {sphere: sphereID, 
+                var postData = {sphere: currentSphere, 
                                 post: previewURL,
                                 url: postURL,
                                 thumbnail: postThumb, 
@@ -254,12 +300,12 @@ function Chat(){
             }else{
                 createdPost = "<a href='#' class='textPost'>" + post + "</a>";
                 createPost(null, createdPost, memberNum, nickname, time, true, true);
-                socket.emit("post", {sphere: sphereID, title: post, sender: nickname});
+                socket.emit("post", {sphere: currentSphere, title: post, sender: nickname});
             }
         };
 
         this.Send = function Send(msg){
-            socket.emit("sendMessage", {postID: currentPost, sphere: sphereID, msg: msg, sender: nickname});  
+            socket.emit("sendMessage", {postID: currentPost, sphere: currentSphere, msg: msg, sender: nickname});  
         };
 
         this.Preview = function Preview(link){
@@ -299,9 +345,9 @@ function Chat(){
             viewFeed();
         };
 
-        this.SwitchSphere = function SwitchSphere(current){
+        this.SwitchSphere = function SwitchSphere(sphereID){
             
-            currentSphere = current;         
+            currentSphere = sphereID;         
 
             if(currentPost){
                 $(".controls").hide();
@@ -311,14 +357,14 @@ function Chat(){
 
             // set the user's name to their name in the new sphere 
             nickname = sphereMap[currentSphere].nickname;
-            sphereID = sphereMap[currentSphere].id;
-            sphereIndex = sphereNames.indexOf(currentSphere);   
+            sphereName = sphereMap[currentSphere].name;
+            sphereIndex = sphereIDs.indexOf(currentSphere);   
             sphereLink = sphereMap[currentSphere].link;
             
-
+            $("span#currentSphere").html(sphereName);
             $("#inviteLink").val(sphereLink); 
                 
-            socket.emit('requestUsers', {sphereID : sphereID});
+            // socket.emit('requestUsers', {sphereID : sphereID});
             requestFeed();
         };
 
@@ -341,6 +387,10 @@ function Chat(){
             socket.emit('deletePost', {postID: postID, sphere: sphereID });
         };
 
+        this.OpenPersonal = function OpenPersonal(userID){
+            socket.emit('personalSphere', userID);
+        };
+
 
         this.ChangeName = function ChangeName(newName, sphereWide){
              // update name on client side first   
@@ -352,10 +402,10 @@ function Chat(){
 
            if(sphereWide){
              //update the user's name on all spheres of the sphereMap
-             for(var i = 0; i< sphereNames.length; i++){
+             for(var i = 0; i< sphereIDs.length; i++){
                 // if the sphere nickname is the user's default username swap it with the new one 
-                  if(sphereMap[sphereNames[i]].nickname == username){ 
-                        sphereMap[sphereNames[i]].nickname = newName;
+                  if(sphereMap[sphereIDs[i]].nickname == username){ 
+                        sphereMap[sphereIDs[i]].nickname = newName;
                   }
              }
             username = newName; // the username is now the newname  
@@ -372,12 +422,10 @@ function Chat(){
 
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
-            socket.emit('requestFeed',  {sphereID: sphereID, sphereIndex: sphereIndex}, function(reqPosts, reqFeed){  
-                posts = reqPosts; 
-                feed = reqFeed;
-                viewFeed();
-            });
+            socket.emit('requestFeed',  {sphereID: currentSphere, sphereIndex: sphereIndex});
         };
+
+
 
         var viewFeed = function(){
 
@@ -405,7 +453,7 @@ function Chat(){
 
         var requestMessages = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
-            socket.emit('requestMessages', {postID: currentPost}, function(messages){
+            socket.emit('requestMessages', {postID: currentPost, sphereID: currentSphere}, function(messages){
 
                 var conversations = Object.keys(messages);
 
@@ -486,22 +534,22 @@ function Chat(){
                 "<div class='postContent'>" + content + "</div>" +
                 "<div class='postButtons'><ul>" +
                 "<li style='float:left;'>" + viewedIcon +  viewed + " </li>" +
-                "<li>" + chatIcon + " </li>" +
                 "<li>" + shareIcon + " </li>" +
                 "<li>" + saveIcon + " </li>" +
+                "<li>" + chatIcon + " </li>" +
                 "</ul></div></div>");
         }
 
 
         function seenChat(postID){
-            socket.emit("seenChat", {postID: postID});
+            socket.emit("seenChat", {postID: postID, sphereID: currentSphere});
         }
     
 
         function clearUpdates(){
 
             // lets remove the update notifier next to the sphere dropdown 
-            var i = sphereNames.indexOf(currentSphere);
+            var i = sphereIDs.indexOf(currentSphere);
             var okIcon = "<span id='okcircle-"+ i + "' class='glyphicon glyphicon-ok-circle'></span>";
 
             $("#updates-" + i ).replaceWith(okIcon);
