@@ -33,6 +33,7 @@ exports.signup = function(req, res){
         password = req.body.password,
         email = req.body.email,
         session = req.sessionID;	
+        isMobile = req.body.mobile;
 
     //try to create
     var user = new User({name: name, email: email, password: password});
@@ -44,7 +45,6 @@ exports.signup = function(req, res){
           console.log("validation errors:" + err); 
           res.json(400,  err);
         } else{
-
          console.log("created user: " + name);
         
          var inviteID = req.session.inviteID;
@@ -128,7 +128,12 @@ exports.signup = function(req, res){
 
   			      	console.log("Session's sphereMap: "  + sessionData.sphereMap);
 
-                Session.render(res, "includes/feed", sessionData);
+                if(isMobile == "true"){
+                  Session.respondJSON(res, sessionData);
+                }else{
+                  Session.render(res, "includes/feed", sessionData);
+                }
+               
 
                 Session.storeData(req, sessionData);
 

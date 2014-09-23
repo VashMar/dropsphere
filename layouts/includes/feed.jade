@@ -125,7 +125,7 @@
                                                 span.viewedNum
                                                     =viewers.length 
                                     li
-                                        a(href='#' title="Share Link")   
+                                        a(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
                                             img.shareIcon(src="/img/share_post.png")
                                     li
                                         a(href='#' title="Save Link")   
@@ -204,6 +204,16 @@
       
       .modal-footer
         button#saveSphere.btn.btn-primary(type="button") Save changes
+#sharePost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+ .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+        h4.modal-title Edit this post 
+      
+      .modal-body
+        textarea#editContent(class="form-control" )
+
 #editPost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
     .modal-content
