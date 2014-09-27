@@ -669,6 +669,20 @@ sessionSockets.on('connection', function (err, socket, session){
 
     }); // end create sphere
 
+   socket.on('deleteSphere', function(sphereID){
+      Sphere.findOne({_id: sphereID}, function(err, sphere){
+
+        if(sphere && (sphere.owner == currentUser.id)){
+          sphere.remove(function(err){
+            if(err){
+              console.log(err);
+            }else{
+              console.log("Sphere deleted")
+            }
+          });
+        }
+      })
+   });
 
    socket.on('cacheSphere', function(sphere){
     console.log("Caching New Sphere..");
