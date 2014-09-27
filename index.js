@@ -304,6 +304,14 @@ sessionSockets.on('connection', function (err, socket, session){
               }else{
                 viewWrapped();
               }
+          } else{
+            console.log(err);
+          }
+
+        });
+
+    } 
+
 
             function viewWrapped(){
               if(type === "image"){
@@ -318,12 +326,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
               socket.emit('preview', {wrappedLink: wrappedLink, url: url, thumbnail: thumbnail, title: title, image: image});
             }
-          } else{
-            console.log(err);
-          }
-        });
 
-    } 
   });
 
   function isConnected(sphere){
@@ -477,6 +480,43 @@ sessionSockets.on('connection', function (err, socket, session){
           }
     });
   }); // end seen  
+
+  socket.on('sharePost', function(data){
+
+        Post.findOne({_id: data.postID}, function(err, post){
+           if(post){
+              console.log("Post creator: " + post.creator.object);
+               console.log("Post sharer: " + currentUser._id);
+               // if the post creator and sharer are same, reference this post, otherwise make a copy
+              if(post.creator.object != currentUser.id){
+                    var postInfo = {content: post.content, 
+                          creator: {object: currentUser, name: currentUser.name}, 
+                          contentData:{
+                             url: post.contentData.url,
+                             thumbnail: post.contentData.thumbnail,
+                             image: post.contentData.image,
+                             title: post.contentData.title
+                            }
+                          };
+                  var copiedPost = new Post(postInfo);
+                  post = copiedPost; 
+
+              }
+              // save the post to the sphere and track the sphere from the post
+              Sphere.savePost(currentUser, data.sphere, post, function(savedPost){
+                console.log("Post saved to sphere..." + savedPost);
+                var postID = savedPost.id;
+                socket.emit('getPostID', {postID : postID});
+                session.posts[postID] = savedPost.getPostData(currentUser, data.sphere);
+                session.feed.unshift(postID);
+                session.save();
+                io.sockets.in(data.sphere).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
+                console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]) );
+              });
+
+           }
+        });
+  });
 
   socket.on('viewedPost', function(data){
     console.log("Current User has viewed post: " + data.postID);

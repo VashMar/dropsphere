@@ -54,7 +54,9 @@ postSchema.methods.addLoc = function(sphereID, sphereName){
 
 // find a post location based on sphere id
 postSchema.methods.findLoc = function(sphereID){
+	console.log(sphereID);
 	var locs = this.locations;
+	console.log(locs);
 	var loc = false;
 
 	for(var i = 0; i < locs.length; i++){
@@ -138,8 +140,9 @@ postSchema.methods.hasSeenChat = function(userID, viewers){
 
 // marks a post as seen by a specific user 
 postSchema.methods.viewedPost = function(userID, name, sphereID){
-
+	console.log("Viewed post in sphere: " + sphereID);
 	var loc = this.findLoc(sphereID);
+	console.log(loc);
 	var viewers = loc.viewers;
 
 	for(var v = 0; v < viewers.length; v++){

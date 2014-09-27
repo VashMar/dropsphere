@@ -116,6 +116,28 @@ $(document).ready(function(){
 
     });
 
+    $("#feed").on("click", "a img.shareIcon", function(){
+        var post = $(this).parents(".post");
+        var postID = post.attr('data');
+        $("#shareSelection").attr('data', postID);
+    });
+
+    $("#shareSpheres").on("click", "a", function(){
+        var sphere = $(this).parents('li').attr('data');
+        var postID = $("#shareSelection").attr('data');
+        chat.SwitchSphere(sphere);
+        chat.setShared(postID);
+        $('#sharePost').modal('hide');
+    });
+
+    $("#shareContacts").on("click", "a", function(){
+        var contact = $(this).parents('li').attr('data');
+        var postID = $("#shareSelection").attr('data');
+        chat.OpenPersonal(contact);
+        chat.setShared(postID);
+        $('#sharePost').modal('hide');
+    });
+
     $("#saveEdits").click(function(){
         var newText = $("#editContent").val().trim();
         var postID =  $("#editContent").attr('data');
@@ -180,6 +202,17 @@ $(document).ready(function(){
 
     function notifySound(){
         document.getElementById('notifySound').play();
+    }
+
+
+    function showContactList(){
+        $("#shareSpheres").hide();
+        $("#shareContacts").show();
+    }
+
+    function showSphereList(){
+         $("#shareContacts").hide();
+         $("#shareSpheres").show();
     }
 
     function logout(){

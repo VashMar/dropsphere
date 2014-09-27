@@ -9,11 +9,11 @@ $(document).ready(function(){
 
    $("#feed").css("height", "89%");
 
-     $("#feed").tooltip({
+    $("#feed").tooltip({
      	html: true,
      	selector: "[data-toggle='showViewers']",
      	container:'.postButtons'
-     });
+    });
 
     /*$('#postInput').slimScroll({
     	width:'100%',

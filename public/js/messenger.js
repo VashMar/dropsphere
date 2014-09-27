@@ -23,8 +23,10 @@ function Chat(){
         var currentPost = null;
         var postInput = null;
         var previewURL = null;
-        var contentHeight = $("#content").height();
 
+
+        var sharedPost = null,
+            sharedPostID;
 
         var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
         var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
@@ -228,6 +230,10 @@ function Chat(){
 
                 $("#inviteLink").val(sphereLink); 
 
+                if(sharedPost){
+                    share();
+                }
+
             });
 
             socket.on('updateViewers', function(data){
@@ -304,6 +310,11 @@ function Chat(){
             }
         };
 
+        this.setShared = function Share(postID){
+          sharedPost = posts[postID];
+          sharedPostID = postID;
+        };
+
         this.Send = function Send(msg){
             socket.emit("sendMessage", {postID: currentPost, sphere: currentSphere, msg: msg, sender: nickname});  
         };
@@ -313,8 +324,6 @@ function Chat(){
             $("#previewContainer").show();
             socket.emit("crawl", link);
         };
-
-
 
         this.SelectPost = function SelectPost(selected){
             // track what the current post is by id 
@@ -376,7 +385,7 @@ function Chat(){
         };
 
         this.ViewedPost = function ViewedPost(postID){
-            socket.emit('viewedPost', {postID: postID, sphere: sphereID});
+            socket.emit('viewedPost', {postID: postID, sphere: currentSphere});
         };
 
         this.EditPost = function EditPost(postID, newtext){
@@ -448,8 +457,39 @@ function Chat(){
                     createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length);
                 }
             }
+
+            if(sharedPost){
+                share();
+            }
         };
 
+
+        var share = function(){
+
+            var postID = sharedPost;
+            var sphere = currentSphere;
+   
+
+            var post = sharedPost,
+                isLink = post['isLink'],
+                time = moment().format("MMM Do, h:mm a"),
+                memberNum = nicknames.indexOf(nickname), 
+                content =  post['content'];
+
+
+            var thumbnail = content['thumbnail'],
+                image = content['image'],
+                title = content['title'],
+                url = content['url'];
+
+             content = buildPostContent(isLink, content);
+             createPost(postID, content, memberNum, nickname, time, true, true, 0);
+
+             socket.emit('sharePost', {postID: sharedPostID, sphere:sphere});
+
+             // reset sharedPost 
+             sharedPost = null;
+        }
 
         var requestMessages = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
@@ -507,8 +547,6 @@ function Chat(){
                 htmlString = "<a href='#' class='textPost'>" + title + "</a>";
             }
 
-
-
             return htmlString;
         }
 
@@ -538,6 +576,7 @@ function Chat(){
                 "<li>" + saveIcon + " </li>" +
                 "<li>" + chatIcon + " </li>" +
                 "</ul></div></div>");
+
         }
 
 

@@ -189,6 +189,30 @@ input {
 #editContent {
   height: 100px; }
 
+/* Share Menu */
+#sharePost .modal-header {
+  padding-bottom: 0px; }
+
+#shareSelection {
+  list-style: none;
+  padding-left: 0px;
+  margin-top: 5px;
+  margin-bottom: 0; }
+
+#shareSelection li {
+  display: inline;
+  padding: 30px; }
+
+#shareRecipients li {
+  margin-right: 110px;
+  text-align: left;
+  width: 200px; }
+
+#shareRecipients ul {
+  list-style: none;
+  padding-left: 0px; }
+
+
 /* Chat Body */
 #content {
   position: relative;

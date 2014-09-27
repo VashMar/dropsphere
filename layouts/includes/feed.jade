@@ -209,10 +209,25 @@
     .modal-content
       .modal-header
         button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
-        h4.modal-title Edit this post 
-      
-      .modal-body
-        textarea#editContent(class="form-control" )
+        h4.modal-title Share With..
+        ul#shareSelection(class="nav nav-tabs" role="tablist")
+            li.active
+                a(href='#' onclick='showSphereList();') Spheres
+            li  
+                a(href='#' onclick='showContactList();') Contacts
+          
+        #shareRecipients.modal-body
+            ul#shareSpheres
+                each sphereID, i in sphereIDs 
+                    - var sphereName = sphereMap[sphereID].name;
+                    li(data=sphereID)
+                        a(href='#')=sphereName
+            ul#shareContacts(style='display:none;')
+                each contactId in contactIds
+                    - var contact = contacts[contactId];
+                        li(data=contactId) 
+                            a(href='#')=contact 
+
 
 #editPost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
@@ -256,7 +271,7 @@ script.
     posts = sphereData.posts; 
     feed = sphereData.feed;
     viewedIcon = "<a href='#' data-toggle='tooltip' data-placement='top' title=''><img class='viewedIcon' src='/img/viewed.png'/></a>";
-    shareIcon = "<a href='#' data-toggle='tooltip' data-placement='top' title='Share'><img class='shareIcon' src='/img/share_post.png'/></a>";
+    shareIcon = "<a href='#' data-toggle='modal' data-target='#sharePost' title='Share'><img class='shareIcon' src='/img/share_post.png'/></a>";
     saveIcon = "<a href='#'><img class='saveIcon' src='/img/sphere_add.png'/></a>";
 script.
     $(document).ready(function(){
