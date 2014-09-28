@@ -47,7 +47,9 @@
                                 =sphereName
                 li#sphereDivider.divider(role="presentation" )
                 li(role="presentation")
-                    a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create New Sphere
+                    a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create Sphere
+                li(role="presentation")
+                    a#sphereDelete(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#deleteSphere" href="#") <span class="glyphicon glyphicon-minus-sign"></span> Delete Sphere
         audio#notifySound(src="/sounds/waterDrop.ogg" preload="auto")
         #users 
             if sphereMap[currentSphere].type === "Group"
@@ -202,6 +204,24 @@
       .modal-body
         input#sphereName(class="form-control" placeholder="Sphere name")
       
+      .modal-footer
+        button#saveSphere.btn.btn-primary(type="button") Save changes
+#deleteSphere.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+ .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+        h4.modal-title Select a Sphere to Delete
+      
+      .modal-body
+            ul#deletableSpheres
+                each sphereID, i in sphereIDs
+                    if sphereMap[sphereID].isOwner === true && sphereMap[sphereID].type != "Main"
+                        - var sphereName = sphereMap[sphereID].name;
+                        li(data=sphereID)
+                            a(href='#')=sphereName
+                           
+          
       .modal-footer
         button#saveSphere.btn.btn-primary(type="button") Save changes
 #sharePost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")

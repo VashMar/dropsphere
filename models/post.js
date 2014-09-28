@@ -51,6 +51,28 @@ postSchema.methods.addLoc = function(sphereID, sphereName){
 	this.locations.push({sphere: sphereID, title: this.contentData.title, name: sphereName});
 }
 
+postSchema.methods.removeLoc = function(sphereID){
+	var locs = this.locations;
+
+	for(var i =0; i < locs.length; i++){
+		if(locs[i].sphere == sphereID){
+			locs.splice(i, 1);
+		}
+	}
+
+
+	this.save(function(err, post){
+		if(post){
+			if(post.locations.length < 1 ){
+				post.remove(function(err){
+					if(!err){
+						console.log("post removed");
+					}
+				});
+			}
+		}
+	});
+}
 
 // find a post location based on sphere id
 postSchema.methods.findLoc = function(sphereID){
@@ -217,7 +239,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
 
 	var postContent = isMobile == "true" ? this.contentData : this.content;
 	var viewers =  this.getViewers(sphereID);
-	console.log("The viewers in this sphere: " + viewers);
+
  	return {sender: this.creatorName(), 
  			content: this.contentData, 
  			isOwner: this.ownedBy(user._id), 
@@ -250,5 +272,13 @@ postSchema.statics.delete = function(postID, userID){
 	});
 }
 
+postSchema.statics.deleteSphere = function(sphereID){
+   this.find({'locations.sphere': sphereID}, function(err, posts){
+         for(var i = 0; i < posts.length; i++){
+            var post = posts[i];
+            post.removeLoc(sphereID);
+        }
+    });
+}
 
 module.exports = mongoose.model('Post', postSchema);

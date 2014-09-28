@@ -230,6 +230,10 @@ function Chat(){
 
                 $("#inviteLink").val(sphereLink); 
 
+                if(sphereMap[currentSphere].isOwner){
+                    $("#deletableSpheres").append("<li data='" + currentSphere + "'><a href='#'>" + sphereName + "</a></li> ");
+                }
+
                 if(sharedPost){
                     share();
                 }
@@ -400,6 +404,21 @@ function Chat(){
             socket.emit('personalSphere', userID);
         };
 
+        this.DeleteSphere = function DeleteSphere(sphereID){
+            // remove sphere from sphereMap
+            delete sphereMap[sphereID]; 
+
+            // check if the currentSphere is being deleted, if so, switch to mainsphere
+            if(sphereID == currentSphere){
+                this.SwitchSphere(sphereIDs[0]);
+            }
+
+            //remove the sphere from the dropdown 
+            $("#sphereNames a[data='" + sphereID + "']").remove();
+
+            // delete from backend
+            socket.emit('deleteSphere', sphereID);
+        };
 
         this.ChangeName = function ChangeName(newName, sphereWide){
              // update name on client side first   

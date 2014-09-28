@@ -670,16 +670,31 @@ sessionSockets.on('connection', function (err, socket, session){
     }); // end create sphere
 
    socket.on('deleteSphere', function(sphereID){
+      console.log("Deleting Sphere.." + sphereID);
       Sphere.findOne({_id: sphereID}, function(err, sphere){
 
-        if(sphere && (sphere.owner == currentUser.id)){
-          sphere.remove(function(err){
+        if(sphere && (sphere.owner == currentUser.id) && !(sphere.isMain(currentUser.mainSphere))){
+           console.log("User owns sphere");
+
+           sphere.remove(function(err){
             if(err){
               console.log(err);
             }else{
-              console.log("Sphere deleted")
+              console.log("Sphere deleted");
+              // remove sphere reference from all users
+              User.deleteSphere(sphere.id);
+              // remove sphere reference from all posts 
+              Post.deleteSphere(sphere.id);
+
+              //remove from sessions 
+              var lostUpdates = session.sphereMap[sphereID].updates;
+              session.totalUpdates -= lostUpdates; 
+              session.sphereIDs.splice(session.sphereIDs.indexOf(sphereID), 1);
+              delete session.sphereMap[sphereID];
+              session.save();
+
             }
-          });
+          }); 
         }
       })
    });
@@ -955,12 +970,15 @@ sessionSockets.on('connection', function (err, socket, session){
           var link = (sphere.type === "Group" ? addedSphere.object.link(ENV) : "");
 
           var sphereID = (addedSphere.object._id) ? addedSphere.object._id : addedSphere.object;     
+          var isOwner = sphere.owner == currentUser.id;
 
           var sphereName = sphere.getName(user.id);
           session.sphereMap[sphereID] = { name: sphereName, 
                                              nickname: addedSphere.nickname, 
                                              link: link,
-                                             updates: addedSphere.updates          
+                                             updates: addedSphere.updates,        
+                                             type: sphere.type,
+                                             isOwner: isOwner
                                           };
 
                   session.sphereIDs.push(sphereID);

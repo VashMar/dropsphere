@@ -212,6 +212,9 @@ input {
   list-style: none;
   padding-left: 0px; }
 
+/* Delete Menu */
+#deletableSpheres {
+  list-style: none; }
 
 /* Chat Body */
 #content {

@@ -138,6 +138,12 @@ $(document).ready(function(){
         $('#sharePost').modal('hide');
     });
 
+    $("#deletableSpheres").on("click", "a", function(){
+        var sphere = $(this).parents('li').attr('data');
+        chat.DeleteSphere(sphere);
+        $('#deleteSphere').modal('hide');
+    });
+
     $("#saveEdits").click(function(){
         var newText = $("#editContent").val().trim();
         var postID =  $("#editContent").attr('data');

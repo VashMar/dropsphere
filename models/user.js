@@ -104,6 +104,7 @@ userSchema.pre('save', function(next) {
 });
 
 
+
 userSchema.methods.targetSphere = function(){
     console.log(this.spheres);
 
@@ -119,9 +120,6 @@ userSchema.methods.comparePassword = function(sentPassword, callback) {
 };
 
 
-userSchema.methods.addContact = function(contact){
-
-};
 
 // auto adds new contacts on sphere join 
 userSchema.methods.addSphereContacts = function(contactIds, next){
@@ -180,7 +178,12 @@ userSchema.methods.sphereData = function(ENV){
 
         var sphere = this.spheres[i],             
             sphereName = sphere.object.getName(this.id),
-            sphereID = sphere.object.id;
+            sphereID = sphere.object.id,
+            type = sphere.object.type,
+            isOwner = sphere.object.owner == this.id;
+
+        console.log("Sphere id: " + sphere.object.owner);
+        console.log("User id " + this.id);
 
         // get the updates on all spheres       
         totalUpdates += sphere.updates;
@@ -197,7 +200,9 @@ userSchema.methods.sphereData = function(ENV){
         sphereMap[sphereID] = {name: sphereName, 
                                 nickname: sphere.nickname, 
                                 link: link,
-                                updates: sphere.updates
+                                updates: sphere.updates,
+                                type: type,
+                                isOwner: isOwner
                                 };
 
         sphereIDs.push(sphereID);
@@ -232,6 +237,21 @@ userSchema.methods.endSession = function(sessionID){
   console.log("Exiting Session " + sessionID + " in session list: " + this.sessions);
   this.sessions.splice(this.sessions.indexOf(sessionID), 1);
   console.log("Remaining sessions " + this.sessions); 
+}
+
+userSchema.methods.removeSphere = function(sphereID){
+    for(var i =0; i < this.spheres.length; i++){
+        var sphere = this.spheres[i];
+        if(sphere.object == sphereID){
+            this.spheres.splice(i, 1);
+        }
+    }
+
+    this.save(function(err, user){
+        if(user){
+          console.log("Sphere removed from user's list");
+        }
+    });
 }
 
 userSchema.statics.load = function(sessionID, next){
@@ -277,6 +297,15 @@ userSchema.statics.updateMemberContacts = function(members, user){
                     }
                 });
             }
+        }
+    });
+}
+
+userSchema.statics.deleteSphere = function(sphereID){
+    this.find({'spheres.object':sphereID}, function(err, users){
+        for(var i = 0; i < users.length; i++){
+            var user = users[i];
+            user.removeSphere(sphereID);
         }
     });
 }

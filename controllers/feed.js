@@ -52,7 +52,7 @@ exports.signup = function(req, res){
          // construct data variables for client side tracking
          var sessionData = Session.createSessionData(); 
          sessionData.userID = user.id;
-         console.log(req.session.invite);
+
 
          var newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id, type: "Main" });
       	 // if the new user is being invited to an open sphere, assign them to it 
@@ -109,7 +109,7 @@ exports.signup = function(req, res){
                 if(err){console.log(err);}
 
                 else{
-                  console.log(user);
+                  console.log("User saved");
                 }
               });
 
@@ -124,7 +124,15 @@ exports.signup = function(req, res){
   		
 
   			      	// build a map of sphere data for the client 
-  			      	sessionData.sphereMap[sphere.id] =  {name: sphereName, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0, type: sphere.type}; 
+
+                var mapData = {name: sphereName, 
+                              nickname: sessionData.nickname, 
+                              link: sphere.link(ENV), 
+                              updates: 0, 
+                              type: sphere.type, 
+                              isOwner: user.isOwner(sphere) };
+
+  			      	sessionData.sphereMap[sphere.id] = mapData; 
 
   			      	console.log("Session's sphereMap: "  + sessionData.sphereMap);
 
@@ -194,6 +202,7 @@ exports.login = function(req, res){
           sessionData.sphereIDs = sphereData["sphereIDs"],
           sessionData.totalUpdates = sphereData["totalUpdates"];
           
+          console.log("User's spheremap: " + JSON.stringify(sessionData.sphereMap));
 
           // if the user is being invited to a sphere just track the nickname and sphere id for now
           if(req.session.invite == true){
@@ -201,10 +210,9 @@ exports.login = function(req, res){
             	sphereID = req.session.inviteID;
             	joined = moment(); // track the time the user joined the sphere as now 
           }else{	
-              console.log(user);
+
               // otherwise we already have the target sphere so track its data 
               targetSphere = user.targetSphere();
-              console.log(targetSphere);
               targetSphere.updates = 0; // served sphere doesn't need update notifications
         			sessionData.nicknames = targetSphere.object.nicknames;
               sessionData.nickname = targetSphere.nickname;
@@ -214,7 +222,6 @@ exports.login = function(req, res){
     	  	}
           
           Sphere.findOne({_id: sphereID}).populate('posts').exec(function(err, sphere){ 
-            console.log(sphere);
             if(err|!sphere){
             	console.log("unable to populate sphere");
             }else{
@@ -230,8 +237,18 @@ exports.login = function(req, res){
           		 			// create a sphere map key/value for the invited sphere and add the name to the list of user's spheres 
           		 			sessionData.currentSphere = sphere.id;
           		 			sessionData.nicknames = sphere.nicknames;
-          		 			sessionData.sphereMap[sessionData.currentSphere] = {name: sphereName, nickname: sessionData.nickname, link: sphere.link(ENV) , updates: 0, type: sphere.type }
-          		 			sessionData.sphereIDs.push(sessionData.currentSphere); 
+                    sessionData.sphereIDs.push(sessionData.currentSphere); 
+
+                    var mapData = {name: sphere.getName(user.id), 
+                                nickname: sessionData.nickname, 
+                                link: sphere.link(ENV), 
+                                updates: 0, 
+                                type: sphere.type, 
+                                isOwner: user.isOwner(sphere) };
+
+                    sessionData.sphereMap[sessionData.currentSphere] = mapData;
+          		 		
+   
 
           		 			sessionData.announcements["joined"] = user.name + " joined the sphere";
           		 			req.session.invite = false; 
@@ -258,8 +275,6 @@ exports.login = function(req, res){
              // get all the user contacts 
              user.getContacts(function(contacts){
                sessionData.contacts = contacts; 
-                console.log("The users contacts: " + JSON.stringify(sessionData.contacts));
-
                 // if the user is logging in through a mobile platform respond with JSON session data 
                 if(isMobile == "true"){
                   Session.respondJSON(res, sessionData);
@@ -320,8 +335,6 @@ exports.invite = function(req,res){
           if(!sphere){
             console.log("Invited Sphere doesn't exist");
            } else{
-              console.log("The user:" + user);
-              console.log("The sphere:" + sphere);
               if(!user.isMember(sphere)){       // if the user isn't already  member plop them in 
 
                  var sessionData = req.session;
@@ -339,7 +352,15 @@ exports.invite = function(req,res){
                   sessionData.currentSphere = sphere.id;
                   sessionData.nicknames = sphere.nicknames;
                   sessionData.sphereIDs.push(sessionData.currentSphere);
-                  sessionData.sphereMap[sessionData.currentSphere] = {name: sphere.getName(user.id), nickname: sessionData.nickname, link: sphere.link(ENV), updates: 0, type: sphere.type}; 
+
+                  var mapData = {name: sphere.getName(user.id), 
+                                nickname: sessionData.nickname, 
+                                link: sphere.link(ENV), 
+                                updates: 0, 
+                                type: sphere.type, 
+                                isOwner: user.isOwner(sphere) };
+
+                  sessionData.sphereMap[sessionData.currentSphere] = mapData;
                   
                   console.log("Updated sphereMap : " + JSON.stringify(sessionData.sphereMap));
 
@@ -352,10 +373,9 @@ exports.invite = function(req,res){
 
                   // add the sphere members to invited user's contacts 
                   user.addSphereContacts(sphere.memberIds, function(members){
-                      console.log(contacts);
+ 
                       sessionData.contacts = contacts;
-                      console.log("The user's contacts: " + contacts);
-                      console.log("Members: " + members);
+  
                       user.save(function(err){
                         if(err){
                           console.log(err);
