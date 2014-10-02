@@ -139,6 +139,7 @@ function Chat(){
                              
                         } 
                     }else{
+                        // this mean that there's a sphere connected to the socket but not on the client's sphereMap yet, so let's cache it
                         socket.emit("cacheSphere", data.sphere);
                     }
                 }        
@@ -202,6 +203,7 @@ function Chat(){
                 postURL = data.url;
                 postThumb = data.thumbnail;
                 postTitle = data.title;
+
                 postImage = data.image; 
             });
 
@@ -343,7 +345,7 @@ function Chat(){
             $("#feed").empty();
             // resize the scroller for sphere chat view
             $(".slimScrollDiv").css('height', '98%');
-            $("#feed").css('height', '96%');
+            $("#feed").css('height', '87%');
             requestMessages();
             // the chat for this post will be seen by this user 
             seenChat(currentPost);
@@ -353,7 +355,7 @@ function Chat(){
             $(".controls").hide();
             $(".postBox").html(postInput);
             $(".slimScrollDiv").css('height', feedHeight);
-            $("#feed").css('height', feedHeight);
+            $("#feed").css('height', "95%");
             currentPost = null;
             viewFeed();
         };
@@ -402,6 +404,11 @@ function Chat(){
 
         this.OpenPersonal = function OpenPersonal(userID){
             socket.emit('personalSphere', userID);
+        };
+
+        this.SavePost = function SavePost(postID){
+            socket.emit('addToMain', postID);
+            notify("Post Saved");
         };
 
         this.DeleteSphere = function DeleteSphere(sphereID){
@@ -572,29 +579,45 @@ function Chat(){
         function createPost(postID,content,memberNum,sender,time,seen, isOwner, viewedNum){
 
             var chatIcon = (seen) ? seenIcon : unseenIcon;
-            var data = (postID) ? postID : '';
-            var options = "";
-            var viewed = "";
-
+                data = (postID) ? postID : '',
+                options = "",
+                viewed = "",
+                viewedAndShare = "",
+                sender = "<div class='postername'>" + sender + "</div>",
+                savePost=   "<li>" + saveIcon + "</li>",
+                postChat = "<li>" + chatIcon + "</li>",
+                viewersIcon = "<li style='float:left;'>" + viewedIcon + viewed + "</li>",
+                sharePost = "<li>" + shareIcon + " </li>";
 
             if(isOwner){
                 options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";
             }
 
-            if(viewedNum > 0){
+            if(sphereMap[currentSphere].type == "Main"){
+                if(viewedNum > 0){
+                    viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
+                    viewedIcon = "<li style='float:left;'>" + viewedIcon +  viewed + " </li>";
+                }
+
+                savePost = "";
+                postChat ="";
+                viewedIcon = "";
+            }else if(viewedNum > 0){
                 viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
+                viewersIcon = "<li style='float:left;'>" + viewedIcon +  viewed + "</li>";
             }
+
+    
 
             $("#feed").prepend("<div class='post' data=" + data + ">" + 
                 "<div class='sender user" + memberNum + "'>" + options + "<span>" + 
-                "<div class='postername'>" + sender + "</div><div class='time'>" + time + "</div></span></div>" + 
+                sender + "<div class='time'>" + time + "</div></span></div>" + 
                 "<div class='postContent'>" + content + "</div>" +
                 "<div class='postButtons'><ul>" +
-                "<li style='float:left;'>" + viewedIcon +  viewed + " </li>" +
-                "<li>" + shareIcon + " </li>" +
-                "<li>" + saveIcon + " </li>" +
-                "<li>" + chatIcon + " </li>" +
-                "</ul></div></div>");
+                viewersIcon +
+                sharePost +
+                savePost + 
+                postChat + "</ul></div></div>");
 
         }
 
@@ -628,14 +651,10 @@ function Chat(){
         }
 
 
-        function alertIssue(msg){
-
-            $("#content").prepend("<div class='alert'>" +  msg +  "</div>");
-            $('.alert').delay(5000).fadeOut(400);
-
-            $('.alert').click(function(){
-                $(this).fadeOut();
-            });
+        function notify(msg){
+            $(".alert").html(msg);
+            $(".alert").fadeIn(800);
+            $('.alert').delay(400).fadeOut(1000);
         }
 
     } // end chat

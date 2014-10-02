@@ -87,6 +87,12 @@ $(document).ready(function(){
         chat.SelectPost($(this).parents(".post"));
     });
 
+
+    $("#feed").on("click", "a img.saveIcon", function(){
+        var postID = $(this).parents('.post').attr('data');
+        chat.SavePost(postID);
+    });
+
     $("#feed").on("click", "a.textPost", function(){
         var post = $(this).parents(".post");
         chat.ViewedPost(post.attr('data'));
@@ -165,6 +171,11 @@ $(document).ready(function(){
     });
 
 });
+
+
+    function saveLink(postID){
+        alert(postID);
+    }
 
     function feedReturn(){
          chat.FeedReturn();

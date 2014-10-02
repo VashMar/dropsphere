@@ -66,6 +66,7 @@
                     #previewLink(class="post")
                  input#drop(type='button' class="btn btn-primary" value='drop' onclick='getLink();')
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
+            .alert(style="display:none;") text
             #feed 
                 if feed.length > 0 
                     each postID in feed
@@ -101,7 +102,8 @@
                                                     span.postOption Remove Post 
 
                                 span
-                                    .postername=sender 
+                                    if sphereMap[currentSphere].type != "Main"
+                                        .postername=sender 
                                     .time=moment(postTime).format("MMM Do, h:mm a")
                             .postContent
                                 if isLink === true
@@ -120,25 +122,27 @@
                                         =content['title']
                             .postButtons  
                                 ul
-                                    li(style="float:left;")
-                                        a(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
-                                            img.viewedIcon(src="/img/viewed.png")
-                                            if viewers.length > 0
-                                                span.viewedNum
-                                                    =viewers.length 
+                                    if sphereMap[currentSphere].type != "Main"
+                                        li(style="float:left;")
+                                            a(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
+                                                img.viewedIcon(src="/img/viewed.png")
+                                                if viewers.length > 0
+                                                    span.viewedNum
+                                                        =viewers.length 
                                     li
                                         a(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
                                             img.shareIcon(src="/img/share_post.png")
-                                    li
-                                        a(href='#' title="Save Link")   
-                                            img.saveIcon(src="/img/sphere_add.png")
-                                    li
-                                        a(href='#' title="Comments")    
-                                            if seenConvo === false 
-                                                img.chatIcon(src="favicon.png")   
-                                            else 
-                                                img.chatIcon(src="/img/chat_icon.png")
-        .controls(style="display:none")
+                                    if sphereMap[currentSphere].type != "Main"
+                                        li
+                                            a(href='#' title="Save Link")   
+                                                img.saveIcon(src="/img/sphere_add.png")
+                                        li
+                                            a(href='#' title="Comments")    
+                                                if seenConvo === false 
+                                                    img.chatIcon(src="favicon.png")   
+                                                else 
+                                                    img.chatIcon(src="/img/chat_icon.png")
+        #messageBox.controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
         #dropperControl.btn-group
@@ -239,9 +243,10 @@
         #shareRecipients.modal-body
             ul#shareSpheres
                 each sphereID, i in sphereIDs 
-                    - var sphereName = sphereMap[sphereID].name;
-                    li(data=sphereID)
-                        a(href='#')=sphereName
+                    if sphereMap[sphereID].type == "Group"
+                        - var sphereName = sphereMap[sphereID].name;
+                        li(data=sphereID)
+                            a(href='#')=sphereName
             ul#shareContacts(style='display:none;')
                 each contactId in contactIds
                     - var contact = contacts[contactId];

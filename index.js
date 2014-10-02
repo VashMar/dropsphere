@@ -391,16 +391,7 @@ sessionSockets.on('connection', function (err, socket, session){
                   }else{
                     data.isOwner = true; 
                   }
-          } 
-
-      /*    // emits the post data to other clients 
-          if(connected && sphereIDs.indexOf(sphereString) > 0 ){
-            socket.broadcast.to(sphereString).emit('post', data);
-          }else if(connected){
-            session.sphereMap[sphereString] = "missing";
-          } */
-
-          socket.broadcast.to(sphereString).emit('post', data);
+          }
 
           var postInfo = {content: data.post, 
                           creator: {object: currentUser, name: data.sender}, 
@@ -417,6 +408,8 @@ sessionSockets.on('connection', function (err, socket, session){
           Sphere.savePost(User, sphereString, post, function(savedPost){
               console.log("Post saved to sphere..." + savedPost);
               var postID = savedPost.id;
+              data.postID = postID;
+              socket.broadcast.to(sphereString).emit('post', data);
               socket.emit('getPostID', {postID : postID});
               session.posts[postID] = savedPost.getPostData(currentUser, sphereString);
               session.feed.unshift(postID);
@@ -480,6 +473,42 @@ sessionSockets.on('connection', function (err, socket, session){
           }
     });
   }); // end seen  
+
+  socket.on('addToMain', function(postID){
+    Post.findOne({_id:postID}, function(err, post){
+      // only add if doesn't exist
+      if(post && mainSphere.posts.indexOf(postID) < 0){
+         // make a copy of the post wanting to be a saved so it has a unique reference 
+          var postInfo = {content: post.content, 
+                          creator: {object: currentUser, name: currentUser.name}, 
+                          contentData:{
+                             url: post.contentData.url,
+                             thumbnail: post.contentData.thumbnail,
+                             image: post.contentData.image,
+                             title: post.contentData.title
+                            }
+                          };
+                  var copiedPost = new Post(postInfo); 
+                  copiedPost.save(function(err, post){
+                    pushAndSave(post.id);
+                  }); 
+
+       function pushAndSave(){
+          mainSphere.posts.push(post.id);
+          mainSphere.save(function(err){
+            if(!err){
+              console.log("Post saved to sphere");
+
+            }else{
+              console.log(err);
+            }
+          });
+        }
+
+      }
+
+    });
+  });
 
   socket.on('sharePost', function(data){
 
@@ -571,8 +600,8 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('updateSession', function(data){ 
     console.log("Updating Session Data..");
-    session.posts[data.time] = data.postData;
-    session.feed.unshift(data.time);
+    session.posts[data.postID] = data.postData;
+    session.feed.unshift(data.postID);
     console.log("Updated Feed: " + session.feed);
     session.save();
   });
@@ -581,23 +610,31 @@ sessionSockets.on('connection', function (err, socket, session){
   socket.on('seenChat', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     console.log(data.postID);
-    console.log(session.posts[data.postID]);
+   
     Post.findOne({_id: data.postID}, function(err, post){
       if(post){
+        console.log("Post Found")
         post.chatSeen(currentUser.id, data.sphereID);
         post.save(function(err, post){
           if(post){
             console.log("Saved Post...: " + post);
+
+             if(!session.posts[data.postID]){
+              session.posts[post.id] = post.getPostData(currentUser, data.sphereID);
+              session.feed.push(post.id);
+            }
+
+
+            session.posts[data.postID].seen = true;
+            console.log(session.posts[data.postID]);
+            socket.emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphereID});
+            session.save();
           }
         });
       }
     });
-    //Post.seenChat(data.postID, currentUser.id, data.sphereID);
-    session.posts[data.postID].seen = true;
-    console.log(session.posts[data.postID]);
-    socket.emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphereID});
-    session.save();
-  });
+
+    });
 
   // locates or creates a personal sphere between two users and renders it
   socket.on('personalSphere', function(userID){
@@ -793,8 +830,8 @@ sessionSockets.on('connection', function (err, socket, session){
 }); // end getPostConvo
 
   socket.on('requestMessages', function(data, fillMessages){
-      console.log("Requesting Messages...");
-      
+      console.log("Requesting Messages..." + data.postID);
+
       var postID = data.postID;
 
       Post.findOne({_id: postID}, function(err, post){ 
@@ -811,7 +848,7 @@ sessionSockets.on('connection', function (err, socket, session){
           post.getLoc(data.sphereID, function(loc){
             console.log(loc);
             Message.populate(loc, {path:'messages'}, function(err, loc){
-              var messages = loc.messages; 
+              var messages = loc.messages || [];
 
               var convo = {},
               key,

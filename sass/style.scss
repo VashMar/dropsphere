@@ -78,7 +78,7 @@ input{
 	margin-left:3%;
 }
 #chat{
-	height:68%;
+	height:80%;
 }
 
 
@@ -270,7 +270,7 @@ input{
 /* Chat Body */
 #content{
 	position:relative;
-	height:100%; /* maxed out height because div was too short */
+	height: 100%; 
 	width: 100%; 
 	margin:auto;
 	text-align:left;
@@ -434,12 +434,32 @@ a.post_image img{	/* linked image url */
 		background:none !important;
 	}
 }
+
+
 textarea{
 	margin:4px 0 6px 0;
 	resize: none;
 }
+
+#messageBox{
+	position:absolute;
+	bottom:0;
+	margin-bottom:23px;
+	width:100%;
+	background:#4186cc;
+}
+
+#messageBox textarea{
+	width:98%;
+	display:block;
+	margin-left:auto;
+	margin-right:auto;
+	height:50px;
+}
+
 #send{
-	width: 80%;
+	width: 50%;
+	margin-bottom:5px;
 }
 
 #feedReturn{
@@ -508,6 +528,7 @@ a#bookmarklet{
 	font-size:12px;
 	padding:14px 12px;
 	margin-top:6px;
+	margin-bottom:6px;
 	box-shadow: 3px 2px 4px #888888;
 	color:#999;
 	min-height: 120px;
@@ -517,13 +538,15 @@ a#bookmarklet{
 
 .alert{
 	position:absolute;
-	top:0;
+	bottom:0;
 	left:0;
 	width:100%;
-	background:$theme;
+	z-index:90000;
 	text-align:center;
 	padding:4px;
 	color:white;
+	/*background:#9b9b9b;*/
+	background:$theme;
 }
 
 .gray{
