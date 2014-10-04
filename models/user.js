@@ -103,7 +103,14 @@ userSchema.pre('save', function(next) {
     });
 });
 
-
+userSchema.methods.setNick = function(sphereID, nickname){
+    this.spheres.forEach(function(sphere){
+        if(sphere.object == sphereID){
+            sphere.nickname = nickname;
+            console.log("User side sphere nickname updated");
+        }
+    });
+}
 
 userSchema.methods.targetSphere = function(){
     console.log(this.spheres);

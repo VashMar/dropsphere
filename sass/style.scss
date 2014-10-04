@@ -134,6 +134,34 @@ input{
 	margin-left:0;
 }
 	/************************************* Menus **********************************/
+
+
+  /* removing list styling on sphere lists */
+
+	#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection{
+		list-style:none;
+	}
+
+
+	.modal-dialog ul li{
+		font-weight:350;
+		margin-right: 10px;
+	}
+
+	ul li a{
+		color: #428bca;
+	}
+
+	.modal-dialog li a:hover{
+		background: #428bca;
+		text-decoration: none;
+		color: white;
+		border-radius:4px;
+		font-weight:400;
+	}
+
+
+
 	.dropdown a{
 		text-align:left;
 	}
@@ -183,23 +211,8 @@ input{
 	}
 
 	#contactNames{
-		list-style:none;
 		padding: 0px;
 		margin-top: 5px;
-	}
-
-	#contactNames li{
-		font-weight:300;
-		margin-right: 10px;
-	}
-
-	#contactNames li a{
-		color: #222;
-	}
-
-	#contactNames li a:hover{
-		text-decoration: none;
-		color: #2a6496;
 	}
 
 	#contactList h5{
@@ -238,7 +251,6 @@ input{
 	}
 
 	#shareSelection{
-		list-style:none;
 		padding-left:0px;
 		margin-top:5px;
 		margin-bottom:0;
@@ -261,11 +273,19 @@ input{
 	}
 
 
-	/* Delete Menu */
-
-	#deletableSpheres{
-		list-style:none;
+	#nickAddingSpheres .selected{
+		background: #428bca;
+		text-decoration: none;
+		color: white;
+		border-radius:4px;
+		font-weight:400;
 	}
+
+	#nickAddingSpheres span{
+		font-weight: 200;
+	}
+
+
 
 /* Chat Body */
 #content{

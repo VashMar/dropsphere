@@ -39,7 +39,7 @@ sphereSchema.virtual('memberIds').get(function(){
   return ids;
 });
 
-
+// returns the name seen by the user for a sphere 
 sphereSchema.methods.getName = function(userID){
   if(this.type === "Group" || this.type === "Main"){
     return this.name;
@@ -54,6 +54,23 @@ sphereSchema.methods.getName = function(userID){
   } 
 }
 
+sphereSchema.methods.setNick = function(userID, nickname, next){
+    var currentSphere = this;
+    currentSphere.members.forEach(function(member){
+      if(member.id == userID){
+        member.nickname = nickname;
+        currentSphere.save(function(err, sphere){
+          if(sphere){
+            console.log("Sphere side nickname updated");
+            next(sphere);
+          }
+        });
+      }
+    });
+
+}
+
+// returns the other members aside from the given user in a sphere 
 sphereSchema.methods.getOtherMembers = function(userID){
   var members = this.members;
   var contacts = {};

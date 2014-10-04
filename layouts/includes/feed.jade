@@ -15,9 +15,7 @@
                 ul.dropdown-menu(role="menu" aria-labelledby="dLabel")
                     li(role="presentation" class="dropdown-header") Profile Settings
                     li(role="presentation")
-                        a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nameChange" href="#") Change name 
-                    li(role="presentation")
-                        a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") Set Nickname 
+                        a(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#nickChange" href="#") Set Nickname(s) 
                     li(role="presentation" class="divider")
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" href="#" onclick="logout();") Logout 
@@ -192,12 +190,26 @@
     .modal-content
       .modal-header
         button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
-        h4.modal-title New Sphere Nickname
+        h4.modal-title Add a nickname!
       .modal-body
-        input#newNick(class="form-control" placeholder="New Name")
-      
+        h5.modal-title Please enter a nickname
+        input#newNick(class="form-control" placeholder="(Mom, Dad, Heisenberg, Flynn)")
+        h5.modal-title Where would you like it seen?
+        ul#nickAddingSpheres
+            each sphereID, i in sphereIDs 
+                - var sphereName = sphereMap[sphereID].name;
+                - var sphereNick = sphereMap[sphereID].nickname;
+                li(data=sphereID)
+                    a(href='#')=sphereName 
+                    = ' '
+                    span 
+                        if sphereNick.length > 0
+                            - sphereNick = "(" + sphereNick + ")";
+                        else
+                            - sphereNick = "(No Nickname)";
+                        =sphereNick
       .modal-footer
-        button#saveNick.btn.btn-primary(type="button") Save changes
+        button#saveNick.btn.btn-primary(type="button") Apply 
 #sphereDialog.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
     .modal-content

@@ -561,6 +561,10 @@ sessionSockets.on('connection', function (err, socket, session){
               console.log("Post marked as viewed");
               data.viewers = savedPost.getViewed(savedPost.getViewers(sphereString));
               io.sockets.in(sphereString).emit('updateViewers', data);
+              if(!session.posts[data.postID]){
+                session.posts[data.postID] = savedPost.getPostData(currentUser, sphereString);
+              }
+              
               session.posts[data.postID]['viewers'] = data.viewers;
               io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
               session.save();
@@ -910,10 +914,55 @@ sessionSockets.on('connection', function (err, socket, session){
 
   }); // end request messages 
 
+  
+  // sets the nickname of the user on all selected spheres
+  socket.on('setNickname', function(data){
+    console.log("Setting user's nickname..")
+    var spheres = data.spheres; // selected spheres (array)
+    var nickname = data.nickname; 
 
 
+    console.log("Finding all selected spheres..");
+    Sphere.find({$and: [{'members.id': currentUser.id}, {'_id': {$in: spheres}}]}, function(err, foundSpheres){
 
-  socket.on('changeName', function(data){
+      if(!err && foundSpheres.length > 0){
+        console.log(foundSpheres.length + " spheres found..");
+        console.log("Adding nickname to each sphere..");
+        // update the nickname on the user side and sphere side
+        foundSpheres.forEach(function(sphere,index){
+          currentUser.setNick(sphere.id, nickname);
+          sphere.setNick(currentUser.id, nickname, function(updatedSphere){
+            var nicknames = updatedSphere.nicknames;
+            //  update every socket in the sphere
+            io.sockets.in(sphere.id).emit('users', nicknames);
+
+            //update sessions if needed
+            if(session.currentSphere == updatedSphere.id){
+              console.log("Updating session info with new nickname..");
+              session.nickname = nickname;
+              session.nicknames = nicknames;
+              session.save();
+            }
+
+            // save the user data at the end 
+            if(index == foundSpheres.length -1){
+              currentUser.save();
+
+              //emit a success message 
+              socket.emit('nicknameSuccess', {spheres: spheres, nickname:nickname});
+            }
+
+          });
+
+        });
+      }
+
+
+    });
+  });
+
+
+ /* socket.on('changeName', function(data){
     console.log("Changing Name...");
       console.log("Name: " + data.newName + " sphereWide: " + data.sphereWide);
 
@@ -926,7 +975,7 @@ sessionSockets.on('connection', function (err, socket, session){
         if( err || !user){ console.log("Couldn't find user");}
 
         else{
-           // if the change is sphere wide update the name of the user and the name in every sphere 
+           // if the 0is sphere wide update the name of the user and the name in every sphere 
            if(sphereWide == true){
 
              Sphere.update({'members.id': user.id}, {'$set': {'members.$.name' : newName}}, {multi:true}, function(err){
@@ -977,7 +1026,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
       });
  
-  });
+  }); */
 
 
   socket.on('leaveRooms', function(data){

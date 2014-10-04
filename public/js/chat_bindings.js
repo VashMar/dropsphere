@@ -43,6 +43,19 @@ $(document).ready(function(){
 
 
     $("#saveNick").click(function(){
+
+       var nickname = $("#newNick").val().trim();
+       var nicknamedSpheres = [];
+
+        $("#nickAddingSpheres .selected").each(function(){
+            nicknamedSpheres.push($(this).parents('li').attr('data'));
+        });
+
+        chat.SetNickname(nicknamedSpheres,nickname);
+
+
+
+        /*
         // overlay for sphere name input goes here 
         var newName = $("#newNick").val().trim();
         var sphereWide = false; // signal name change on all spheres 
@@ -51,6 +64,8 @@ $(document).ready(function(){
           $('#nickChange').modal('hide');  
           chat.ChangeName(newName, sphereWide);
         }
+
+        */
     }); 
 
     $("#urlInput").on('paste', function(){
@@ -161,6 +176,9 @@ $(document).ready(function(){
     });
 
 
+    $("#nickAddingSpheres").on("click", "a", function(){
+        $(this).toggleClass("selected");
+    });
 
     $("#acceptDeletion").click(function(){
         var postID =  $("#removePost").attr('data')

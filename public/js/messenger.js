@@ -277,6 +277,15 @@ function Chat(){
 
             });
 
+            socket.on('nicknameSuccess', function(data){
+                // find the selected spheres and change their user nicknames 
+                $("#nickAddingSpheres li").each(function(){
+                        if(data.spheres.indexOf($(this).attr('data')) > -1){
+                            $(this).children('span').html("(" + data.nickname + ")");
+                        }
+                });
+            });
+
         };
 
         this.Disconnect = function(){
@@ -427,7 +436,21 @@ function Chat(){
             socket.emit('deleteSphere', sphereID);
         };
 
-        this.ChangeName = function ChangeName(newName, sphereWide){
+        this.SetNickname = function SetNickname(spheres, newNick){
+
+            // change the user's nickname on each selected sphere on the sphereMap
+            spheres.forEach(function(sphere){
+                // if the current sphere was also selected update the user's currently seen nickname 
+                if(sphere == currentSphere){
+                    nickname = newNick;
+                }
+                sphereMap[sphere].nickname = newNick;
+            });
+
+            socket.emit("setNickname", {spheres: spheres, nickname: newNick});
+        }
+
+/*        this.ChangeName = function ChangeName(newName, sphereWide){
              // update name on client side first   
            $("#users").children('p').each(function(){
                 if($(this).text() == name){
@@ -454,6 +477,8 @@ function Chat(){
            socket.emit("changeName", {newName: name, sphereWide: sphereWide, sphereIndex: sphereIndex});
                
         };
+
+*/
 
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
