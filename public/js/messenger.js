@@ -119,7 +119,6 @@ function Chat(){
             socket.on('post', function(data){
               
                 if(data.post){
-                    alert("hit");
                     // if the message is being sent to the current sphere being looked at, add it to the chat 
                     if(currentSphere == data.sphere && currentPost == null){    
                          var memberNum = data.memberNum || nicknames.indexOf(data.sender);  
