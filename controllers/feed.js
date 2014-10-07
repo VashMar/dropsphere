@@ -9,7 +9,7 @@ var ENV = process.env.NODE_ENV;
 
 var Session = require("../controllers/sessions");
 
-
+var Mailer = require("../helpers/mailer");
 
 // show action
 exports.bookmark = function(req, res){
@@ -53,34 +53,36 @@ exports.signup = function(req, res){
          var sessionData = Session.createSessionData(); 
          sessionData.userID = user.id;
 
+         //send welcome email 
+         Mailer.welcome(user.email);
 
          var newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id, type: "Main" });
-      	 // if the new user is being invited to an open sphere, assign them to it 
-         if(req.session.invite == true){
-         	req.session.invite = false; // turn the flag off 
-          	Sphere.findOne({_id: inviteID}, function(err, invitedSphere){
-          	
-          		console.log(invitedSphere);
+        	 // if the new user is being invited to an open sphere, assign them to it 
+           if(req.session.invite == true){
+           	req.session.invite = false; // turn the flag off 
+            	Sphere.findOne({_id: inviteID}, function(err, invitedSphere){
+            	
+            		console.log(invitedSphere);
 
-          		if(err || !invitedSphere){console.log("unable to find invited sphere");}
+            		if(err || !invitedSphere){console.log("unable to find invited sphere");}
 
-          		else{
-          			if(invitedSphere.members.length < 6){	// make sure sphere isn't full
-          				sessionData.announcements["joined"] = user.name + " joined the sphere";
-          				console.log("Adding user to sphere: " + invitedSphere.id);
-          				add_and_render(newSphere, invitedSphere);
-          			}
-          		}	
-          	});
-				
-				
+            		else{
+            			if(invitedSphere.members.length < 6){	// make sure sphere isn't full
+            				sessionData.announcements["joined"] = user.name + " joined the sphere";
+            				console.log("Adding user to sphere: " + invitedSphere.id);
+            				add_and_render(newSphere, invitedSphere);
+            			}
+            		}	
+            	});
+  				
+  				
 
-         }else {	// create the user a sphere and plop them inside 
-         	  console.log("Creating sphere for new user..");
-         	  // create a welcome message 
-    			  sessionData.announcements["welcome"] = "Welcome to your sphere!";
-    			  add_and_render(newSphere);
-         }
+           }else {	// create the user a sphere and plop them inside 
+           	  console.log("Creating sphere for new user..");
+           	  // create a welcome message 
+      			  sessionData.announcements["welcome"] = "Welcome to your sphere!";
+      			  add_and_render(newSphere);
+           }
 
 
          function add_and_render(newSphere, invitedSphere){
@@ -187,6 +189,8 @@ exports.login = function(req, res){
           console.log("Incorrect Login Credentials");
           res.json(400, {message: "The email or password you entered is incorrect"});
         }else{
+
+
           // track target sphereID depending on login situation and join date to get all relevant posts
           var sphereID,
               joined;

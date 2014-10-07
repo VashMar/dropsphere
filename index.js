@@ -239,7 +239,7 @@ sessionSockets.on('connection', function (err, socket, session){
       console.log("New sphere member..");
       var sphere = session.currentSphere; // the new sphere will be the last one on the list
       sphere = String(sphere);
-      io.sockets.in(sphere).emit('users', session.nicknames);
+      io.sockets.in(sphere).emit('users', {nicknames: session.nicknames, sphereID: sphere.id});
       socket.broadcast.to(sphere).emit('announcement', {msg: username +  " joined the sphere" });
       socket.broadcast.to(sphere).emit('addContact', {id: session.userID, name: username});
       console.log("User contacts: " + JSON.stringify(contacts));
@@ -760,7 +760,7 @@ sessionSockets.on('connection', function (err, socket, session){
           if(err|!sphere){ console.log("Error finding sphere");}
 
           else{
-            socket.emit('users', sphere.nicknames);
+            socket.emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
             session.nicknames = sphere.nicknames;
             session.save();
           }
@@ -785,8 +785,6 @@ sessionSockets.on('connection', function (err, socket, session){
           }
       }
 
- 
-
       if(targetSphere){
          console.log("Retrieving posts from Sphere: " + targetSphere + "..");
          Sphere.findOne({_id: data.sphereID}).populate('posts').exec(function(err, sphere){ 
@@ -795,8 +793,19 @@ sessionSockets.on('connection', function (err, socket, session){
             // resets the notifications in a sphere to 0 once the user has accessed it 
             targetSphere.updates = 0;
             currentUser.currentSphere = data.sphereIndex;       
-
             sendFeed(sphere);
+            currentUser.save(function(err){
+              if(err){console.log(err);}
+
+              else{
+                console.log("user updates reset on requested sphere");
+              }
+            });
+
+            //reset updates on sessions
+            session.sphereMap[sphere.id].updates = 0;
+            session.save();
+            
            } else{
             console.log("User requested a sphere that magically doesn't exist!");
            }
@@ -934,7 +943,7 @@ sessionSockets.on('connection', function (err, socket, session){
           sphere.setNick(currentUser.id, nickname, function(updatedSphere){
             var nicknames = updatedSphere.nicknames;
             //  update every socket in the sphere
-            io.sockets.in(sphere.id).emit('users', nicknames);
+            io.sockets.in(sphere.id).emit('users', {nickname: nicknames, sphereID: sphere.id});
 
             //update sessions if needed
             if(session.currentSphere == updatedSphere.id){
@@ -962,73 +971,6 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
 
- /* socket.on('changeName', function(data){
-    console.log("Changing Name...");
-      console.log("Name: " + data.newName + " sphereWide: " + data.sphereWide);
-
-      var newName = data.newName,
-          sphereWide = data.sphereWide,
-          sphereIndex = data.sphereIndex;
-
-      User.findOne({session: sessionID}).populate('spheres.object').exec(function(err, user){
-
-        if( err || !user){ console.log("Couldn't find user");}
-
-        else{
-           // if the 0is sphere wide update the name of the user and the name in every sphere 
-           if(sphereWide == true){
-
-             Sphere.update({'members.id': user.id}, {'$set': {'members.$.name' : newName}}, {multi:true}, function(err){
-                  if(err){console.log(err);}
-              });
-
-              for(var i = 0; i < user.spheres.length; i++){
-                  var userSphere = user.spheres[i];
-                  // if the sphere nickname is the username, update it 
-                  if(userSphere.nickname == user.name){
-                      userSphere.nickname = newName;
-                  }
-
-              }
-                
-              user.name = newName; 
-
-              user.save(function(err){
-                  if(err){console.log(err);}
-                  else{
-                    console.log("User: " + user.id + " now known as " + user.name);
-                    console.log(user.spheres);
-                  } 
-              });
-
-           } else{
-              // otherwise only change the nickname pertaining to the user's current sphere 
-              var userSphere = user.spheres[sphereIndex];
-
-              // swap the current user nickname is the sphere members list with the new one 
-              Sphere.update({$and: [{_id: userSphere.object.id} , {'members.id': user.id}]}, {'$set': {'members.$.nickname' : newName}}, function(err){
-                  if(err){console.log(err);}
-              });
-
-              io.sockets.in(userSphere.object.id).emit('announcement', {msg: userSphere.nickname + " is now known as " + newName});
-
-
-              userSphere.nickname = newName; // change the nickname to the new name 
-        
-
-              user.save(function(err){
-                  if(err){console.log(err);}
-                  else{ console.log("User nickname in sphere: " + userSphere.object.id + "is now " + userSphere.nickname)}
-              });
-           }
-
-        }
-
-      });
- 
-  }); */
-
-
   socket.on('leaveRooms', function(data){
     console.log("ending session");
     currentUser.endSession(sessionID);
@@ -1048,7 +990,7 @@ sessionSockets.on('connection', function (err, socket, session){
   function newSphereMade(sphere, user, type){
           socket.join(sphere.id);
           socket.emit('clearChat');
-          socket.emit('users', sphere.nicknames); 
+          socket.emit('users', {nickanmes: sphere.nicknames, sphereID: sphere.id}); 
           // pass the client side all the info necessary to track sphere related information 
           user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
 
@@ -1107,13 +1049,6 @@ sessionSockets.on('connection', function (err, socket, session){
       session.posts = posts;
       session.save();
 
-      currentUser.save(function(err){
-          if(err){console.log(err);}
-
-          else{
-            console.log("user updates reset on requested sphere");
-          }
-      });
   }
 
 

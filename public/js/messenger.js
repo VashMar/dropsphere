@@ -45,17 +45,22 @@ function Chat(){
             username = user;
             
 
-            socket.on('users', function(users){
+            socket.on('users', function(data){
+                if(currentSphere == data.sphereID){
+                    nicknames = data.nicknames; // store array of all user nicknames in sphere 
+                    members = nicknames.length;
+                    $("#users").empty();
 
-                nicknames = users; // store array of all user nicknames in sphere 
-                members = users.length;
-                $("#users").empty();
+                    for(var i = 0; i < members; i++){
+                        $("#users").append("<p>" + nicknames[i] + "</p>");
+                    }
 
-                for(var i = 0; i < users.length; i++){
-                    $("#users").append("<p>" + users[i] + "</p>");
+
+                    if(sphereMap[currentSphere].type != "Main"){
+                        $("#users").prepend("<a id='share_small' data-toggle='modal' data-target='#shareModal'></a>");
+                    }
+
                 }
-
-                $("#users").prepend("<a id='share_small' data-toggle='modal' data-target='#shareModal'></a>");
             });
 
             socket.on('sphereMap', function(data){
@@ -364,7 +369,7 @@ function Chat(){
             $(".controls").hide();
             $(".postBox").html(postInput);
             $(".slimScrollDiv").css('height', feedHeight);
-            $("#feed").css('height', "95%");
+            $("#feed").css('height', "94%");
             currentPost = null;
             viewFeed();
         };
@@ -449,36 +454,6 @@ function Chat(){
 
             socket.emit("setNickname", {spheres: spheres, nickname: newNick});
         }
-
-/*        this.ChangeName = function ChangeName(newName, sphereWide){
-             // update name on client side first   
-           $("#users").children('p').each(function(){
-                if($(this).text() == name){
-                    $(this).text(newName);
-                }
-           });
-
-           if(sphereWide){
-             //update the user's name on all spheres of the sphereMap
-             for(var i = 0; i< sphereIDs.length; i++){
-                // if the sphere nickname is the user's default username swap it with the new one 
-                  if(sphereMap[sphereIDs[i]].nickname == username){ 
-                        sphereMap[sphereIDs[i]].nickname = newName;
-                  }
-             }
-            username = newName; // the username is now the newname  
-           } else{
-             // just update the name in this sphere  
-             sphereMap[currentSphere].nickname = newName;   
-           }
-           // the user's sphere nickname changes in both scenarios  
-           nickname = newName;
-
-           socket.emit("changeName", {newName: name, sphereWide: sphereWide, sphereIndex: sphereIndex});
-               
-        };
-
-*/
 
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
@@ -614,6 +589,7 @@ function Chat(){
                 viewersIcon = "<li style='float:left;'>" + viewedIcon + viewed + "</li>",
                 sharePost = "<li>" + shareIcon + " </li>";
 
+
             if(isOwner){
                 options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";
             }
@@ -627,6 +603,7 @@ function Chat(){
                 savePost = "";
                 postChat ="";
                 viewedIcon = "";
+                sender = "";
             }else if(viewedNum > 0){
                 viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
                 viewersIcon = "<li style='float:left;'>" + viewedIcon +  viewed + "</li>";

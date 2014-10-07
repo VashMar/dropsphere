@@ -105,16 +105,17 @@
                                     .time=moment(postTime).format("MMM Do, h:mm a")
                             .postContent
                                 if isLink === true
-                                    a.post_link(target='_blank' href=content['url'])
                                         if content["image"] === ""
-                                            if content['thumbnail'] === ""
-                                                span.title(style='float:none; padding:5px;')=content['title']
-                                            else
-                                                img(src=content['thumbnail'])
-                                                span.title=content['title'] 
+                                            a.post_link(target='_blank' href=content['url'])
+                                                if content['thumbnail'] === ""
+                                                    span.title(style='float:none; padding:5px;')=content['title']
+                                                else
+                                                    img(src=content['thumbnail'])
+                                                    span.title=content['title'] 
                                         else
-                                            img(src=content['image'])
-                                            span.title.image=content['title']
+                                            a.post_image(target='_blank' href=content['image'])
+                                                img(src=content['image'])
+                                                span.title.image=content['title']
                                 else
                                     a.textPost
                                         =content['title']

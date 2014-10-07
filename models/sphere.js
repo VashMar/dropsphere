@@ -148,12 +148,16 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
 
           for(var i = 0; i < sphere.members.length; i++){
              var member = sphere.members[i].id;
-              User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
-                  if(err){console.log(err);}
-                  else{
-                    console.log("notifications updated");
-                  }
-              });
+             var postCreator = post.creator.object;
+             console.log(member != postCreator);
+             if(member != postCreator){
+                User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
+                    if(err){console.log(err);}
+                    else{
+                      console.log("notifications updated");
+                    }
+                });
+             } 
           } 
         } else{
         	console.log("Sphere not found");

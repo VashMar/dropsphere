@@ -21,7 +21,8 @@
     "URIjs": "*",
     "crawler": "*",
     "cheerio": "*",
-    "request": "*"
+    "request": "*",
+    "nodemailer": "1.0"
   },
   "author": "developer"
 }

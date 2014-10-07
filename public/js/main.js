@@ -7,7 +7,7 @@ $(document).ready(function(){
     	start: 'top'
     });
 
-   $("#feed").css("height", "95%");
+   $("#feed").css("height", "94%");
 
     $("#feed").tooltip({
      	html: true,
