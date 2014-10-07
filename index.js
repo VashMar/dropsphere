@@ -368,6 +368,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
       function saveAndEmit(data){      
           var sphereString = String(data.sphere).trim();       // we need the sphere id in string format for emitting 
+          console.log("The sphere: " + sphereString);
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
           console.log("clients: " + sphereClients);
           data.time = moment().format("MMM Do, h:mm a");
@@ -376,8 +377,12 @@ sessionSockets.on('connection', function (err, socket, session){
           var url = data.url || "",
               thumbnail = data.thumbnail || "",
               image = data.image || "",
-              title = data.title,
-              post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
+              title = data.title;
+
+
+          data.post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
+
+
 
           if(url){
             data.isLink = true;
@@ -393,13 +398,13 @@ sessionSockets.on('connection', function (err, socket, session){
                   }
           }
 
-          var postInfo = {content: data.post, 
+          var postInfo = {content: post, 
                           creator: {object: currentUser, name: data.sender}, 
                           contentData:{
-                             url: data.url,
-                             thumbnail: data.thumbnail,
-                             image: data.image,
-                             title: data.title
+                             url: url,
+                             thumbnail: thumbnail,
+                             image: image,
+                             title: title
                             }
                           };
 
