@@ -47,8 +47,9 @@ function Chat(){
 
             socket.on('users', function(data){
                 if(currentSphere == data.sphereID){
-                    nicknames = data.nicknames; // store array of all user nicknames in sphere 
-                    members = nicknames.length;
+                    var nicknames = data.nicknames; // store array of all user nicknames in sphere 
+                    var members = nicknames.length;
+
                     $("#users").empty();
 
                     for(var i = 0; i < members; i++){

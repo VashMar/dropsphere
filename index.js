@@ -948,7 +948,7 @@ sessionSockets.on('connection', function (err, socket, session){
           sphere.setNick(currentUser.id, nickname, function(updatedSphere){
             var nicknames = updatedSphere.nicknames;
             //  update every socket in the sphere
-            io.sockets.in(sphere.id).emit('users', {nickname: nicknames, sphereID: sphere.id});
+            io.sockets.in(sphere.id).emit('users', {nicknames: nicknames, sphereID: sphere.id});
 
             //update sessions if needed
             if(session.currentSphere == updatedSphere.id){
