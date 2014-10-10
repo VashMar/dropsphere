@@ -46,7 +46,8 @@ var userSchema = new Schema({
         }],
     currentSphere: {type: Number, default: 0}, // index of the user's current sphere 
     mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 
-    contacts: [{type: ObjectId, ref: 'User'}]
+    contacts: [{type: ObjectId, ref: 'User'}],
+    requests: [{type: ObjectId, ref: 'User'}]
 });
 
 
@@ -103,6 +104,22 @@ userSchema.pre('save', function(next) {
     });
 });
 
+userSchema.methods.addContact = function(user){
+    this.contacts.push(user);
+}
+
+userSchema.methods.pendingRequest = function(user){
+    this.requests.push(user);
+}
+
+userSchema.methods.hasContact = function(user){
+    if(this.contacts.indexOf(user.id) > 0){
+        console.log("Contact already exists");
+        return true;
+    }
+    return false;
+}
+
 userSchema.methods.setNick = function(sphereID, nickname){
     this.spheres.forEach(function(sphere){
         if(sphere.object == sphereID){
@@ -113,8 +130,6 @@ userSchema.methods.setNick = function(sphereID, nickname){
 }
 
 userSchema.methods.targetSphere = function(){
-    console.log(this.spheres);
-
    return this.spheres[this.currentSphere];
 };
 
@@ -144,17 +159,32 @@ userSchema.methods.addSphereContacts = function(contactIds, next){
     next(contactIds);
 };
 
-// retrieve the contact names and their mainsphere
+// retrieve the contact names and ids with requests
 userSchema.methods.getContacts = function(next){
 
     var contacts = this.contacts;
     var contactInfo = {};
-    for(var i = 0; i < contacts.length; i++){
-        console.log("adding contact for retrieval");
-        contactInfo[contacts[i].id] = contacts[i].name; 
-    }
 
-    next(contactInfo); 
+    this.getRequests(function(requestInfo){
+
+        for(var i = 0; i < contacts.length; i++){
+            console.log("adding contact for retrieval");
+            contactInfo[contacts[i].id] = contacts[i].name; 
+        }
+
+        next(contactInfo, requestInfo); 
+    });
+}
+
+// retrieve the names and ids of user's with pending friend requests
+userSchema.methods.getRequests = function(next){
+    var requests = this.requests;
+    requestInfo = {};
+    requests.forEach(function(request){
+        requestInfo[request.id] = request.name;
+    });
+
+    next(requestInfo);
 }
 
 // checks if user is a member of a given sphere 

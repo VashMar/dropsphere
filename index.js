@@ -218,7 +218,8 @@ sessionSockets.on('connection', function (err, socket, session){
   User.load(sessionID, function(err, user, sphere){
     if(user){
       currentUser = user;
-      mainSphere = sphere; 
+      mainSphere = sphere;
+      socket.join(currentUser.id); 
     }
   });
 
@@ -256,11 +257,10 @@ sessionSockets.on('connection', function (err, socket, session){
         console.log("This isn't JSON");
       }
 
-      if (json) {
+      if(json) {
         console.log("this is json");
       }
 
-      console.log(data);
       console.log("Crawling Link: " + data);
       var url = data; 
       var wrappedLink; // url wrapped in html tags for output 
@@ -616,6 +616,77 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
 
+  socket.on('addContact', function(contact){
+    console.log("Adding Contact..");
+
+    var onComplete = function(user){
+      if(!currentUser.hasContact(user)){
+        currentUser.addContact(user);
+        user.pendingRequest(currentUser);
+
+        // emit the success to the person adding
+        socket.emit('contactAdded', {username: user.name, userID: user.id});
+
+        // notify the pending request to the recipient
+        io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id});
+
+        //update sessions
+        session.contacts[user.id] = user.name;
+
+        // save user's and sessions 
+        currentUser.save(function(err){
+          if(!err){
+            console.log("Contact Added");
+          }
+        });
+        user.save(function(err){
+          if(!err){
+            console.log("Request Sent");
+          }
+        });
+        session.save();
+      }else{
+        socket.emit("contactExists");
+      }
+    }
+
+    var notFound = function(contact, isEmail){
+        console.log("Contact wasn't found");
+        socket.emit('contactNotFound', {contact: contact, isEmail: isEmail});
+    }
+
+
+
+    LinkParser.isEmail(contact, function(isEmail){
+      if(isEmail){
+        console.log("Searching for email..");
+        // find a user with the email
+        User.findOne({email:contact}, function(err,user){
+           // if found add them and put a pending request in their contact list
+          if(user){
+            onComplete(user);
+          }else{
+            // else send an email not found message and ask to send a invite 
+            notFound(contact,isEmail);
+          }
+        });
+      }else{
+        console.log("Searching for username..");
+        //find a user with the username
+        User.findOne({name:contact}, function(err,user){
+        // if found add them and put a pedding request on their contact list 
+        if(user){
+          onComplete(user);
+        }else{
+           //else send a username not found message
+           notFound(contact,isEmail);
+        }
+    
+        });
+      }
+    });
+  });
+
   socket.on('seenChat', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     console.log(data.postID);
@@ -633,7 +704,6 @@ sessionSockets.on('connection', function (err, socket, session){
               session.feed.push(post.id);
             }
 
-
             session.posts[data.postID].seen = true;
             console.log(session.posts[data.postID]);
             socket.emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphereID});
@@ -643,7 +713,7 @@ sessionSockets.on('connection', function (err, socket, session){
       }
     });
 
-    });
+  });
 
   // locates or creates a personal sphere between two users and renders it
   socket.on('personalSphere', function(userID){

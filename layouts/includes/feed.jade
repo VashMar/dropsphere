@@ -7,6 +7,8 @@
 - var sphereMap = data.sphereMap;
 - var contacts = data.contacts;
 - var contactIds = Object.keys(contacts);
+- var requests = data.requests;
+- var requesterIds = Object.keys(requests);
 #container
     #chat
         .dropdown
@@ -123,24 +125,21 @@
                                 ul
                                     if sphereMap[currentSphere].type != "Main"
                                         li(style="float:left;")
-                                            a(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
-                                                img.viewedIcon(src="/img/viewed.png")
+                                            a#viewedIcon(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
                                                 if viewers.length > 0
                                                     span.viewedNum
                                                         =viewers.length 
                                     li
-                                        a(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
-                                            img.shareIcon(src="/img/share_post.png")
+                                        a#shareIcon(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
                                     if sphereMap[currentSphere].type != "Main"
                                         li
-                                            a(href='#' title="Save Link")   
-                                                img.saveIcon(src="/img/sphere_add.png")
+                                            a#saveIcon(href='#' title="Save Link")   
                                         li
                                             a(href='#' title="Comments")    
                                                 if seenConvo === false 
-                                                    img.chatIcon(src="favicon.png")   
+                                                    a#unseenChat(href='#' title="Comments")  
                                                 else 
-                                                    img.chatIcon(src="/img/chat_icon.png")
+                                                    a#chatIcon(href='#' title="Comments")
         #messageBox.controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -168,12 +167,27 @@
                 button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
                 h4.modal-title Contacts
               #contactsContent.modal-body
-                h5 Add Contact
-                ul#contactNames
-                    each contactId in contactIds
-                        - var contact = contacts[contactId];
-                        li(data=contactId) 
-                            a(href='#')=contact 
+                h5 
+                    a#addContact(href="#") Add Contact
+                    a#backToContacts(style="display:none;" href="#") Contact List
+                #contactListContainer
+                    if requesterIds.length > 0
+                        p Pending Requests..
+                        ul#pendingRequests
+                            each requesterId in requesterIds
+                                - var requester = requests[requesterId];
+                                li(data=requesterID)
+                                    =requester 
+                    ul#contactNames
+                        each contactId in contactIds
+                            - var contact = contacts[contactId];
+                            li(data=contactId) 
+                                a(href='#')=contact 
+                #contactAdding(style="display:none")
+                    p Enter the username or email of your new contact
+                    input(class="form-control" placeholder="Name or Email")
+                    .modal-footer
+                        button#contactAdd.btn.btn-primary(type="button") Add 
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
     .modal-content
@@ -292,8 +306,12 @@
 
 #preload
     img(src="/img/settings_hover.png")
-    img(src="/img/settings_hover.png")
+    img(src="/img/post_settings_hover.png")
     img(src="/img/loading.gif")
+    img(src="/img/share_post_hover.png")
+    img(src="/img/chat_icon_hover.png")
+    img(src="/img/sphere_add_hover.png")
+    img(src="favicon.png")
 script.
     // harvest all sphere related data for client tracking/use 
     sphereData = !{JSON.stringify(data)};

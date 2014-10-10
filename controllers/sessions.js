@@ -15,7 +15,8 @@ exports.render = function(res, layout, hash){
                     sphereIDs: hash.sphereIDs,
                     currentSphere: hash.currentSphere,
                     totalUpdates: hash.totalUpdates,
-                    contacts: hash.contacts
+                    contacts: hash.contacts,
+                    requests: hash.requests
                 }
            });       		
 
@@ -39,7 +40,8 @@ exports.respondJSON = function(res, hash){
                     sphereIDs: hash.sphereIDs,
                     currentSphere: hash.currentSphere,
                     totalUpdates: hash.totalUpdates,
-                    contacts: hash.contacts
+                    contacts: hash.contacts,
+                    requests: hash.requests
                 }
            });       		
 	 }
@@ -63,6 +65,7 @@ exports.createSessionData = function(){
     sessionData.posts = {},
     sessionData.feed = [],
     sessionData.contacts = {},
+    sessionData.requests = {},
     sessionData.announcements = {};
 
     return sessionData;
@@ -86,5 +89,6 @@ exports.storeData = function(req, sessionData){
 	req.session.currentSphere = sessionData.currentSphere;
 	req.session.totalUpdates = sessionData.totalUpdates;
 	req.session.contacts = sessionData.contacts; 
+    req.session.requests = sessionData.requests;
     req.session.userID = sessionData.userID;
 }

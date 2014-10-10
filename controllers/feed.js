@@ -178,7 +178,7 @@ exports.login = function(req, res){
   isMobile = req.body.mobile;
 
   // pull the user and belonging spheres 
-  User.findOne({email: email}).populate('spheres.object contacts').exec(function(err, user){
+  User.findOne({email: email}).populate('spheres.object contacts requests').exec(function(err, user){
     if(!user || err){ 
       console.log("Invalid Email"); 
       res.json(400, {message: "The entered email doesn't exist", type: "email"});
@@ -277,8 +277,9 @@ exports.login = function(req, res){
 	           }
 
              // get all the user contacts 
-             user.getContacts(function(contacts){
+             user.getContacts(function(contacts, requests){
                sessionData.contacts = contacts; 
+               sessionData.requests = requests;
                 // if the user is logging in through a mobile platform respond with JSON session data 
                 if(isMobile == "true"){
                   Session.respondJSON(res, sessionData);

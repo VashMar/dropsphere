@@ -112,7 +112,7 @@ input {
 
 /************************************* Menus **********************************/
 /* removing list styling on sphere lists */
-#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection {
+#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests {
   list-style: none; }
 
 .modal-dialog ul li {
@@ -178,6 +178,10 @@ ul li a {
 #contactList h5 {
   margin-top: 0px; }
 
+#contactAdding {
+  width: 200px; }
+
+/* share menus */
 #share_small {
   display: inline-block;
   vertical-align: middle;
@@ -226,6 +230,33 @@ ul li a {
 
 #nickAddingSpheres span {
   font-weight: 200; }
+
+/* Post Icons */
+#saveIcon, #chatIcon, #unseenChat, #shareIcon, #viewedIcon {
+  height: 16px;
+  width: 16px;
+  display: block; }
+
+#saveIcon {
+  background: url("/img/sphere_add.png") no-repeat; }
+
+#saveIcon:hover {
+  background: url("/img/sphere_add_hover.png") no-repeat; }
+
+#chatIcon {
+  background: url("/img/chat_icon.png") no-repeat; }
+
+#shareIcon {
+  background: url("/img/share_post.png") no-repeat; }
+
+#shareIcon:hover {
+  background: url("/img/share_post_hover.png") no-repeat; }
+
+#viewedIcon {
+  background: url("/img/viewed.png") no-repeat; }
+
+#chatIcon:hover, #unseenChat {
+  background: url("favicon.png") no-repeat; }
 
 /* Chat Body */
 #content {
@@ -324,6 +355,9 @@ span.viewedNum {
   height: 16px;
   width: 16px;
   cursor: pointer; }
+
+#postSettings:hover {
+  background: url("/img/post_settings_hover.png") no-repeat; }
 
 .postButtons {
   height: 20px; }

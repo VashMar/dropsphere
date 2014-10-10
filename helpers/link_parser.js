@@ -102,4 +102,10 @@ exports.tagWrap =  function(msg, type, title, image){
 
     }
          
- }
+  }
+
+
+  exports.isEmail = function(email,next){
+    var p = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    next(p.test(email));
+  };

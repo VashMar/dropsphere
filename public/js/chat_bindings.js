@@ -43,7 +43,6 @@ $(document).ready(function(){
 
 
     $("#saveNick").click(function(){
-
        var nickname = $("#newNick").val().trim();
        var nicknamedSpheres = [];
 
@@ -52,21 +51,12 @@ $(document).ready(function(){
         });
 
         chat.SetNickname(nicknamedSpheres,nickname);
-
-
-
-        /*
-        // overlay for sphere name input goes here 
-        var newName = $("#newNick").val().trim();
-        var sphereWide = false; // signal name change on all spheres 
-
-        if(newName && newName.length > 3){
-          $('#nickChange').modal('hide');  
-          chat.ChangeName(newName, sphereWide);
-        }
-
-        */
     }); 
+
+    $("#contactAdd").click(function(){
+        var newContact = $("#contactAdding input").val().trim();
+        chat.AddContact(newContact);
+    });
 
     $("#urlInput").on('paste', function(){
 
@@ -98,12 +88,12 @@ $(document).ready(function(){
     });
 
 
-    $("#feed").on("click", "a img.chatIcon", function(){
+    $("#feed").on("click", "a#chatIcon", function(){
         chat.SelectPost($(this).parents(".post"));
     });
 
 
-    $("#feed").on("click", "a img.saveIcon", function(){
+    $("#feed").on("click", "a#saveIcon", function(){
         var postID = $(this).parents('.post').attr('data');
         chat.SavePost(postID);
     });
@@ -122,22 +112,36 @@ $(document).ready(function(){
         $("#editContent").attr('data', postID);
     });
 
-
-
     $("#feed").on("click", "a#removeOption", function(){
         var post = $(this).parents('.post');
         var postID = post.attr('data');
         $("#removePost").attr('data', postID);
     });
 
-    $("#contactList").on("click", "a", function(){
+    $("#contactNames").on("click", "a", function(){
         var userID = $(this).parents("li").attr('data');
         chat.OpenPersonal(userID);
         $('#contactList').modal('hide');
 
     });
 
-    $("#feed").on("click", "a img.shareIcon", function(){
+    $("#addContact").click(function(){
+        $("#contactListContainer").hide();
+        $("#contactAdding").show();
+        $("#addContact").hide();
+        $("#backToContacts").show();
+        $("#contactList .modal-title").html("Add Contact");
+    });
+
+    $("#backToContacts").click(function(){
+        $("#contactListContainer").show();
+        $("#contactAdding").hide();
+        $("#addContact").show();
+        $("#backToContacts").hide();
+        $("#contactList .modal-title").html("Contacts");
+    });
+
+    $("#feed").on("click", "a#shareIcon", function(){
         var post = $(this).parents(".post");
         var postID = post.attr('data');
         $("#shareSelection").attr('data', postID);
@@ -187,6 +191,8 @@ $(document).ready(function(){
         post.fadeOut(550, "linear");
         chat.DeletePost(postID);
     });
+
+
 
 });
 

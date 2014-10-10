@@ -258,9 +258,30 @@ function Chat(){
 
 
             socket.on('addContact', function(data){
-                 $("#contactNames").append("<li data='"+ data.id +"'><a href='#'>" + data.name + "</a></li>");
+                addNewContact(data.name, data.id);
             });
 
+            socket.on('contactAdded', function(data){
+                // clear the input box
+                $("#contactAdding input").val('');
+                // notify that the contact was added 
+                alert("contact added");
+                // add the name to the contacts list 
+                addNewContact(data.username, data.userID);
+            });
+
+            socket.on('pendingRequest', function(data){
+                //update requests notifications and add the request to the requests list
+                $("#pendingRequests").append("<li data='" + data.userID + "'><a href='#'>" + data.username + "</a></li>");
+            });
+
+            socket.on('contactNotFound', function(data){
+                alert("Contact Not found");
+            });
+
+            socket.on('contactExists', function(){
+                alert("Contact Exists");
+            });
 
             socket.on('joinSphere', function(sphere){
                 socket.emit('connectSocket', sphere);
@@ -454,7 +475,13 @@ function Chat(){
             });
 
             socket.emit("setNickname", {spheres: spheres, nickname: newNick});
+        };
+
+        this.AddContact = function AddContact(contact){
+            socket.emit('addContact', contact);
         }
+
+
 
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
@@ -653,6 +680,10 @@ function Chat(){
 
         }
 
+        function addNewContact(name, userID){
+            $("#contactNames").append("<li data='" + userID + "'><a href='#'>" + name + "</a></li>");
+            $("#shareContacts").append("<li data='" + userID + "'><a href='#'>" + name + "</a></li>");
+        }
 
         function notify(msg){
             $(".alert").html(msg);
