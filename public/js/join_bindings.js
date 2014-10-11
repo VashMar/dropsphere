@@ -1,12 +1,12 @@
 $(document).ready(function(){
 
-    $('#joinEmail, #joinPassword', '#username').bind('keypress', function(e) {
-        
+    $('body').on('keypress', 'input#joinEmail,input#joinPassword,input#username', function(e){
+
         if(e.keyCode==13 && !e.shiftKey){
             e.preventDefault();
             signup();
         }
-    });
+    }); 
 
 });
 
@@ -39,7 +39,6 @@ $(document).ready(function(){
     submit.fail(function(data){
         var res = data.responseJSON;
         var errors = res.errors;
-        console.log(res);
 
         if(res.name == "ValidationError"){
 

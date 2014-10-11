@@ -13,7 +13,14 @@ $(document).ready(function(){
  function getJoin(){
      $.get("/join", function(data){
         $("body").html(data);
-      });
+
+/*        $('#joinEmail, #joinPassword', '#username').bind('keypress', function(e){
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                signup();
+            }
+        }); */
+      }); 
  }
 
 

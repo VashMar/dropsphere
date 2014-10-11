@@ -165,6 +165,20 @@ ul li a {
   width: 32px;
   height: 32px; }
 
+#newRequests {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  background-color: #ed3c3c;
+  margin-top: 22px;
+  right: -1px;
+  box-shadow: 0px 1px 1px; }
+
+#newRequests p {
+  color: white;
+  font-weight: 700;
+  font-size: 9px; }
+
 #contactsContent {
   margin-right: 150px; }
 
@@ -180,6 +194,15 @@ ul li a {
 
 #contactAdding {
   width: 200px; }
+
+#contactNotifications p {
+  font-size: 12px; }
+
+#notFound {
+  color: red; }
+
+#found {
+  color: green; }
 
 /* share menus */
 #share_small {
@@ -221,15 +244,21 @@ ul li a {
   list-style: none;
   padding-left: 0px; }
 
-#nickAddingSpheres .selected {
-  background: #428bca;
-  text-decoration: none;
-  color: white;
-  border-radius: 4px;
-  font-weight: 400; }
+/* nickname change menu */
+#nickChange h5 {
+  font-size: 12px; }
 
 #nickAddingSpheres span {
   font-weight: 200; }
+
+#selectingSphere {
+  height: 16px;
+  width: 16px;
+  display: inline-block;
+  background: url("/img/select_sphere.png") no-repeat; }
+
+#selectingSphere:hover, #nickAddingSpheres .selected {
+  background: url("/img/selected_sphere.png") no-repeat; }
 
 /* Post Icons */
 #saveIcon, #chatIcon, #unseenChat, #shareIcon, #viewedIcon {
@@ -339,7 +368,7 @@ span.title.image {
 
 span.viewedNum {
   color: #999191;
-  padding-left: 1.5px;
+  padding-left: 9.5px;
   position: absolute;
   margin-top: 6px;
   font-size: 9px; }

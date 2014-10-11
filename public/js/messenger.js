@@ -265,7 +265,9 @@ function Chat(){
                 // clear the input box
                 $("#contactAdding input").val('');
                 // notify that the contact was added 
-                alert("contact added");
+                $("#contactAdding input").css("border-color", "green");
+                $("#contactNotifications").html("<p id='found'>" + data.username +" has been added to your contacts!</p>");
+                $("#contactNotifications").show();
                 // add the name to the contacts list 
                 addNewContact(data.username, data.userID);
             });
@@ -273,14 +275,22 @@ function Chat(){
             socket.on('pendingRequest', function(data){
                 //update requests notifications and add the request to the requests list
                 $("#pendingRequests").append("<li data='" + data.userID + "'><a href='#'>" + data.username + "</a></li>");
+                $("#newRequests").html("<p>" + data.newRequests + "</p>");
+                $("#newRequests").show();
+                // update session           
+                socket.emit('newRequest');
             });
 
             socket.on('contactNotFound', function(data){
-                alert("Contact Not found");
+                $("#contactAdding input").css("border-color", "red");
+                $("#contactNotifications").html("<p id='notFound'>Contact Not Found</p>");
+                $("#contactNotifications").show();
             });
 
             socket.on('contactExists', function(){
-                alert("Contact Exists");
+                $("#contactAdding input").css("border-color", "green");
+                $("#contactNotifications").html("<p id='found'>Contact Already Exists</p>");
+                $("#contactNotifications").show();
             });
 
             socket.on('joinSphere', function(sphere){
@@ -481,7 +491,9 @@ function Chat(){
             socket.emit('addContact', contact);
         }
 
-
+        this.RequestsSeen = function RequestsSeen(){
+            socket.emit('requestsSeen');
+        }
 
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
@@ -623,14 +635,9 @@ function Chat(){
             }
 
             if(sphereMap[currentSphere].type == "Main"){
-                if(viewedNum > 0){
-                    viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
-                    viewedIcon = "<li style='float:left;'>" + viewedIcon +  viewed + " </li>";
-                }
-
                 savePost = "";
                 postChat ="";
-                viewedIcon = "";
+                viewersIcon = "";
                 sender = "";
             }else if(viewedNum > 0){
                 viewed = "<span class='viewedNum'>" + viewedNum + "</span>";

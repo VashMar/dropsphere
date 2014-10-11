@@ -16,7 +16,8 @@ exports.render = function(res, layout, hash){
                     currentSphere: hash.currentSphere,
                     totalUpdates: hash.totalUpdates,
                     contacts: hash.contacts,
-                    requests: hash.requests
+                    requests: hash.requests,
+                    newRequests: hash.newRequests
                 }
            });       		
 
@@ -41,7 +42,8 @@ exports.respondJSON = function(res, hash){
                     currentSphere: hash.currentSphere,
                     totalUpdates: hash.totalUpdates,
                     contacts: hash.contacts,
-                    requests: hash.requests
+                    requests: hash.requests,
+                    newRequests: hash.newRequests
                 }
            });       		
 	 }
@@ -66,6 +68,7 @@ exports.createSessionData = function(){
     sessionData.feed = [],
     sessionData.contacts = {},
     sessionData.requests = {},
+    sessionData.newRequests = 0,
     sessionData.announcements = {};
 
     return sessionData;
@@ -90,5 +93,6 @@ exports.storeData = function(req, sessionData){
 	req.session.totalUpdates = sessionData.totalUpdates;
 	req.session.contacts = sessionData.contacts; 
     req.session.requests = sessionData.requests;
+    req.session.newRequests = sessionData.newRequests
     req.session.userID = sessionData.userID;
 }

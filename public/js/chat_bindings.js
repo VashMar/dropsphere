@@ -88,7 +88,7 @@ $(document).ready(function(){
     });
 
 
-    $("#feed").on("click", "a#chatIcon", function(){
+    $("#feed").on("click", "a#chatIcon, a#unseenChat", function(){
         chat.SelectPost($(this).parents(".post"));
     });
 
@@ -117,6 +117,12 @@ $(document).ready(function(){
         var postID = post.attr('data');
         $("#removePost").attr('data', postID);
     });
+
+    $("#contacts").click(function(){
+        $("#newRequests").hide();
+        $("#newRequests").html("");
+        chat.RequestsSeen();
+    })
 
     $("#contactNames").on("click", "a", function(){
         var userID = $(this).parents("li").attr('data');

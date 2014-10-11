@@ -9,6 +9,7 @@
 - var contactIds = Object.keys(contacts);
 - var requests = data.requests;
 - var requesterIds = Object.keys(requests);
+- var newRequests = data.newRequests;
 #container
     #chat
         .dropdown
@@ -22,6 +23,12 @@
                     li(role="presentation")
                         a(role="menuitem" tabindex="-1" href="#" onclick="logout();") Logout 
                 a#contacts(data-toggle="modal" data-target="#contactList")
+                if newRequests > 0
+                    span#newRequests
+                        p 
+                            =newRequests
+                else
+                    span#newRequests(style="display:none;")
         img#chatLogo(src="/img/dropsphere_sm.png")
         .dropdown
             a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
@@ -186,6 +193,7 @@
                 #contactAdding(style="display:none")
                     p Enter the username or email of your new contact
                     input(class="form-control" placeholder="Name or Email")
+                    span#contactNotifications(style:"display:none;")
                     .modal-footer
                         button#contactAdd.btn.btn-primary(type="button") Add 
 #nameChange.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
@@ -215,7 +223,8 @@
                 - var sphereName = sphereMap[sphereID].name;
                 - var sphereNick = sphereMap[sphereID].nickname;
                 li(data=sphereID)
-                    a(href='#')=sphereName 
+                    a#selectingSphere
+                    =sphereName 
                     = ' '
                     span 
                         if sphereNick.length > 0
@@ -326,9 +335,9 @@ script.
     sphereLink = sphereMap[currentSphere].link;
     posts = sphereData.posts; 
     feed = sphereData.feed;
-    viewedIcon = "<a href='#' data-toggle='tooltip' data-placement='top' title=''><img class='viewedIcon' src='/img/viewed.png'/></a>";
-    shareIcon = "<a href='#' data-toggle='modal' data-target='#sharePost' title='Share'><img class='shareIcon' src='/img/share_post.png'/></a>";
-    saveIcon = "<a href='#'><img class='saveIcon' src='/img/sphere_add.png'/></a>";
+    viewedIcon = "<a id='viewedIcon' href='#' data-toggle='tooltip' data-placement='top' title=''></a>";
+    shareIcon = "<a id='shareIcon' href='#' data-toggle='modal' data-target='#sharePost' title='Share'></a>";
+    saveIcon = "<a id='saveIcon' href='#'></a>";
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js')

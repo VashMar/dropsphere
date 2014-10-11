@@ -47,7 +47,8 @@ var userSchema = new Schema({
     currentSphere: {type: Number, default: 0}, // index of the user's current sphere 
     mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 
     contacts: [{type: ObjectId, ref: 'User'}],
-    requests: [{type: ObjectId, ref: 'User'}]
+    requests: [{type: ObjectId, ref: 'User'}],
+    newRequests: {type:Number, default: 0}
 });
 
 
@@ -110,7 +111,13 @@ userSchema.methods.addContact = function(user){
 
 userSchema.methods.pendingRequest = function(user){
     this.requests.push(user);
+    this.newRequests++;
 }
+
+userSchema.methods.requestsSeen = function(){
+    this.newRequests = 0;
+}
+
 
 userSchema.methods.hasContact = function(user){
     if(this.contacts.indexOf(user.id) > 0){

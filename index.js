@@ -628,7 +628,7 @@ sessionSockets.on('connection', function (err, socket, session){
         socket.emit('contactAdded', {username: user.name, userID: user.id});
 
         // notify the pending request to the recipient
-        io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id});
+        io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id, newRequests: user.newRequests});
 
         //update sessions
         session.contacts[user.id] = user.name;
@@ -646,7 +646,7 @@ sessionSockets.on('connection', function (err, socket, session){
         });
         session.save();
       }else{
-        socket.emit("contactExists");
+        socket.emit("contactExists"); 
       }
     }
 
@@ -685,6 +685,23 @@ sessionSockets.on('connection', function (err, socket, session){
         });
       }
     });
+  });
+
+  socket.on('requestsSeen', function(){
+    currentUser.requestsSeen();
+    session.newRequests = 0;
+
+    currentUser.save(function(err){
+      if(!err){
+        console.log("New requests reset");
+      }
+    });
+    session.save();
+  });
+
+  socket.on('newRequest', function(){
+    session.newRequests++;
+    session.save();
   });
 
   socket.on('seenChat', function(data){

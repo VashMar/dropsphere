@@ -280,6 +280,7 @@ exports.login = function(req, res){
              user.getContacts(function(contacts, requests){
                sessionData.contacts = contacts; 
                sessionData.requests = requests;
+               sessionData.newRequests = user.newRequests; 
                 // if the user is logging in through a mobile platform respond with JSON session data 
                 if(isMobile == "true"){
                   Session.respondJSON(res, sessionData);
