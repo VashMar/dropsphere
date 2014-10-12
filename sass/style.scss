@@ -102,6 +102,12 @@ input{
 	margin-right:10%;
 }
 
+.forgotPass{
+	font-size:11px;
+	float:left;
+	margin-left:5%;
+}
+
 /* Chat Header */
 #chatLogo{
 	margin:3px;
@@ -160,6 +166,9 @@ input{
 		font-weight:400;
 	}
 
+	.modal-footer button{
+		margin-right:10%;
+	}
 
 
 	.dropdown a{

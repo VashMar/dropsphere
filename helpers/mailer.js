@@ -23,6 +23,31 @@ exports.welcome = function(email){
 	};
 
 
+	send(mailOptions);
+}
+
+exports.sendReset = function(email, token, ENV){
+	console.log("Sending password reset to: " + email);
+	var tokenLink;
+	if(ENV == "production"){
+		tokenLink = "<a href='http://dropsphere.herokuapp.com/resetPass/" + token + "'> Reset Password </a>";
+	}else{
+		tokenLink = "<a href='http://localhost:3500/resetPass/" + token + "'> Reset Password </a>";	
+	}
+
+	var mailOptions = {
+	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
+	    to: email, // list of receivers
+	    subject: 'Password Reset', // Subject line
+	    text: "Forgot your password? I guess you can forget worse things, like maple syrup on your pancakes. You can use the link below to reset it:", // plaintext body
+	    html: tokenLink
+	};
+
+	send(mailOptions);
+}
+
+
+function send(mailOptions){
 	// send mail with defined transport object
 	transporter.sendMail(mailOptions, function(error, info){
 	    if(error){

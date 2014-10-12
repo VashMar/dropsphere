@@ -48,7 +48,11 @@ var userSchema = new Schema({
     mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 
     contacts: [{type: ObjectId, ref: 'User'}],
     requests: [{type: ObjectId, ref: 'User'}],
-    newRequests: {type:Number, default: 0}
+    newRequests: {type:Number, default: 0},
+    passReset: {
+                 token: {type:String},
+                 created: {type:Date}
+                }
 });
 
 
@@ -195,15 +199,15 @@ userSchema.methods.getRequests = function(next){
 }
 
 // checks if user is a member of a given sphere 
-userSchema.methods.isMember = function(sphere){
+userSchema.methods.isMember = function(givenSphere){
  
     var isMember = false;
 
-    for(var i = 0; i < this.spheres.length; i++){
-        if(sphere.id == this.spheres[i].object){
-               isMember = true;
+    this.spheres.forEach(function(sphere){
+        if(givenSphere.id == sphere.object){
+            isMember = true;
         }
-    }
+    });
 
     return isMember; 
 };

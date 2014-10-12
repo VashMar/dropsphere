@@ -145,6 +145,8 @@ app.get("/invite/:id", function(req, res){
 
 app.get("/bookmark/invite/:id", Feed.invite);
 
+app.post('/sendReset', Feed.sendReset);
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -866,16 +868,18 @@ sessionSockets.on('connection', function (err, socket, session){
       var posts = {};
       var feed = [];
       console.log(currentUser.spheres);
-      console.log(data.sphereIndex);
-      if(currentUser.spheres[data.sphereIndex].object == data.sphereID){
+      console.log(currentUser.spheres[data.sphereIndex].object);
+      var sphereObj = currentUser.spheres[data.sphereIndex].object; 
+      var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID 
+      if(sphereMatch ){
         targetSphere = currentUser.spheres[data.sphereIndex];
       } else{
           for(var i = 0; i < currentUser.spheres.length; i++){
-              if(currentUser.spheres[i].object == data.sphereID){
-                  sphere = currentUser.spheres[i];     
+              if(sphereMatch){
+                  targetSphere = currentUser.spheres[i];     
               }
           }
-      }
+      } 
 
       if(targetSphere){
          console.log("Retrieving posts from Sphere: " + targetSphere + "..");
@@ -1082,7 +1086,6 @@ sessionSockets.on('connection', function (err, socket, session){
   function newSphereMade(sphere, user, type){
           socket.join(sphere.id);
           socket.emit('clearChat');
-          socket.emit('users', {nickanmes: sphere.nicknames, sphereID: sphere.id}); 
           // pass the client side all the info necessary to track sphere related information 
           user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
 
@@ -1108,17 +1111,24 @@ sessionSockets.on('connection', function (err, socket, session){
                   session.nickname = user.name;
 
                   socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: session.currentSphere });
-                
+                  socket.emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id}); 
+                  
                   console.log(session);
 
                   session.save();
 
-                  user.save();
+                  user.save(function(err, user){
+                    if(user){
+                      console.log("update user spheres: " + user.spheres); 
+                      currentUser = user;  
+                    }
+                  });
                   console.log(user.name + " and " + sphere.getName(user.id) + "sync'd");   
 
   }
 
   function sendFeed(sphere){
+    console.log("Sending Feed..");
       var posts = {};
       var feed = [];
 

@@ -18,14 +18,17 @@ html
         include includes/head
 
     body
-        #container
-            #login
-              img#chatLogo(src="/img/dropsphere_sm.png")
-              input#loginEmail.form-control(type="email" placeholder="Email")
-              h5#loginEmailError(class="error")
-              input#loginPassword.form-control(type="password" placeholder="Password")
-              h5#loginPassError(class="error")
-              input#loginSet.btn.btn-primary(type='button' onclick='login();' value='login' data-loading-text="Wait...")
-              a#account(href="#"  onclick='getJoin();') Need an account?
-        
-      
+        include includes/login
+    
+        #resetPassword.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+          .modal-dialog
+            .modal-content
+              .modal-header
+                button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+                h4.modal-title Reset your password
+              
+              .modal-body
+                  input#resetEmail(class="form-control" placeholder="Enter your email")
+
+              .modal-footer
+                  button#resetPass.btn.btn-primary(type="button" onclick="resetPass();") Submit

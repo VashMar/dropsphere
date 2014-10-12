@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
 
-    $('#loginEmail, #loginPassword').bind('keypress', function(e) {
+$("#loginEmail, #loginPassword").bind('keypress', function(e) {
         
         if(e.keyCode==13 && !e.shiftKey){
             e.preventDefault();
@@ -9,6 +9,19 @@ $(document).ready(function(){
         }
     });
 });
+
+
+function resetPass(){
+    var email = $("#resetEmail").val().trim();
+    alert(email);
+    var sendReset = $.post("/sendReset", {email:email});
+
+    sendReset.done(function(){
+        alert("Sent Email");
+    });
+
+
+}
 
  function getJoin(){
      $.get("/join", function(data){
@@ -30,7 +43,7 @@ $(document).ready(function(){
    
     var login = $.post( "/login", {email: email, password: password});
 
-    login.done(function( data ) {
+    login.done(function(data){
         $("body").html(data);
 
         // if the page is freshly loaded create the chat object 

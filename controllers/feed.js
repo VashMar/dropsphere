@@ -414,3 +414,25 @@ exports.invite = function(req,res){
 
 }
 
+
+exports.sendReset = function(req,res){
+  var email = req.param('email');
+  console.log("Creating reset token for: " + email);
+
+  User.findOne({email: email}, function(err,user){
+    if(user){
+      var token = crypto.randomBytes(64).toString('hex');
+      user.passReset.token = token;
+      user.passReset.created = moment();
+      user.save(function(err,user){
+        if(user){
+          console.log("passReset for user: " + user.passReset);
+          Mailer.sendReset(user.email, user.passReset.token, ENV);
+          res.json(200);
+        }
+      });
+    }
+  });
+
+}
+
