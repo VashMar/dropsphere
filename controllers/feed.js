@@ -464,17 +464,17 @@ exports.resetPass = function(req,res){
         console.log("Current Time: " + moment());
         if(now.diff(created, 'minutes') < 10){
           // show reset password 
-          res.render("template_reset", {token: token});
+          res.render("template_reset", {token: token, baseURL: baseURL});
           
         }else{
           // show time expired message
           console.log("token expired");
-          res.render("template_expired");
+          res.render("template_expired", {baseURL:baseURL});
         }
   
       }else{
         console.log("token expired");
-        res.render("template_expired");
+        res.render("template_expired", {baseURL:baseURL});
       }
      });
 }
@@ -507,7 +507,7 @@ exports.newPass = function(req,res){
           }else{
             // show time expired message
             console.log("token expired");
-            res.render("includes/expired");
+            res.render("includes/expired", {baseURL: baseURL});
           }
       });
    }    
