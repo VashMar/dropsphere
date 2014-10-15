@@ -28,8 +28,8 @@ function Chat(){
         var sharedPost = null,
             sharedPostID;
 
-        var seenIcon = "<a href='#'><img class='chatIcon' src='/img/chat_icon.png' /></a>";
-        var unseenIcon = "<a href='#'><img class='chatIcon' src='favicon.png' /></a>";
+        var seenIcon = "<a href='#' id='chatIcon'></a>";
+        var unseenIcon = "<a href='#' id='unseenChat'></a>";
 
 
         var postImage = "",
