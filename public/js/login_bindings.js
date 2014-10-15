@@ -1,38 +1,51 @@
 $(document).ready(function(){
 
 
-$("#loginEmail, #loginPassword").bind('keypress', function(e) {
-        
-        if(e.keyCode==13 && !e.shiftKey){
-            e.preventDefault();
-            login();
-        }
-    });
+    $("#loginEmail, #loginPassword").bind('keypress', function(e) {
+            
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                login();
+            }
+        });
+
+    $('body').on('keypress', 'input#resetEmail', function(e){
+
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                resetPass();
+            }
+    }); 
 });
+
 
 
 function resetPass(){
     var email = $("#resetEmail").val().trim();
-    alert(email);
     var sendReset = $.post("/sendReset", {email:email});
 
     sendReset.done(function(){
-        alert("Sent Email");
+        $("#resetFail").hide();
+        $("#resetEmail").css("border-color", "green");
+        var msg =  $("#resetSent").is(':visible') ? "Your reset link has been sent again!" : "Your reset link has been sent!";
+        
+        $("#resetSent").html(msg);
+        $("#resetSent").fadeIn();
+        $("#resetPass").html("Resend");
     });
 
+    sendReset.fail(function(){
+        $("#resetSent").hide();
+        $("#resetEmail").css("border-color", "red");
+        $("#resetFail").html("This email was not found");
+        $("#resetFail").fadeIn();
+    });
 
 }
 
  function getJoin(){
      $.get("/join", function(data){
         $("body").html(data);
-
-/*        $('#joinEmail, #joinPassword', '#username').bind('keypress', function(e){
-            if(e.keyCode==13 && !e.shiftKey){
-                e.preventDefault();
-                signup();
-            }
-        }); */
       }); 
  }
 

@@ -8,5 +8,15 @@
 		a.forgotPass(href="#" data-toggle="modal" data-target="#resetPassword") Forgot Password?
 		input#loginSet.btn.btn-primary(type='button' onclick='login();' value='login' data-loading-text="Wait...")
 		a#account(href="#" onclick='getJoin();') Need an account?
-
-
+	#resetPassword.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+		.modal-dialog
+			.modal-content
+				.modal-header
+					button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+					h4.modal-title Reset your password
+				.modal-body
+					input#resetEmail(class="form-control" placeholder="Enter your email")
+					span#resetSent.resetNotify(style="display:none;")
+					span#resetFail.resetNotify(style="display:none;")
+				.modal-footer
+					button#resetPass.btn.btn-primary(type="button" onclick="resetPass();") Submit

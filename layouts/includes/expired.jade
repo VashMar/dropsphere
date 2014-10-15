@@ -1,0 +1,9 @@
+#container
+	#resetExpired
+		a(href="http://localhost:3500")
+			img#logo(src="/img/dropsphere_sm.png")
+		h2(style="font-weight:300; font-size:20px;") Uh oh! The reset time has expired on this account, try again? 
+		input#resetEmail(class="form-control" placeholder="Enter your email")
+		span#resetSent.resetNotify(style="display:none;")
+		span#resetFail.resetNotify(style="display:none;")
+		button#resetPass.btn.btn-primary(type="button" onclick="resetPass();") Submit

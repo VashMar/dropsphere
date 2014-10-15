@@ -3,13 +3,17 @@ var mongoose = require("mongoose"),
     User     = require("../models/user"),
     Sphere 	 = require("../models/sphere");
 
+var crypto = require('crypto');
 
 var moment = require("moment");
 var ENV = process.env.NODE_ENV;
 
+
 var Session = require("../controllers/sessions");
 
 var Mailer = require("../helpers/mailer");
+
+var baseURL = (ENV == "production") ? "http://dropsphere.herokuapp.com/" : "http://localhost:3500/";
 
 // show action
 exports.bookmark = function(req, res){
@@ -418,9 +422,19 @@ exports.invite = function(req,res){
 exports.sendReset = function(req,res){
   var email = req.param('email');
   console.log("Creating reset token for: " + email);
+  email = String(email.trim());
 
-  User.findOne({email: email}, function(err,user){
+  User.findOne({email: email}, function(err, user){
+    if(!user){
+      console.log("User not found");
+      res.json(400, "User not found");
+    } 
+    if(err){
+      console.log(err);
+    }
+
     if(user){
+      console.log("Password reset account found");
       var token = crypto.randomBytes(64).toString('hex');
       user.passReset.token = token;
       user.passReset.created = moment();
@@ -436,3 +450,65 @@ exports.sendReset = function(req,res){
 
 }
 
+
+exports.resetPass = function(req,res){
+    var token = req.param('token');
+    console.log("Reset requested with token: " + token);
+
+     User.findOne({'passReset.token': token}, function(err, user){
+      if(user){
+        var now = moment();
+        var created = moment(user.passReset.created);
+        console.log("User found");
+        console.log("Token creation: " + moment(user.passReset.created));
+        console.log("Current Time: " + moment());
+        if(now.diff(created, 'minutes') < 10){
+          // show reset password 
+          res.render("template_reset", {token: token});
+          
+        }else{
+          // show time expired message
+          console.log("token expired");
+          res.render("template_expired");
+        }
+  
+      }else{
+        console.log("token expired");
+        res.render("template_expired");
+      }
+     });
+}
+
+
+exports.newPass = function(req,res){
+    var password = req.body.password;
+    var confirmation = req.body.confirm;
+    var token = req.body.token;
+
+   // if passwords match 
+   if(password == confirmation){
+      User.findOne({'passReset.token': token}, function(err,user){
+          var now = moment();
+          var created = moment(user.passReset.created);
+          console.log("User found");
+          console.log("Token creation: " + moment(user.passReset.created));
+          console.log("Current Time: " + moment());
+          if(now.diff(created, 'minutes') < 10){
+            // change password
+            user.password = password;
+            user.save(function(err){
+              if(!err){
+                console.log("Password changed");
+              }
+            });
+
+            res.render("includes/resetSuccess", {url: baseURL + "bookmark/"});
+            
+          }else{
+            // show time expired message
+            console.log("token expired");
+            res.render("includes/expired");
+          }
+      });
+   }    
+}

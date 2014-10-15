@@ -320,7 +320,7 @@ function getLocation(url){
  */
 function resolveUrl(url){
     if (!url) {
-        throw new Error("url is undefined or empty");
+        url="";
     }
     
     // replace all // except the one in proto with /

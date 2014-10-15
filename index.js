@@ -112,10 +112,6 @@ app.get("/", function(req, res){
   }    
 });
 
-app.get('/test.json', function(req, res){
-  res.json(200, {data: "dummy data"});
-});
-
 app.post('/login', Feed.login);
 
 app.get('/bookmark', Feed.bookmark);
@@ -147,6 +143,12 @@ app.get("/bookmark/invite/:id", Feed.invite);
 
 app.post('/sendReset', Feed.sendReset);
 
+// app.get("/bookmark/resetPass/:token", Feed.resetPass);
+
+
+app.get('/resetPass/:token', Feed.resetPass);
+
+app.post('/newPass', Feed.newPass);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1112,7 +1114,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
                   socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: session.currentSphere });
                   socket.emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id}); 
-                  
+
                   console.log(session);
 
                   session.save();

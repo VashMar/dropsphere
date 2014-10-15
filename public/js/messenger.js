@@ -228,7 +228,6 @@ function Chat(){
                 sphereLink = sphereMap[currentSphere].link;
                 nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
 
-
                 // the current sphere is the newly created one 
                 $("span#currentSphere").html(sphereName).append("<span class='caret'></span>");   
 

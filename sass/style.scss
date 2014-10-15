@@ -336,6 +336,39 @@ input{
 		background: url("/img/selected_sphere.png") no-repeat;
 	}
 
+/* Password Reset */
+
+.resetNotify{
+	font-size:12px;
+	display:block;
+}
+
+#resetSent{
+	color:green;
+}
+
+#resetFail{
+	color:red;
+}
+
+#resetExpired{
+	width:350px;
+	margin-left:45%;
+}
+
+#resetExpired input{
+	width:80%;
+}
+
+#resetExpired #resetEmail{
+	padding-bottom:10px;
+}
+
+#resetExpired #resetPass{
+	margin-top:20px;
+	width:180px;
+}
+
 /* Post Icons */
 
 #saveIcon, #chatIcon, #unseenChat, #shareIcon, #viewedIcon{

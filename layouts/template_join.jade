@@ -1,31 +1,8 @@
 doctype html
 html
     head
-        title= "DropSphere"
-        script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-        script(src='/js/lib/bootstrap.min.js')
-        script(src='/socket.io/socket.io.js')
-        script(src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js')
-        script(src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/tab.min.js')
-        script(src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/tooltip.min.js')
-        script(type="text/javascript" src="/easyxdm/easyxdm.debug.js")
-        script.
-            easyXDM.DomHelper.requiresJSON("/json2.js");
-        script(src='/js/provider.js')
-        script(src='/js/join_bindings.js')       
-        script(src='/js/messenger.js')    
         include includes/head
 
     body
-        #container
-            #join
-              img#chatLogo(src="/img/dropsphere_sm.png")
-              input#joinEmail(class="form-control" type="email" placeholder="Email")
-              h5#joinEmailError(class="error")
-              input#username(class="form-control" type="text" placeholder="Username")
-              h5#usernameError(class="error")
-              input#joinPassword(class="form-control" type="password" placeholder="Password")
-              h5#joinPassError(class="error")
-              input#joinSet(type='button' onclick="signup();" value='login' class="btn btn-primary")
-       
+        include includes/join
         

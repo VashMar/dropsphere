@@ -1,0 +1,28 @@
+#container
+	#passReset(style="width: 250px; margin-left:45%;")
+		a(href="http://localhost:3500")
+			img#logo(src="/img/dropsphere_sm.png")
+		h2(style="font-weight:300; font-size:20px;") Enter your new password
+		input#resetPassword.form-control(type="password" placeholder="New Password")
+		h5#passwordError(class="error")
+		input#confirmPassword.form-control(type="password" placeholder="Password")
+		h5#confirmPassError(class="error")
+		input#passReset.btn.btn-primary(type='button' value='Reset' data-loading-text="Wait...")
+		a#account(href="#" onclick='getJoin();') Need an account?
+script.
+	var token = !{JSON.stringify(token)};
+	$("input#passReset").click(function(){
+		var password = $("#resetPassword").val();
+		var confirm = $("#confirmPassword").val();
+		if(password == confirm){
+			var newPass = $.post('/newPass', {password: password, confirm:confirm, token:token});
+			newPass.done(function(data){
+				$("#container").html(data);
+				launchBookmark(url);
+			});
+		}else{
+			$("#confirmPassError").html("Passwords must match");
+		}
+	});
+
+script(src='/production/bookmarkletinvitemin.js')    
