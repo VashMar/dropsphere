@@ -7,6 +7,29 @@ $(document).ready(function(){
         }
     });
 
+    $("#contactAdding input").bind('keypress', function(e){
+        if(e.keyCode==13 && !e.shiftKey){
+            e.preventDefault();
+            addContact();
+        }
+    });
+
+
+    $("#postInput").bind('keypress', function(e){
+        if(e.keyCode==13 && !e.shiftKey){
+            e.preventDefault();
+            postMsg();
+        }
+    });
+
+    $("#newNick").bind('keypress', function(e){
+        if(e.keyCode==13 && !e.shiftKey){
+            e.preventDefault();
+            saveNick();
+        }
+    });
+
+
     $("#send").on("click", function(){
         sendMsg();
     });
@@ -43,19 +66,11 @@ $(document).ready(function(){
 
 
     $("#saveNick").click(function(){
-       var nickname = $("#newNick").val().trim();
-       var nicknamedSpheres = [];
-
-        $("#nickAddingSpheres .selected").each(function(){
-            nicknamedSpheres.push($(this).parents('li').attr('data'));
-        });
-
-        chat.SetNickname(nicknamedSpheres,nickname);
+        saveNick();
     }); 
 
     $("#contactAdd").click(function(){
-        var newContact = $("#contactAdding input").val().trim();
-        chat.AddContact(newContact);
+        addContact();
     });
 
     $("#urlInput").on('paste', function(){
@@ -251,6 +266,10 @@ $(document).ready(function(){
         document.getElementById('notifySound').play();
     }
 
+    function addContact(){
+        var newContact = $("#contactAdding input").val().trim();
+        chat.AddContact(newContact);
+    }
 
     function showContactList(){
         $("#shareSpheres").hide();
@@ -261,6 +280,19 @@ $(document).ready(function(){
          $("#shareContacts").hide();
          $("#shareSpheres").show();
     }
+
+
+    function saveNick(){
+        var nickname = $("#newNick").val().trim();
+       var nicknamedSpheres = [];
+
+        $("#nickAddingSpheres .selected").each(function(){
+            nicknamedSpheres.push($(this).parents('li').attr('data'));
+        });
+
+        chat.SetNickname(nicknamedSpheres,nickname);
+    }
+
 
     function logout(){
        $.get("/logout", function(data){
