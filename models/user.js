@@ -238,7 +238,7 @@ userSchema.methods.sphereData = function(ENV){
 
         // set invite link depending on environment 
         if(ENV == "production"){
-            link = "http://dropsphere.herokuapp.com/invite/" + sphereID; 
+            link = "http://dropsphere.com/invite/" + sphereID; 
         }else{
             link = "http://localhost:3500/invite/" + sphereID;
         }
