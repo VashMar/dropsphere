@@ -183,10 +183,10 @@
                         ul#pendingRequests
                             each requesterId in requesterIds
                                 - var requester = requests[requesterId];
-                                li(data=requesterID)
-                                    =requester 
-                                    a(href='#') Accept
-                                    a(href='#') Ignore
+                                li(data=requesterId)
+                                    span=requester 
+                                    a#acceptRequest(href='#') Accept
+                                    a#ignoreRequest(href='#') Ignore
                     ul#contactNames
                         each contactId in contactIds
                             - var contact = contacts[contactId];

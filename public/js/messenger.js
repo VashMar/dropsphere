@@ -494,6 +494,14 @@ function Chat(){
             socket.emit('requestsSeen');
         }
 
+        this.AcceptRequest = function AcceptRequest(requester){
+           socket.emit('acceptRequest', requester) 
+        }
+
+        this.IgnoreRequest = function IgnoreRequest(requester){
+            socket.emit('ignoreRequest', requester);
+        }
+
         var requestFeed = function(){
             clearUpdates(); // get rid of notifications for the sphere being accessed 
             socket.emit('requestFeed',  {sphereID: currentSphere, sphereIndex: sphereIndex});

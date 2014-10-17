@@ -1,33 +1,42 @@
 $(document).ready(function(){   
 
-    $("textarea#messageInput").bind('keypress', function(e){    
-        if(e.keyCode==13 && !e.shiftKey){
-            e.preventDefault();
-            sendMsg();
-        }
-    });
+    $('body').on('keypress', 'textarea#messageInput', function(e){
 
-    $("#contactAdding input").bind('keypress', function(e){
-        if(e.keyCode==13 && !e.shiftKey){
-            e.preventDefault();
-            addContact();
-        }
-    });
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                sendMsg();
+            }
+    }); 
 
 
-    $("#postInput").bind('keypress', function(e){
-        if(e.keyCode==13 && !e.shiftKey){
-            e.preventDefault();
-            postMsg();
-        }
-    });
 
-    $("#newNick").bind('keypress', function(e){
-        if(e.keyCode==13 && !e.shiftKey){
-            e.preventDefault();
-            saveNick();
-        }
-    });
+    $('body').on('keypress', '#contactAdding input', function(e){
+
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                addContact();
+            }
+    }); 
+
+
+
+    $('body').on('keypress', '#postInput', function(e){
+
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                postMsg();
+            }
+    }); 
+
+
+    $('body').on('keypress', '#newNick', function(e){
+
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                saveNick();
+            }
+    }); 
+
 
 
     $("#send").on("click", function(){
@@ -214,6 +223,23 @@ $(document).ready(function(){
     });
 
 
+    $("#acceptRequest").click(function(){
+        var item = $(this).parents('li');
+        var requester = item.children('span').html();
+        var requesterID = item.attr('data');
+        chat.AcceptRequest(requesterID);
+        item.remove();
+        checkRemainingRequests();
+        $("#contactNames").append("<li data='"+ requesterID +"'><a href='#'>" + requester + "</a></li>");
+    });
+
+    $("#ignoreRequest").click(function(){
+        var item = $(this).parents('li');
+        var requesterID = item.attr('data');
+        chat.IgnoreRequest(requesterID);
+        item.remove();
+        checkRemainingRequests();
+    });
 
 });
 
@@ -293,6 +319,11 @@ $(document).ready(function(){
         chat.SetNickname(nicknamedSpheres,nickname);
     }
 
+    function checkRemainingRequests(){
+        if($("#pendingRequests li").length < 1){
+            $("#contactListContainer p").hide();
+        }
+    }
 
     function logout(){
        $.get("/logout", function(data){

@@ -714,6 +714,37 @@ sessionSockets.on('connection', function (err, socket, session){
     session.save();
   });
 
+  socket.on('acceptRequest', function(requester){
+    //remove the requestID from the list and add it to contacts 
+    User.findOne({_id:requester}, function(err, user){
+      if(user){
+        console.log("Adding to contacts: " + user.id);
+        currentUser.removeRequest(user.id);
+        currentUser.addContact(user);
+        currentUser.save(function(err){
+          if(!err){
+            console.log("Requested accepted");
+          }
+        });
+      }
+    });
+
+     delete session.requests[requester];
+     session.save();
+  });
+
+  socket.on('ignoreRequest', function(requester){
+    // just remove the requestID from the list
+    currentUser.removeRequest(requester);
+    currentUser.save(function(err){
+      if(!err){
+        console.log("Requested ignored");
+      }
+    });
+    delete session.requests[requester];
+    session.save();
+  });
+
   socket.on('seenChat', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     console.log(data.postID);

@@ -1,13 +1,12 @@
 $(document).ready(function(){
 
+    $('body').on('keypress', '#loginEmail, #loginPassword', function(e){
 
-    $("#loginEmail, #loginPassword").bind('keypress', function(e) {
-            
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
                 login();
             }
-        });
+    }); 
 
     $('body').on('keypress', 'input#resetEmail', function(e){
 

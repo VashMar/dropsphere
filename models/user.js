@@ -114,12 +114,20 @@ userSchema.methods.addContact = function(user){
 }
 
 userSchema.methods.pendingRequest = function(user){
-    this.requests.push(user);
-    this.newRequests++;
+     if(this.contacts.indexOf(user.id) < 0){
+        this.requests.push(user);
+        this.newRequests++;
+     }
 }
 
 userSchema.methods.requestsSeen = function(){
     this.newRequests = 0;
+}
+
+userSchema.methods.removeRequest = function(user){
+    console.log(this.requests);
+    this.requests.splice(this.requests.indexOf(user), 1);
+    console.log(this.requests);
 }
 
 
