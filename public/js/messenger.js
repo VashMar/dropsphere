@@ -629,6 +629,7 @@ function Chat(){
                 sharePost = "<li>" + shareIcon + " </li>";
 
 
+
             if(isOwner){
                 options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";
             }
@@ -638,9 +639,10 @@ function Chat(){
                 postChat ="";
                 viewersIcon = "";
                 sender = "";
-            }else if(viewedNum > 0){
+            }else if(viewedNum > 0){               
                 viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
-                viewersIcon = "<li style='float:left;'>" + viewedIcon +  viewed + "</li>";
+                var viewsCounted = viewedIcon.replace("</a>", viewed + "</a>");
+                viewersIcon = "<li style='float:left;'>" + viewsCounted + "</li>";
             }
 
     

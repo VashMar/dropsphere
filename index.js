@@ -1,4 +1,8 @@
 var express = require("express");
+var https = require('https');
+var http = require('http');
+var fs = require('fs');
+
 var cookie = require("cookie");
 var sass = require("node-sass");
 var moment = require("moment");
@@ -36,13 +40,26 @@ var sessionStore = new express.session.MemoryStore();
 
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
-var io = require('socket.io').listen(app.listen(port));
+
+var ENV = process.env.NODE_ENV;
+
+var io = require('socket.io');
+
+if(ENV == 'production'){
+  var cert = fs.readFileSync('dropsphere_com.crt');
+  var key = fs.readFileSync('server.key');
+  var cas = [fs.readFileSync('AddTrustExternalCARoot.crt'), fs.readFileSync('COMODORSAAddTrustCA.crt'), fs.readFileSync('COMODORSADomainValidationSecureServerCA.crt')];
+  var options = {key:key, cert:cert, passphrase:'123123', ca: cas};
+  io = io.listen(https.createServer(options, app).listen(port));
+}else{
+  io = io.listen(http.createServer(app).listen(port));
+}
+
 
 var SessionSockets = require('session.socket.io'),
     sessionSockets = new SessionSockets(io, sessionStore, cookieParser, EXPRESS_SID_KEY); 
 
 
-var ENV = process.env.NODE_ENV;
 
 var database = process.env.MONGOLAB_URI || 
                process.env.MONGOHQ_URL  ||
@@ -71,17 +88,6 @@ app.configure(function () {
      );
 
     app.use(cookieParser);
-
- /*   app.use(express.session({
-      store : new RedisStore({
-        host: 'localhost',
-        port: 6380
-
-      })
-      secret: 'Dr0p5ph3r3z'
-    })); */
-
-
 
     app.use(express.session({
       store : sessionStore,
