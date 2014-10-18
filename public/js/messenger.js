@@ -463,8 +463,17 @@ function Chat(username){
     });
 
     socket.on('pendingRequest', function(data){
+
+        if($("#pendingRequests li").length < 1){
+            $("#contactListContainer p").show();
+        }
+
         //update requests notifications and add the request to the requests list
-        $("#pendingRequests").append("<li data='" + data.userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + data.username + "</a></li>");
+        var glyphicon = "<span class='glyphicon glyphicon-user'></span>";
+        var requester = "<span id='requesterName'>" + data.username + "</span>";
+        var accept = "<a id='acceptRequest' href='#'>Accept</a>";
+        var ignore = "<a id='ignoreRequest' href='#'>Ignore</a>";;
+        $("#pendingRequests").append("<li data='" + data.userID + "'>" + glyphicon + requester + accept + ignore + "</li>");
         $("#newRequests").html("<p>" + data.newRequests + "</p>");
         $("#newRequests").show();
         // update session           
