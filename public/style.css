@@ -188,20 +188,37 @@ ul li a {
   font-size: 9px; }
 
 #contactsContent {
-  margin-right: 150px; }
+  width: 250px;
+  float: left; }
+
+#contactsContent span {
+  float: left;
+  padding-right: 4px; }
 
 #contacts:hover {
   background: url("/img/contacts_hover.png") no-repeat; }
 
 #contactNames {
   padding: 0px;
-  margin-top: 5px; }
+  margin-top: 5px;
+  float: left; }
+
+#contactNames li {
+  float: left;
+  clear: left; }
+
+#contactList .modal-content {
+  float: left; }
 
 #contactList h5 {
-  margin-top: 0px; }
+  margin-top: 0px;
+  width: 95px; }
 
 #contactAdding {
   width: 200px; }
+
+#contactAdding .modal-footer {
+  margin-top: 35px; }
 
 #contactNotifications p {
   font-size: 12px; }
@@ -252,9 +269,17 @@ ul li a {
   list-style: none;
   padding-left: 0px; }
 
+#shareContacts span, #shareSpheres span {
+  padding-right: 4px; }
+
 /* nickname change menu */
 #nickChange h5 {
-  font-size: 12px; }
+  font-size: 12px;
+  padding-top: 4px; }
+
+#nickAddingSpheres {
+  padding-right: 20px;
+  padding-top: 4px; }
 
 #nickAddingSpheres span {
   font-weight: 200; }
@@ -263,10 +288,21 @@ ul li a {
   height: 16px;
   width: 16px;
   display: inline-block;
-  background: url("/img/select_sphere.png") no-repeat; }
+  background: url("/img/select_sphere.png") no-repeat;
+  float: left; }
 
 #selectingSphere:hover, #nickAddingSpheres .selected {
   background: url("/img/selected_sphere.png") no-repeat; }
+
+#nickChange .modal-content {
+  float: left; }
+
+#nickChange .modal-body {
+  float: left; }
+
+#nickChange .modal-header {
+  padding-bottom: 0px;
+  border-bottom: none; }
 
 /* Password Reset */
 .resetNotify {

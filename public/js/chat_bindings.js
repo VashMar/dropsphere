@@ -161,6 +161,7 @@ $(document).ready(function(){
         $("#addContact").hide();
         $("#backToContacts").show();
         $("#contactList .modal-title").html("Add Contact");
+        $("#contactsContent h5 span").attr('class', 'glyphicon glyphicon-circle-arrow-left');
     });
 
     $("#backToContacts").click(function(){
@@ -169,6 +170,7 @@ $(document).ready(function(){
         $("#addContact").show();
         $("#backToContacts").hide();
         $("#contactList .modal-title").html("Contacts");
+        $("#contactsContent h5 span").attr('class', 'glyphicon glyphicon-plus-sign');
     });
 
     $("#feed").on("click", "a#shareIcon", function(){

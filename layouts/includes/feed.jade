@@ -48,7 +48,7 @@
                                     =updates
                                 &nbsp;
                             else
-                                span(id ="okcircle-" + i class="glyphicon glyphicon-ok-circle") 
+                                span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
                                 &nbsp;
                             span.sphereName
                                 =sphereName
@@ -175,6 +175,7 @@
                 h4.modal-title Contacts
               #contactsContent.modal-body
                 h5 
+                    span(class="glyphicon glyphicon-plus-sign")
                     a#addContact(href="#") Add Contact
                     a#backToContacts(style="display:none;" href="#") Contact List
                 #contactListContainer
@@ -191,6 +192,7 @@
                         each contactId in contactIds
                             - var contact = contacts[contactId];
                             li(data=contactId) 
+                                span(class="glyphicon glyphicon-user")
                                 a(href='#')=contact 
                 #contactAdding(style="display:none")
                     p Enter the username or email of your new contact
@@ -284,11 +286,13 @@
                     if sphereMap[sphereID].type == "Group"
                         - var sphereName = sphereMap[sphereID].name;
                         li(data=sphereID)
+                            span(class="glyphicon glyphicon-globe")
                             a(href='#')=sphereName
             ul#shareContacts(style='display:none;')
                 each contactId in contactIds
                     - var contact = contacts[contactId];
                         li(data=contactId) 
+                            span(class="glyphicon glyphicon-user")
                             a(href='#')=contact 
 
 

@@ -77,7 +77,7 @@ function Chat(){
                 for(var i = 0; i < sphereIDs.length; i++){
                     var sphereName = sphereIDs[i].name,
                         updates = sphereIDs[i].updates;
-                    $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
+                    $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-globe'></span> &nbsp;" + 
                     sphereName + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
                     .insertBefore("#sphereDivider");
 
@@ -232,7 +232,7 @@ function Chat(){
                 $("span#currentSphere").html(sphereName).append("<span class='caret'></span>");   
 
                 $("#sphereNames").append("<a class='sphere' data='"+ currentSphere +"' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
-                  sphereIndex + "' class='glyphicon glyphicon-ok-circle'></span> &nbsp;" + 
+                  sphereIndex + "' class='glyphicon glyphicon-globe'></span> &nbsp;" + 
                   "<span class='sphereName'>" + sphereName + "</span>");
 
                 $("#inviteLink").val(sphereLink); 
@@ -677,7 +677,7 @@ function Chat(){
 
             // lets remove the update notifier next to the sphere dropdown 
             var i = sphereIDs.indexOf(currentSphere);
-            var okIcon = "<span id='okcircle-"+ i + "' class='glyphicon glyphicon-ok-circle'></span>";
+            var okIcon = "<span id='okcircle-"+ i + "' class='glyphicon glyphicon-globe'></span>";
 
             $("#updates-" + i ).replaceWith(okIcon);
 
@@ -697,8 +697,8 @@ function Chat(){
         }
 
         function addNewContact(name, userID){
-            $("#contactNames").append("<li data='" + userID + "'><a href='#'>" + name + "</a></li>");
-            $("#shareContacts").append("<li data='" + userID + "'><a href='#'>" + name + "</a></li>");
+            $("#contactNames").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + name + "</a></li>");
+            $("#shareContacts").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'><a href='#'>" + name + "</a></li>");
         }
 
         function notify(msg){
