@@ -227,7 +227,7 @@ $(document).ready(function(){
         var item = $(this).parents('li');
         var requester = $("#requesterName").html();
         var requesterID = item.attr('data');
-       // chat.AcceptRequest(requesterID);
+        chat.AcceptRequest(requesterID);
         item.remove();
         checkRemainingRequests();
         $("#contactNames").append("<li data='"+ requesterID +"'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>");
