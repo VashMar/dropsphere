@@ -15,6 +15,11 @@ $(document).ready(function(){
                 resetPass();
             }
     }); 
+
+    $('body').on('click', 'inpu#loginSet', function(){
+            login();
+    });
+
 });
 
 
@@ -49,28 +54,17 @@ function resetPass(){
  }
 
 
- function login(){
+var login = function(){
     var email = $("#loginEmail").val();
     var password = $("#loginPassword").val();
-   
-    var login = $.post( "/login", {email: email, password: password});
+    var loginAttempt = $.post( "/login", {email: email, password: password});
 
-    login.done(function(data){
+    loginAttempt.done(function(data){
         $("body").html(data);
-
-        // if the page is freshly loaded create the chat object 
-        if(!socket){ 
-            chat = new Chat; 
-            chat.Connect(username);
-        }else{
-            // otherwise the socket and listeners already exist
-            socket.connect();
-        }
-    
      
     });
 
-    login.fail(function( data ) {
+    loginAttempt.fail(function( data ){
         console.log("login failed");
         if(data.responseJSON.type == "email"){
             $("#loginEmailError").html(data.responseJSON.message);

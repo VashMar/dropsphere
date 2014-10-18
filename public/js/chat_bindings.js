@@ -11,7 +11,6 @@ $(document).ready(function(){
 
 
     $('body').on('keypress', '#contactAdding input', function(e){
-
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
                 addContact();
@@ -21,7 +20,6 @@ $(document).ready(function(){
 
 
     $('body').on('keypress', '#postInput', function(e){
-
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
                 postMsg();
@@ -37,7 +35,13 @@ $(document).ready(function(){
             }
     }); 
 
+    $('body').on('keypress', 'textarea#editContent', function(e){
 
+            if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                editPost();
+            }
+    }); 
 
     $("#send").on("click", function(){
         sendMsg();
@@ -201,14 +205,8 @@ $(document).ready(function(){
         $('#deleteSphere').modal('hide');
     });
 
-    $("#saveEdits").click(function(){
-        var newText = $("#editContent").val().trim();
-        var postID =  $("#editContent").attr('data');
-        var post =  $(".post[data=" + postID + "]");
-        $('#editPost').modal('hide');  
-        post.find('.title').html(newText);
-        var newContent = post.find('.postContent').html();
-        chat.EditPost(postID,newText);
+    $("#editPost").on("click", "#saveEdits", function(){
+        editPost();
     });
 
 
@@ -227,12 +225,12 @@ $(document).ready(function(){
 
     $("#acceptRequest").click(function(){
         var item = $(this).parents('li');
-        var requester = item.children('span').html();
+        var requester = $("#requesterName").html();
         var requesterID = item.attr('data');
-        chat.AcceptRequest(requesterID);
+       // chat.AcceptRequest(requesterID);
         item.remove();
         checkRemainingRequests();
-        $("#contactNames").append("<li data='"+ requesterID +"'><a href='#'>" + requester + "</a></li>");
+        $("#contactNames").append("<li data='"+ requesterID +"'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>");
     });
 
     $("#ignoreRequest").click(function(){
@@ -245,7 +243,7 @@ $(document).ready(function(){
 
 });
 
-
+    
     function saveLink(postID){
         alert(postID);
     }
@@ -262,6 +260,16 @@ $(document).ready(function(){
         var link = url;
         $("#urlInput").val(link);
         chat.Preview(link);
+    }
+
+    function editPost(){
+        var newText = $("#editContent").val().trim();
+        var postID =  $("#editContent").attr('data');
+        var post =  $(".post[data=" + postID + "]");
+        $('#editPost').modal('hide');  
+        post.find('.title').html(newText);
+        var newContent = post.find('.postContent').html();
+        chat.EditPost(postID,newText);
     }
 
     function checkLink(pasted){

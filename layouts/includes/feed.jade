@@ -185,7 +185,8 @@
                             each requesterId in requesterIds
                                 - var requester = requests[requesterId];
                                 li(data=requesterId)
-                                    span=requester 
+                                    span(class="glyphicon glyphicon-user")
+                                    span#requesterName=requester 
                                     a#acceptRequest(href='#') Accept
                                     a#ignoreRequest(href='#') Ignore
                     ul#contactNames
@@ -343,6 +344,7 @@ script.
     viewedIcon = "<a id='viewedIcon' href='#' data-toggle='tooltip' data-placement='top' title=''></a>";
     shareIcon = "<a id='shareIcon' href='#' data-toggle='modal' data-target='#sharePost' title='Share'></a>";
     saveIcon = "<a id='saveIcon' href='#'></a>";
+    chat = new Chat(username); 
 script.
     $(document).ready(function(){
         $.getScript('/js/chat_bindings.js')

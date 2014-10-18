@@ -45,15 +45,16 @@ var ENV = process.env.NODE_ENV;
 
 var io = require('socket.io');
 
-if(ENV == 'production'){
+/*if(ENV == 'production'){
   var cert = fs.readFileSync('dropsphere_com.crt');
   var key = fs.readFileSync('server.key');
   var cas = [fs.readFileSync('AddTrustExternalCARoot.crt'), fs.readFileSync('COMODORSAAddTrustCA.crt'), fs.readFileSync('COMODORSADomainValidationSecureServerCA.crt')];
   var options = {key:key, cert:cert, passphrase:'123123', ca: cas};
   io = io.listen(https.createServer(options, app).listen(port));
-}else{
-  io = io.listen(http.createServer(app).listen(port));
-}
+}else{ }*/
+
+io = io.listen(http.createServer(app).listen(port));
+
 
 
 var SessionSockets = require('session.socket.io'),

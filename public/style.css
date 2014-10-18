@@ -229,6 +229,9 @@ ul li a {
 #found {
   color: green; }
 
+#pendingRequests a {
+  padding-right: 5px; }
+
 /* share menus */
 #share_small {
   display: inline-block;
