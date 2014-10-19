@@ -723,7 +723,7 @@ function Chat(username){
 
     function addNewContact(name, userID){
         $("#contactNames").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + name + "</a></li>");
-        $("#shareContacts").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'><a href='#'>" + name + "</a></li>");
+        $("#shareContacts").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + name + "</a></li>");
     }
 
     function notify(msg){

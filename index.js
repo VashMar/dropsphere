@@ -56,7 +56,6 @@ var io = require('socket.io');
 io = io.listen(http.createServer(app).listen(port));
 
 
-
 var SessionSockets = require('session.socket.io'),
     sessionSockets = new SessionSockets(io, sessionStore, cookieParser, EXPRESS_SID_KEY); 
 
@@ -670,7 +669,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
     LinkParser.isEmail(contact, function(isEmail){
       if(isEmail){
-        console.log("Searching for email..");
+        console.log("Searching for email: "  + contact);
         // find a user with the email
         User.findOne({email:contact}, function(err,user){
            // if found add them and put a pending request in their contact list
@@ -682,7 +681,7 @@ sessionSockets.on('connection', function (err, socket, session){
           }
         });
       }else{
-        console.log("Searching for username..");
+        console.log("Searching for username: " + contact);
         //find a user with the username
         User.findOne({name:contact}, function(err,user){
         // if found add them and put a pedding request on their contact list 

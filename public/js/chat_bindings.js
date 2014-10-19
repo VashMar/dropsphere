@@ -1,6 +1,6 @@
 $(document).ready(function(){   
 
-    $('body').on('keypress', 'textarea#messageInput', function(e){
+    $('#messageBox').on('keypress', 'textarea#messageInput', function(e){
 
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
@@ -10,7 +10,7 @@ $(document).ready(function(){
 
 
 
-    $('body').on('keypress', '#contactAdding input', function(e){
+    $('#contactList').on('keypress', '#contactAdding input', function(e){
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
                 addContact();
@@ -19,7 +19,7 @@ $(document).ready(function(){
 
 
 
-    $('body').on('keypress', '#postInput', function(e){
+    $('#content').on('keypress', '#postInput', function(e){
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
                 postMsg();
@@ -27,7 +27,7 @@ $(document).ready(function(){
     }); 
 
 
-    $('body').on('keypress', '#newNick', function(e){
+    $('#nickChange').on('keypress', '#newNick', function(e){
 
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
@@ -35,7 +35,7 @@ $(document).ready(function(){
             }
     }); 
 
-    $('body').on('keypress', 'textarea#editContent', function(e){
+    $('#editPost').on('keypress', 'textarea#editContent', function(e){
 
             if(e.keyCode==13 && !e.shiftKey){
                 e.preventDefault();
@@ -222,18 +222,20 @@ $(document).ready(function(){
         chat.DeletePost(postID);
     });
 
-
-    $("#acceptRequest").click(function(){
+    $("#contactList").on("click", "a#acceptRequest", function(){
         var item = $(this).parents('li');
-        var requester = $("#requesterName").html();
+        var requester =  item.children("#requesterName").html();
         var requesterID = item.attr('data');
         chat.AcceptRequest(requesterID);
         item.remove();
         checkRemainingRequests();
+        //add contact to both contact names and shareable 
         $("#contactNames").append("<li data='"+ requesterID +"'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>");
+        $("#shareContacts").append("<li data='" + requesterID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>");
     });
 
-    $("#ignoreRequest").click(function(){
+
+    $("#contactList").on("click", "a#ignoreRequest", function(){
         var item = $(this).parents('li');
         var requesterID = item.attr('data');
         chat.IgnoreRequest(requesterID);
@@ -241,6 +243,7 @@ $(document).ready(function(){
         checkRemainingRequests();
     });
 
+    
 });
 
     
