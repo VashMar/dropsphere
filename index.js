@@ -124,6 +124,11 @@ app.get('/bookmark', Feed.bookmark);
 
 app.get('/logout', Feed.logout);
 
+//issue login form
+app.get('/login', function(req,res){
+  res.render('includes/login');
+});
+
 // issue sign up form
 app.get('/join', function(req, res){
      res.render("includes/join");
@@ -681,7 +686,7 @@ sessionSockets.on('connection', function (err, socket, session){
           }
         });
       }else{
-        console.log("Searching for username: " + contact);
+        console.log("Searching for username:" + contact);
         //find a user with the username
         User.findOne({name:contact}, function(err,user){
         // if found add them and put a pedding request on their contact list 

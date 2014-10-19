@@ -53,6 +53,12 @@ function resetPass(){
       }); 
  }
 
+ function getLogin(){
+    $.get("/login", function(data){
+        $("body").html(data);
+    }); 
+ }
+
 
 var login = function(){
     var email = $("#loginEmail").val();
