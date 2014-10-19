@@ -142,7 +142,7 @@ app.get("/invite/:id", function(req, res){
   var url = "/bookmark/invite/" + inviteID;
 
   if(ENV == 'production'){
-     url = "http://dropsphere.herokuapp.com/" + url;
+     url = "https://dropsphere.herokuapp.com/" + url;
      res.render("invite", {url: url});
   } else {
      url = "http://localhost:3500/" + url;
@@ -153,9 +153,6 @@ app.get("/invite/:id", function(req, res){
 app.get("/bookmark/invite/:id", Feed.invite);
 
 app.post('/sendReset', Feed.sendReset);
-
-// app.get("/bookmark/resetPass/:token", Feed.resetPass);
-
 
 app.get('/resetPass/:token', Feed.resetPass);
 

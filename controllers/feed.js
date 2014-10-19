@@ -13,7 +13,7 @@ var Session = require("../controllers/sessions");
 
 var Mailer = require("../helpers/mailer");
 
-var baseURL = (ENV == "production") ? "http://dropsphere.herokuapp.com/" : "http://localhost:3500/";
+var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
 
 // show action
 exports.bookmark = function(req, res){
