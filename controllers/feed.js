@@ -33,9 +33,9 @@ exports.signup = function(req, res){
 	console.log("signing up user with credentials: " + req.body);
 
    	// get parameters 
-    var name = req.body.name,
+    var name = req.body.name.toLowerCase(),
         password = req.body.password,
-        email = req.body.email,
+        email = req.body.email.toLowerCase(),
         session = req.sessionID,
         isMobile = req.body.mobile;
 
@@ -177,7 +177,7 @@ exports.login = function(req, res){
 
 	//get credentials 
   console.log("Obtaining User Credentials...");
-	var email = req.body.email,
+	var email = req.body.email.toLowerCase(),
 	password = req.body.password,
   isMobile = req.body.mobile;
 
