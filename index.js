@@ -18,6 +18,7 @@ var mongoose = require("mongoose"),
     Post      = require("./models/post");
 
 
+var Mailer = require("./helpers/mailer");
 
 //controllers 
 var Feed = require("./controllers/feed");
@@ -635,6 +636,7 @@ sessionSockets.on('connection', function (err, socket, session){
       if(!currentUser.hasContact(user)){
         currentUser.addContact(user);
         user.pendingRequest(currentUser);
+        Mailer.newRequest(user.email, currentUser.name);
 
         // emit the success to the person adding
         socket.emit('contactAdded', {username: user.name, userID: user.id});

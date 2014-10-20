@@ -5,8 +5,8 @@ var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: 'vash@dropsphere.com',
-        pass: 'dr0p_sph3r3'
+        user: 'admin@dropsphere.com',
+        pass: '4dm1ndr0pp3r'
     }
 });
 
@@ -16,7 +16,7 @@ exports.welcome = function(email){
 
 	// setup e-mail data with unicode symbols
 	var mailOptions = {
-	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
+	    from: 'Dropsphere Team <admin@dropshere.com>', // sender address
 	    to: email, // list of receivers
 	    subject: 'Looks like someone made a good decision', // Subject line
 	    text: 'Welcome to dropsphere! We hope it makes your life easier!', // plaintext body
@@ -46,6 +46,16 @@ exports.sendReset = function(email, token, ENV){
 	send(mailOptions);
 }
 
+exports.newRequest = function(email, requester){
+	var mailOptions = {
+	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
+	    to: email, // list of receivers
+	    subject: 'You have a friend request!', // Subject line
+	    text: "It looks as though " + requester + " wants to drop stuff to you, do you feel the same way?",
+	};
+
+	send(mailOptions);
+}
 
 function send(mailOptions){
 	// send mail with defined transport object
