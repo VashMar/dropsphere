@@ -627,8 +627,8 @@ function Chat(username){
         var htmlString;
 
         if(isLink){
-            htmlString = "<a class='post_link' target='_blank' href='" + url + "'>";
             if(image === ""){
+                htmlString = "<a class='post_link' target='_blank' href='" + url + "'>";
                 if(thumbnail === ""){
                     htmlString += "<span class='title' style='float:none; padding:5px;'>" + title + "</span>";
                 }else{
@@ -636,6 +636,7 @@ function Chat(username){
                     htmlString += "<span class='title'>"+ title + "</span>";
                 }
             }else{
+                htmlString = "<a class='post_image' target='_blank' href='" + url + "'>";
                 htmlString += "<img src='" + image + "'/>";
                 htmlString += "<span class='title image'>"+ title + "</span>";
             }
