@@ -492,6 +492,14 @@ function Chat(username){
         $("#contactNotifications").show();
     });
 
+
+    socket.on('emailInviteSent', function(data){
+        $("#contactAdding input").css("border-color", "green");
+        $("#contactNotifications").html("<p id='found'>An invite has been sent to this email! You will be notified if they join</p>");
+        $("#contactNotifications").show();
+    });
+
+
     socket.on('joinSphere', function(sphere){
         socket.emit('connectSocket', sphere);
     });
@@ -521,8 +529,6 @@ function Chat(username){
                 }
         });
     });
-
-
 
     /* Extra Functions */
 

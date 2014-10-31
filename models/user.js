@@ -229,11 +229,10 @@ userSchema.methods.sphereData = function(ENV){
         totalUpdates = 0,
         index = this.currentSphere,
         link = "";
+   
+    this.spheres.forEach(function(sphere){
 
-    for(var i = 0; i < this.spheres.length ; i++){
-
-        var sphere = this.spheres[i],             
-            sphereName = sphere.object.getName(this.id),
+        var sphereName = sphere.object.getName(this.id),
             sphereID = sphere.object.id,
             type = sphere.object.type,
             isOwner = sphere.object.owner == this.id;
@@ -263,7 +262,7 @@ userSchema.methods.sphereData = function(ENV){
 
         sphereIDs.push(sphereID);
 
-    }
+    });
 
     sphereData["sphereMap"] = sphereMap;
     sphereData["sphereIDs"] = sphereIDs;

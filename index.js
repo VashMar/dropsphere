@@ -666,7 +666,22 @@ sessionSockets.on('connection', function (err, socket, session){
 
     var notFound = function(contact, isEmail){
         console.log("Contact wasn't found");
-        socket.emit('contactNotFound', {contact: contact, isEmail: isEmail});
+        // if the contact string is an email we can email them an invite to dropsphere
+        if(isEmail){
+          socket.emit('emailInviteSent');
+          // create a personal sphere with the current user as a member (do not track from user's side yet)
+          var members = [{id: currentUser.id, name:currentUser.name}];
+          sphere = new Sphere({members: members, type:"Personal"});
+          sphere.save(function(err,sphere){
+            if(sphere){
+              // send out the invitation email 
+              Mailer.inviteEmail(contact, currentUser.name, currentUser.email, ENV, sphere.id);
+            }
+          });
+        }else{
+          socket.emit('contactNotFound', {contact: contact, isEmail: isEmail});
+        }
+        
     }
 
 

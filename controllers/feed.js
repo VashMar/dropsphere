@@ -29,7 +29,7 @@ exports.bookmark = function(req, res){
 
 // create action 
 exports.signup = function(req, res){
-
+ 
 	console.log("signing up user with credentials: " + req.body);
 
    	// get parameters 
@@ -50,7 +50,9 @@ exports.signup = function(req, res){
           res.json(400,  err);
         } else{
          console.log("created user: " + name);
-        
+         // create a welcome message 
+         sessionData.announcements["welcome"] = "Welcome to your sphere!";
+
          var inviteID = req.session.inviteID;
 
          // construct data variables for client side tracking
@@ -64,32 +66,28 @@ exports.signup = function(req, res){
         	 // if the new user is being invited to an open sphere, assign them to it 
            if(req.session.invite == true){
            	req.session.invite = false; // turn the flag off 
-            	Sphere.findOne({_id: inviteID}, function(err, invitedSphere){
-            	
-            		console.log(invitedSphere);
 
-            		if(err || !invitedSphere){console.log("unable to find invited sphere");}
+              	Sphere.findOne({_id: inviteID}, function(err, invitedSphere){
+              	
+              		console.log(invitedSphere);
 
-            		else{
-            			if(invitedSphere.members.length < 6){	// make sure sphere isn't full
-            				sessionData.announcements["joined"] = user.name + " joined the sphere";
-            				console.log("Adding user to sphere: " + invitedSphere.id);
-            				add_and_render(newSphere, invitedSphere);
-            			}
-            		}	
-            	});
-  				
-  				
+              		if(err || !invitedSphere){console.log("unable to find invited sphere");}
 
-           }else {	// create the user a sphere and plop them inside 
+              		else{
+                    if(invitedSphere.members.length < 6){ // make sure sphere isn't full
+                      sessionData.announcements["joined"] = user.name + " joined the sphere";
+                      console.log("Adding user to sphere: " + invitedSphere.id);
+                      add_and_render(newSphere, invitedSphere);
+                    }            
+              		}	
+              	});
+           }else{	// create the user a sphere and plop them inside 
            	  console.log("Creating sphere for new user..");
-           	  // create a welcome message 
-      			  sessionData.announcements["welcome"] = "Welcome to your sphere!";
       			  add_and_render(newSphere);
            }
 
 
-         function add_and_render(newSphere, invitedSphere){
+        function add_and_render(newSphere, invitedSphere){
          	newSphere.members.push({id: user.id , name: user.name});
 
          	newSphere.save(function(err, sphere){
@@ -99,17 +97,39 @@ exports.signup = function(req, res){
          		else{
          			console.log("The saved main sphere: " + sphere);
               user.mainSphere = sphere; // set the newly created sphere as the user's mainsphere 
-         			user.spheres.push({object: newSphere, nickname: user.name }); // add the sphere to user's sphere list 
+         			user.spheres.push({object: newSphere, nickname: user.name}); // add the sphere to user's sphere list 
               if(invitedSphere){
                 invitedSphere.members.push({id: user.id, name: user.name});
                 invitedSphere.save(function(err, sphere){
                   console.log("The saved invited sphere: " + sphere);
                   user.spheres.push({object:sphere, nickname: user.name });
                   updateSessionData(user,sphere);
+
+                  // if its a personal invite find the user who sent it and update their spheres and notify them 
+                  if(sphere.type == "Personal"){
+                    var sender = this.members[0].id;
+                    if(sender == user.id){
+                       sender = this.members[1].id;
+                    }
+
+                    User.findOne({_id:sender}, function(err, sender){
+                      if(sender){
+                        sender.newRequests++;
+                        sender.spheres.push({object: sphere, nickname: sender.name}); 
+                        sender.save(function(err){
+                          if(!err){
+                            console.log("sender updated");
+                          }
+                        })
+                      }
+                    });
+
+                  }
                 });
               }else{
                 updateSessionData(user,sphere);
               }
+
 
               user.save(function(err,user){
                 if(err){console.log(err);}
@@ -118,6 +138,9 @@ exports.signup = function(req, res){
                   console.log("User saved");
                 }
               });
+            }
+          });
+            
 
               function updateSessionData(user, sphere){
                 var sphereName = sphere.getName(user.id);
@@ -157,13 +180,7 @@ exports.signup = function(req, res){
               }
 
 
-		        }
-
-
-	      
-         	});
-
-        } // end add_and_render
+		  } // end add and render
 
 
    	} 
@@ -413,7 +430,7 @@ exports.invite = function(req,res){
     });
 
   } else{
-    res.render("template_login");
+    res.render("template_join");
   }
 
 }

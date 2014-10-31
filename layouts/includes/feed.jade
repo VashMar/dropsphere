@@ -65,8 +65,8 @@
                 p=nickname
         #content(class="form-control")
             .postBox
-                 textarea#urlInput(class="form-control" placeholder="URL goes here...")
-                 textarea#postInput(class="form-control" maxlength="140" placeholder="Enter a message...")
+                 textarea#urlInput(class="form-control" placeholder="Drop or paste URL")
+                 textarea#postInput(class="form-control" maxlength="140" placeholder="Add or change a title to a post ")
                  #previewContainer(style="display:none")
                     a#closePreview(href="#" onclick="closePreview();")
                         img(src="/img/close_preview.png")
@@ -74,7 +74,11 @@
                  input#drop(type='button' class="btn btn-primary" value='drop' onclick='getLink();')
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
             .alert(style="display:none;") text
-            #feed 
+            #feed
+                if announcements.length > 0
+                    if announcements.indexOf("welcome") >= 0
+                        p.announcement
+                            | Welcome to dropsphere! Hit drop on any page to grab its content, then post to share it! 
                 if feed.length > 0 
                     each postID in feed
                         - var post = posts[postID];

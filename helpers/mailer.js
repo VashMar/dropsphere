@@ -50,8 +50,31 @@ exports.newRequest = function(email, requester){
 	var mailOptions = {
 	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
 	    to: email, // list of receivers
-	    subject: 'You have a friend request!', // Subject line
+	    subject: 'You have a friend request from ' + requester + '!', // Subject line
 	    text: "It looks as though " + requester + " wants to drop stuff to you, do you feel the same way?",
+	};
+
+	send(mailOptions);
+}
+
+
+exports.inviteEmail = function(email, senderName, senderEmail, ENV, token){
+
+	var link; 
+
+	if(ENV == "production"){
+		link = "<a href='http://dropsphere.herokuapp.com/invite/" + token + "'> Go here </a>";
+	}else{
+		link = "<a href='http://localhost:3500/invite/" + token + "'> Go here </a>";	
+	}
+
+  	var msg = senderName + " seems to want to share stuff they find on the web with you. Five them what they want by click this link: " + "<a href=''";
+
+	var mailOptions = {
+	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
+	    to: email, // list of receivers
+	    subject: senderName + ' (' + senderEmail + ') ' + 'has invited you to join DropSphere!', // Subject line
+	    html:  senderName + " seems to want to share stuff they find on the web with you! Give them what they want: " + link,
 	};
 
 	send(mailOptions);

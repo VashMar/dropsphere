@@ -287,6 +287,7 @@ $(document).ready(function(){
         $("#postInput").val("");
         $("#urlInput").val("");
         chat.Post(post); 
+        $( ".announcement" ).remove();
     }
 
     function closePreview(){
