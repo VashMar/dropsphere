@@ -464,7 +464,7 @@ function Chat(username){
 
     socket.on('pendingRequest', function(data){
 
-        if($("#pendingRequests li").length < 1){
+        if($("#pendingRequests li").length > 0){
             $("#contactListContainer p").show();
         }
 

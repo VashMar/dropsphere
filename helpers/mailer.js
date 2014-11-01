@@ -22,8 +22,11 @@ exports.welcome = function(email){
 	    text: 'Welcome to dropsphere! We hope it makes your life easier!', // plaintext body
 	};
 
-
-	send(mailOptions);
+	if(email.indexOf('@test.com') < 0){
+		send(mailOptions);
+	}else{
+		console.log("test email");
+	}
 }
 
 exports.sendReset = function(email, token, ENV){

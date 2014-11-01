@@ -41,6 +41,7 @@ sphereSchema.virtual('memberIds').get(function(){
 
 // returns the name seen by the user for a sphere 
 sphereSchema.methods.getName = function(userID){
+  console.log("Getting name for: " + userID);
   if(this.type === "Group" || this.type === "Main"){
     return this.name;
   }else{
@@ -48,7 +49,7 @@ sphereSchema.methods.getName = function(userID){
     for(var i = 0; i < members.length; i++){
       if(members[i].id != userID){
           console.log("Direct Message Member Name Found");
-          return members[i].name
+          return members[i].name;
       }
     }
   } 
@@ -83,6 +84,9 @@ sphereSchema.methods.getOtherMembers = function(userID){
 
   return contacts;
 }
+
+
+
 
 // checks if the sphere is the users mainSphere 
 sphereSchema.methods.isMain = function(sphere){

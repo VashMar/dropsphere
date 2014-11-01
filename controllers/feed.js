@@ -50,14 +50,15 @@ exports.signup = function(req, res){
           res.json(400,  err);
         } else{
          console.log("created user: " + name);
-         // create a welcome message 
-         sessionData.announcements["welcome"] = "Welcome to your sphere!";
 
          var inviteID = req.session.inviteID;
 
          // construct data variables for client side tracking
          var sessionData = Session.createSessionData(); 
          sessionData.userID = user.id;
+
+         // create a welcome message 
+         sessionData.announcements["welcome"] = "Welcome to your sphere!";
 
          //send welcome email 
          Mailer.welcome(user.email);
@@ -136,6 +137,7 @@ exports.signup = function(req, res){
 
                 else{
                   console.log("User saved");
+                  console.log(user.id);
                 }
               });
             }
@@ -143,6 +145,7 @@ exports.signup = function(req, res){
             
 
               function updateSessionData(user, sphere){
+                console.log("New user id: " + user.id);
                 var sphereName = sphere.getName(user.id);
 
                	// build chat data for client side 
@@ -204,6 +207,7 @@ exports.login = function(req, res){
       console.log("Invalid Email"); 
       res.json(400, {message: "The entered email doesn't exist", type: "email"});
     }else{
+      console.log("Logging in: " + user.id)
       //authorize 
       user.comparePassword(password, function(err, isMatch){
         if(!isMatch || err){ 

@@ -183,16 +183,15 @@
                     a#addContact(href="#") Add Contact
                     a#backToContacts(style="display:none;" href="#") Contact List
                 #contactListContainer
-                    if requesterIds.length > 0
-                        p Pending Requests..
-                        ul#pendingRequests
-                            each requesterId in requesterIds
-                                - var requester = requests[requesterId];
-                                li(data=requesterId)
-                                    span(class="glyphicon glyphicon-user")
-                                    span#requesterName=requester 
-                                    a#acceptRequest(href='#') Accept
-                                    a#ignoreRequest(href='#') Ignore
+                    p(style="display:none") Pending Requests..
+                    ul#pendingRequests
+                        each requesterId in requesterIds
+                            - var requester = requests[requesterId];
+                            li(data=requesterId)
+                                span(class="glyphicon glyphicon-user")
+                                span#requesterName=requester 
+                                a#acceptRequest(href='#') Accept
+                                a#ignoreRequest(href='#') Ignore
                     ul#contactNames
                         each contactId in contactIds
                             - var contact = contacts[contactId];

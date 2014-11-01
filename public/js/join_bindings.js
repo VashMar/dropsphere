@@ -24,15 +24,6 @@ $(document).ready(function(){
     submit.done(function( data ){
      
        $("body").html(data);
-
-        // if the page is freshly loaded create the chat object 
-        if(!socket){ 
-            chat = new Chat; 
-            chat.Connect(name);
-        }else{
-            // otherwise the socket and listeners already exist
-             socket.socket.connect();
-        }
     
     });
 

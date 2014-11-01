@@ -222,6 +222,7 @@ userSchema.methods.isMember = function(givenSphere){
 
 // returns the information about all clients spheres with one loop
 userSchema.methods.sphereData = function(ENV){
+    var user = this;
 
     var sphereData = {},
         sphereMap = {},
@@ -230,15 +231,15 @@ userSchema.methods.sphereData = function(ENV){
         index = this.currentSphere,
         link = "";
    
-    this.spheres.forEach(function(sphere){
+    user.spheres.forEach(function(sphere){
 
-        var sphereName = sphere.object.getName(this.id),
+        var sphereName = sphere.object.getName(user.id),
             sphereID = sphere.object.id,
             type = sphere.object.type,
-            isOwner = sphere.object.owner == this.id;
+            isOwner = sphere.object.owner == user.id;
 
         console.log("Sphere id: " + sphere.object.owner);
-        console.log("User id " + this.id);
+        console.log("User id " + user.id);
 
         // get the updates on all spheres       
         totalUpdates += sphere.updates;
