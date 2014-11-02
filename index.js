@@ -253,7 +253,7 @@ sessionSockets.on('connection', function (err, socket, session){
       console.log("New sphere member..");
       var sphere = session.currentSphere; // the new sphere will be the last one on the list
       sphere = String(sphere);
-      io.sockets.in(sphere).emit('users', {nicknames: session.nicknames, sphereID: sphere.id});
+      io.sockets.in(sphere).emit('users', {nicknames: session.nicknames, sphereID: sphere});
       socket.broadcast.to(sphere).emit('announcement', {msg: username +  " joined the sphere" });
       socket.broadcast.to(sphere).emit('addContact', {id: session.userID, name: username});
       console.log("User contacts: " + JSON.stringify(contacts));

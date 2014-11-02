@@ -42,7 +42,7 @@ function Chat(username){
          
     socket.on('connect', function(){
         console.log('socket io connected');
-    })
+    });
 
      /* chat object functions */
     this.Connect = function(user){ 
@@ -218,6 +218,7 @@ function Chat(username){
     }
 
     this.AddContact = function(contact){
+        alert("hit");
         socket.emit('addContact', contact);
     }
 

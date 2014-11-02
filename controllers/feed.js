@@ -157,7 +157,7 @@ exports.signup = function(req, res){
                   sphereIDs = [mainSphere.id, invSphere.id];
                   nicknames = invSphere.nicknames;
                   current = invSphere.id;
-
+                  req.session.newMember = true;
 
                   // add the invited sphere to the sphereMap
 
@@ -179,7 +179,7 @@ exports.signup = function(req, res){
                	// build chat data for client side 
       					sessionData.sphereIDs = sphereIDs,
       					sessionData.nicknames = nicknames,
-      					sessionData.nickname = name,
+      					sessionData.username = name,
       					sessionData.currentSphere = current;
   		
 
@@ -196,16 +196,20 @@ exports.signup = function(req, res){
 
   			      	console.log("Session's sphereMap: "  + sessionData.sphereMap);
 
-                if(isMobile == "true"){
-                  Session.respondJSON(res, sessionData);
-                }else{
-                  Session.render(res, "includes/feed", sessionData);
-                }
-               
-                Session.storeData(req, sessionData);
-
-  					    // flag user as logged in 
-  		        	req.session.isLogged = true;
+               // if the user was invited to a sphere update the contacts before rendering 
+               if(invSphere){
+                 updateContacts(user, invSphere, sessionData, "includes/feed", res, req, isMobile);
+               }else{
+                  if(isMobile == "true"){
+                    Session.respondJSON(res, sessionData);
+                  }else{
+                    Session.render(res, "includes/feed", sessionData);
+                  }
+                 Session.storeData(req, sessionData);
+               }
+         
+  					   // flag user as logged in 
+  		        req.session.isLogged = true;
 
               } // end update session 
 		  } // end add and render
@@ -425,6 +429,9 @@ exports.invite = function(req,res){
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
+                  updateContacts(sphere, user, sessionData, "template_feed", res, req);
+
+                  /*
                   var contacts = sphere.getOtherMembers(user.id);
 
                   // add the sphere members to invited user's contacts 
@@ -445,6 +452,7 @@ exports.invite = function(req,res){
                       sphere.save(function(err){console.log(err);})
                       User.updateMemberContacts(members, user);     
                   }); 
+                */
 
                 }else{
                   exports.bookmark(req,res);
@@ -557,4 +565,32 @@ exports.newPass = function(req,res){
           }
       });
    }    
+}
+
+// updates the contacts of both the new sphere member and existing sphere members and then renders the view
+function updateContacts(user, sphere, sessionData, view, res, req, isMobile){
+      var contacts = sphere.getOtherMembers(user.id);
+
+      // add the sphere members to invited user's contacts 
+      user.addSphereContacts(sphere.memberIds, function(members){
+
+          sessionData.contacts = contacts;
+
+          user.save(function(err){
+            if(err){
+              console.log(err);
+           }else{
+              //render feed 
+              if(isMobile == "true"){
+                  Session.respondJSON(res, sessionData);
+              }else{
+                  Session.render(res, view, sessionData);
+              }
+              // store session data 
+              Session.storeData(req, sessionData);
+           }
+          });
+          sphere.save(function(err){console.log(err);})
+          User.updateMemberContacts(members, user);     
+      }); 
 }
