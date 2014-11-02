@@ -48,7 +48,10 @@
                                     =updates
                                 &nbsp;
                             else
-                                span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
+                                if sphereMap[sphereID].type == "Personal"
+                                    span(id ="okcircle-" + i class="glyphicon glyphicon-user") 
+                                else
+                                    span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
                                 &nbsp;
                             span.sphereName
                                 =sphereName

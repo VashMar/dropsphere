@@ -91,23 +91,23 @@ exports.signup = function(req, res){
         function add_and_render(newSphere, invitedSphere){
          	newSphere.members.push({id: user.id , name: user.name});
 
-         	newSphere.save(function(err, sphere){
+         	newSphere.save(function(err, mainSphere){
 
-         		if(err || !sphere){ console.log("Error saving sphere"); }
+         		if(err || !mainSphere){ console.log("Error saving sphere"); }
 
          		else{
-         			console.log("The saved main sphere: " + sphere);
-              user.mainSphere = sphere; // set the newly created sphere as the user's mainsphere 
+         			console.log("The saved main sphere: " + mainSphere);
+              user.mainSphere = mainSphere; // set the newly created sphere as the user's mainsphere 
          			user.spheres.push({object: newSphere, nickname: user.name}); // add the sphere to user's sphere list 
               if(invitedSphere){
                 invitedSphere.members.push({id: user.id, name: user.name});
-                invitedSphere.save(function(err, sphere){
-                  console.log("The saved invited sphere: " + sphere);
-                  user.spheres.push({object:sphere, nickname: user.name });
-                  updateSessionData(user,sphere);
+                invitedSphere.save(function(err, invSphere){
+                  console.log("The saved invited sphere: " + invSphere);
+                  user.spheres.push({object: invSphere, nickname: user.name });
+                  updateSessionData(user,mainSphere,invSphere);
 
                   // if its a personal invite find the user who sent it and update their spheres and notify them 
-                  if(sphere.type == "Personal"){
+                  if(invSphere.type == "Personal"){
                     var sender = this.members[0].id;
                     if(sender == user.id){
                        sender = this.members[1].id;
@@ -116,7 +116,7 @@ exports.signup = function(req, res){
                     User.findOne({_id:sender}, function(err, sender){
                       if(sender){
                         sender.newRequests++;
-                        sender.spheres.push({object: sphere, nickname: sender.name}); 
+                        sender.spheres.push({object: invSphere, nickname: sender.name}); 
                         sender.save(function(err){
                           if(!err){
                             console.log("sender updated");
@@ -128,7 +128,7 @@ exports.signup = function(req, res){
                   }
                 });
               }else{
-                updateSessionData(user,sphere);
+                updateSessionData(user,mainSphere);
               }
 
 
@@ -137,34 +137,62 @@ exports.signup = function(req, res){
 
                 else{
                   console.log("User saved");
-                  console.log(user.id);
                 }
               });
             }
           });
             
 
-              function updateSessionData(user, sphere){
+              function updateSessionData(user, mainSphere, invSphere){
                 console.log("New user id: " + user.id);
-                var sphereName = sphere.getName(user.id);
+
+                var name = user.name;
+
+                var sphereIDs,
+                    nicknames, 
+                    current;
+
+                // if the user joined through invite we want to place them in the invited sphere and give them the corresponding data
+                if(invSphere){
+                  sphereIDs = [mainSphere.id, invSphere.id];
+                  nicknames = invSphere.nicknames;
+                  current = invSphere.id;
+
+
+                  // add the invited sphere to the sphereMap
+
+                  var inviteVal = {name: invSphere.getName(user.id), 
+                                nickname: name, 
+                                link: invSphere.link(ENV), 
+                                updates: 0, 
+                                type: invSphere.type, 
+                                isOwner: user.isOwner(invSphere) };
+
+                  sessionData.sphereMap[invSphere.id] = inviteVal;
+                // otherwise just plop the user in their new mainSphere 
+                }else{
+                  sphereIDs = [mainSphere.id];
+                  nicknames = mainSphere.nicknames;
+                  current = mainSphere.id;
+                }
 
                	// build chat data for client side 
-      					sessionData.sphereIDs = [sphere.id],
-      					sessionData.nicknames = sphere.nicknames,
-      					sessionData.nickname = user.name,
-      					sessionData.currentSphere = sphere.id;
+      					sessionData.sphereIDs = sphereIDs,
+      					sessionData.nicknames = nicknames,
+      					sessionData.nickname = name,
+      					sessionData.currentSphere = current;
   		
 
-  			      	// build a map of sphere data for the client 
+  			      	// add the mainSphere to the sphereMap
 
-                var mapData = {name: sphereName, 
-                              nickname: sessionData.nickname, 
-                              link: sphere.link(ENV), 
+                var mainVal = {name: mainSphere.getName(user.id), 
+                              nickname: name, 
+                              link: mainSphere.link(ENV), 
                               updates: 0, 
-                              type: sphere.type, 
-                              isOwner: user.isOwner(sphere) };
+                              type: mainSphere.type, 
+                              isOwner: user.isOwner(mainSphere) };
 
-  			      	sessionData.sphereMap[sphere.id] = mapData; 
+  			      	sessionData.sphereMap[mainSphere.id] = mainVal; 
 
   			      	console.log("Session's sphereMap: "  + sessionData.sphereMap);
 
@@ -174,15 +202,12 @@ exports.signup = function(req, res){
                   Session.render(res, "includes/feed", sessionData);
                 }
                
-
                 Session.storeData(req, sessionData);
 
   					    // flag user as logged in 
   		        	req.session.isLogged = true;
 
-              }
-
-
+              } // end update session 
 		  } // end add and render
 
 
@@ -207,7 +232,7 @@ exports.login = function(req, res){
       console.log("Invalid Email"); 
       res.json(400, {message: "The entered email doesn't exist", type: "email"});
     }else{
-      console.log("Logging in: " + user.id)
+      console.log("Logging in: " + user.id);
       //authorize 
       user.comparePassword(password, function(err, isMatch){
         if(!isMatch || err){ 

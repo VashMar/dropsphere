@@ -248,7 +248,7 @@ function Chat(username){
             }
 
 
-            if(sphereMap[currentSphere].type != "Main"){
+            if(sphereMap[currentSphere].type == "Group"){
                 $("#users").prepend("<a id='share_small' data-toggle='modal' data-target='#shareModal'></a>");
             }
 
