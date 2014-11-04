@@ -63,6 +63,17 @@ input {
   margin: auto;
   margin-left: 3%; }
 
+#containerHome {
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: inline-block;
+  width: 390px;
+  height: 410px; }
+
 #chat {
   height: 80%; }
 
@@ -90,7 +101,7 @@ input {
 
 /* Chat Header */
 #chatLogo {
-  margin: 3px; }
+  margin: 3px auto; }
 
 #currentInfo {
   width: auto;
@@ -114,6 +125,14 @@ input {
 
 #users p:first-child {
   margin-left: 0; }
+
+.modal {
+  overflow: hidden; }
+
+.modal-dialog {
+  position: fixed;
+  left: 0;
+  right: 0; }
 
 /************************************* Menus **********************************/
 /* removing list styling on sphere lists */
@@ -207,9 +226,6 @@ ul li a {
   float: left;
   clear: left; }
 
-#contactList .modal-content {
-  float: left; }
-
 #contactList h5 {
   margin-top: 0px;
   width: 95px; }
@@ -297,11 +313,8 @@ ul li a {
 #selectingSphere:hover, #nickAddingSpheres .selected {
   background: url("/img/selected_sphere.png") no-repeat; }
 
-#nickChange .modal-content {
-  float: left; }
-
-#nickChange .modal-body {
-  float: left; }
+.modal-content {
+  display: inline-block; }
 
 #nickChange .modal-header {
   padding-bottom: 0px;
@@ -552,9 +565,6 @@ a#bookmarklet {
   background: #3980c3;
   text-decoration: none; }
 
-#logo {
-  margin-top: 200px; }
-
 /* Generic Classes */
 .error {
   font-size: 12px;
@@ -612,3 +622,19 @@ a#bookmarklet {
 
 #rejectDeletion {
   width: 45%; }
+
+@media screen and (max-width: 500px) {
+  #containerHome {
+    margin-left: -200px; } }
+
+@media screen and (max-height: 711px) {
+  #chat #chatLogo {
+    background-image: url("/img/dropsphere_xs.png");
+    width: 130px;
+    height: 24px; } }
+
+@media screen and (min-height: 712px) {
+  #chat #chatLogo {
+    background-image: url("/img/dropsphere_sm.png");
+    width: 197px;
+    height: 78px; } }

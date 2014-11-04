@@ -29,7 +29,7 @@
                             =newRequests
                 else
                     span#newRequests(style="display:none;")
-        img#chatLogo(src="/img/dropsphere_sm.png")
+        #chatLogo
         .dropdown
             a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
                 span#notifications.badge.badge-success
@@ -331,8 +331,11 @@
     img(src="/img/post_settings_hover.png")
     img(src="/img/loading.gif")
     img(src="/img/share_post_hover.png")
+    img(src="/img/share_small_hover.png")
     img(src="/img/sphere_add_hover.png")
     img(src="favicon.png")
+    img(src="/img/contacts_hover.png")
+    img(src="/img/close_hover.png")
 script.
     // harvest all sphere related data for client tracking/use 
     sphereData = !{JSON.stringify(data)};
