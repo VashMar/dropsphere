@@ -316,6 +316,9 @@ ul li a {
 .modal-content {
   display: inline-block; }
 
+#sharePost .modal-content {
+  display: block; }
+
 #nickChange .modal-header {
   padding-bottom: 0px;
   border-bottom: none; }
@@ -622,10 +625,6 @@ a#bookmarklet {
 
 #rejectDeletion {
   width: 45%; }
-
-@media screen and (max-width: 500px) {
-  #containerHome {
-    margin-left: -200px; } }
 
 @media screen and (max-height: 711px) {
   #chat #chatLogo {
