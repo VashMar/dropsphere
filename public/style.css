@@ -316,6 +316,9 @@ ul li a {
 .modal-content {
   display: inline-block; }
 
+#sharePost .modal-content {
+  display: block; }
+
 #nickChange .modal-header {
   padding-bottom: 0px;
   border-bottom: none; }
