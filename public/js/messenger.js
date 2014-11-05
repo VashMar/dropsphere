@@ -79,6 +79,8 @@ function Chat(username){
 
 
     this.SelectPost = function(selected){
+        var postContent = selected.html();
+        postContent = postContent.substring(0, postContent.indexOf('<div class="postButtons">'));
         // track what the current post is by id 
         currentPost = selected.attr('data');
         // store the posting text box view which disappears 
@@ -90,9 +92,11 @@ function Chat(username){
         $(".controls").show();
         //empty the chat space
         $("#feed").empty();
+        $("<div class='post'>" + postContent + "</div>").insertAfter(".postBox");
+        $(".post").children(".postBUttons").css("display", "none");
         // resize the scroller for sphere chat view
-        $(".slimScrollDiv").css('height', '98%');
-        $("#feed").css('height', '87%');
+        $(".slimScrollDiv").css('height', '75%');
+        $("#feed").css('height', '90%');
         requestMessages();
         // the chat for this post will be seen by this user 
         seenChat(currentPost);
@@ -101,6 +105,7 @@ function Chat(username){
     this.FeedReturn = function(){
         $(".controls").hide();
         $(".postBox").html(postInput);
+        $(".post").remove();
         $(".slimScrollDiv").css('height', feedHeight);
         $("#feed").css('height', "94%");
         currentPost = null;
