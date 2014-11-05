@@ -651,7 +651,7 @@ function Chat(username){
                     htmlString += "<span class='title'>"+ title + "</span>";
                 }
             }else{
-                htmlString = "<a class='post_image' target='_blank' href='" + url + "'>";
+                htmlString = "<a class='post_image' target='_blank' href='" + image + "'>";
                 htmlString += "<img src='" + image + "'/>";
                 htmlString += "<span class='title image'>"+ title + "</span>";
             }
