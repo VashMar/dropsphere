@@ -19,7 +19,7 @@ var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "htt
 exports.bookmark = function(req, res, cookie){
   var sesh = req.session;
   var email = req.cookies.email; // persistent cookie session 
-  console.log("COOKIES: " + JSON.stringify(req.cookies));
+  
   console.log("Bookmarklet launching.." + JSON.stringify(sesh));
 
 	if(sesh.isLogged == true){ 

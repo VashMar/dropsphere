@@ -40,11 +40,25 @@ var app = express();
 // var sessionStore = new express.session.MemoryStore();
 var RedisStore = require('connect-redis')(express);
 
-var sessionStore = new RedisStore({
-              host:'localhost',
-              port: 6379, 
-              db: 2
-            }); 
+var sessionStore;
+
+if(process.env.REDISTOGO_URL){
+  console.log("connecting to  redis to go in production..");
+  sessionStore = new RedisStore({
+        host:'redis://redistogo:21b64f652693cdfc1353e1ddebd1c805@greeneye.redistogo.com',
+        port: 11137 , 
+        db: 1
+  }); 
+}else{
+    console.log("connecting to local redis server..");
+     sessionStore = new RedisStore({
+          host:'localhost',
+          port: 6379, 
+          db: 2
+     });
+
+} 
+ 
 
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
@@ -121,18 +135,7 @@ app.get("/", function(req, res){
 
 app.post('/login', Feed.login);
 
-app.get('/bookmark', function(req,res){
-  cookieParser(req, {}, function(parseErr){
-     if(!parseErr){
-        // Get the SID cookie
-        var sidCookie = (req.secureCookies && req.secureCookies[EXPRESS_SID_KEY]) ||
-                        (req.signedCookies && req.signedCookies[EXPRESS_SID_KEY]) ||
-                        (req.cookies && req.cookies[EXPRESS_SID_KEY]);
-                        
-        Feed.bookmark(req,res,sidCookie);
-     }
-  });
-});
+app.get('/bookmark', Feed.bookmark);
 
 app.get('/logout', Feed.logout);
 
