@@ -262,6 +262,7 @@ exports.login = function(req, res){
 
 exports.logout = function(req, res){
 	req.session.destroy();
+  res.clearCookie('email');
 	console.log("Session ended: " + req.session);
 	res.render("includes/login");
 }
