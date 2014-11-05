@@ -27,6 +27,7 @@ exports.render = function(res, layout, hash){
 	
 }
 
+
 exports.respondJSON = function(res, hash){
 	console.log("Sending Session data as JSON...");
 	if(hash){
@@ -49,7 +50,6 @@ exports.respondJSON = function(res, hash){
 	 }
 	 
 }
-
 
 
 exports.createSessionData = function(){
@@ -95,4 +95,14 @@ exports.storeData = function(req, sessionData){
     req.session.requests = sessionData.requests;
     req.session.newRequests = sessionData.newRequests
     req.session.userID = sessionData.userID;
+    req.session.save(function(err, session){
+        if(!err && session){
+            console.log(JSON.stringify(session));
+        }
+    });
+}
+
+exports.sendCookie = function(res, email){
+     console.log("Passing persistent cookie..");
+     res.cookie('email', email, { maxAge: 900000, httpOnly: true });
 }

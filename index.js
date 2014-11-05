@@ -37,7 +37,14 @@ var cookieParser = express.cookieParser(COOKIE_SECRET);
 var EXPRESS_SID_KEY = 't3stk3y';
 
 var app = express();
-var sessionStore = new express.session.MemoryStore();
+// var sessionStore = new express.session.MemoryStore();
+var RedisStore = require('connect-redis')(express);
+
+var sessionStore = new RedisStore({
+              host:'localhost',
+              port: 6379, 
+              db: 2
+            }); 
 
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
@@ -45,22 +52,6 @@ var port = process.env.PORT || 3500;
 var ENV = process.env.NODE_ENV;
 
 var io = require('socket.io');
-
-/*if(ENV == 'production'){
-  var cert = fs.readFileSync('dropsphere_com.crt');
-  var key = fs.readFileSync('server.key');
-  var cas = [fs.readFileSync('AddTrustExternalCARoot.crt'), fs.readFileSync('COMODORSAAddTrustCA.crt'), fs.readFileSync('COMODORSADomainValidationSecureServerCA.crt')];
-  var options = {key:key, cert:cert, passphrase:'123123', ca: cas};
-  io = io.listen(https.createServer(options, app).listen(port));
-}else{ }*/
-
-io = io.listen(http.createServer(app).listen(port));
-
-
-var SessionSockets = require('session.socket.io'),
-    sessionSockets = new SessionSockets(io, sessionStore, cookieParser, EXPRESS_SID_KEY); 
-
-
 
 var database = process.env.MONGOLAB_URI || 
                process.env.MONGOHQ_URL  ||
@@ -106,6 +97,15 @@ app.configure(function () {
 });
 
 
+io = io.listen(http.createServer(app).listen(port));
+
+
+var SessionSockets = require('session.socket.io'),
+    sessionSockets = new SessionSockets(io, sessionStore, cookieParser, EXPRESS_SID_KEY); 
+
+
+
+
 
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
@@ -114,14 +114,25 @@ app.get("/", function(req, res){
       console.log("RUNNING ON PORT: " + process.env.PORT);
       console.log("rendering heroku bookmarklet");
       res.render("home");
-  } else {
+  }else{
      res.render("dev_home");
   }    
 });
 
 app.post('/login', Feed.login);
 
-app.get('/bookmark', Feed.bookmark);
+app.get('/bookmark', function(req,res){
+  cookieParser(req, {}, function(parseErr){
+     if(!parseErr){
+        // Get the SID cookie
+        var sidCookie = (req.secureCookies && req.secureCookies[EXPRESS_SID_KEY]) ||
+                        (req.signedCookies && req.signedCookies[EXPRESS_SID_KEY]) ||
+                        (req.cookies && req.cookies[EXPRESS_SID_KEY]);
+                        
+        Feed.bookmark(req,res,sidCookie);
+     }
+  });
+});
 
 app.get('/logout', Feed.logout);
 
@@ -185,10 +196,10 @@ io.set('authorization', function (data, callback) {
                         (data.signedCookies && data.signedCookies[EXPRESS_SID_KEY]) ||
                         (data.cookies && data.cookies[EXPRESS_SID_KEY]);
 
-
-        // Then we just need to load the session from the Express Session Store
+        console.log(sidCookie);
+        // Then we just need to load the session from the Session Store
         sessionStore.load(sidCookie, function(err, session) {
-          
+           console.log(session);
             // And last, we check if the used has a valid session and if he is logged in
             if (err || !session || session.isLogged !== true) {
                 callback('Not logged in.', false);
@@ -369,6 +380,9 @@ sessionSockets.on('connection', function (err, socket, session){
   socket.on('post', function(data){
 
       console.log(currentUser.name + " is posting URL..");
+
+      session.announcements = [];
+      session.save();
       
       // convert data sent as string to a hash if necessary (mobile)
       if(typeof data == 'string' || data instanceof String){

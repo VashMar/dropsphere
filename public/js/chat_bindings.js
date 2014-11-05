@@ -17,6 +17,12 @@ $(document).ready(function(){
             }
     }); 
 
+    $('#sphereDialog').on('keypress', 'input#sphereName', function(e){
+             if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                createSphere();
+            }
+    });
 
 
     $('#content').on('keypress', '#postInput', function(e){
@@ -58,12 +64,7 @@ $(document).ready(function(){
     });
 
     $("#saveSphere").click(function(){
-        // overlay for sphere name input goes here 
-        var sphereName = $("#sphereName").val().trim();
-        if(sphereName){
-          $('#sphereDialog').modal('hide');  
-          chat.CreateSphere(sphereName);
-        }
+        createSphere();
     }); 
 
     $("#saveName").click(function(){
@@ -278,6 +279,16 @@ $(document).ready(function(){
     function checkLink(pasted){
         var checkLink = new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?");
         return checkLink.test(pasted);
+    }
+
+    function createSphere(){
+        
+        var sphereName = $("#sphereName").val().trim();
+
+        if(sphereName){
+          $('#sphereDialog').modal('hide');  
+          chat.CreateSphere(sphereName);
+        }
     }
     
 

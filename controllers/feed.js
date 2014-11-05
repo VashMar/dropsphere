@@ -16,12 +16,18 @@ var Mailer = require("../helpers/mailer");
 var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
 
 // show action
-exports.bookmark = function(req, res){
-  console.log("Bookmarklet launching..");
-	var sesh = req.session;
+exports.bookmark = function(req, res, cookie){
+  var sesh = req.session;
+  var email = req.cookies.email; // persistent cookie session 
+  console.log("COOKIES: " + JSON.stringify(req.cookies));
+  console.log("Bookmarklet launching.." + JSON.stringify(sesh));
 
 	if(sesh.isLogged == true){ 
-    Session.render(res, "template_feed", sesh);
+      Session.render(res, "template_feed", sesh);
+  }else if(email){
+    User.findOne({email: email}).populate('spheres.object contacts requests').exec(function(err, user){
+      retrieveSessionData(user, req, res, "template_feed");
+    });
   }else{
     Session.render(res, "template_login");
   }
@@ -196,6 +202,11 @@ exports.signup = function(req, res){
 
   			      	console.log("Session's sphereMap: "  + sessionData.sphereMap);
 
+
+                // flag user as logged in 
+                req.session.isLogged = true;
+
+
                // if the user was invited to a sphere update the contacts before rendering 
                if(invSphere){
                  updateContacts(user, invSphere, sessionData, "includes/feed", res, req, isMobile);
@@ -206,11 +217,9 @@ exports.signup = function(req, res){
                     Session.render(res, "includes/feed", sessionData);
                   }
                  Session.storeData(req, sessionData);
+                 Session.sendCookie(res, user.email);
                }
          
-  					   // flag user as logged in 
-  		        req.session.isLogged = true;
-
               } // end update session 
 		  } // end add and render
 
@@ -227,8 +236,7 @@ exports.login = function(req, res){
 	//get credentials 
   console.log("Obtaining User Credentials...");
 	var email = req.body.email.toLowerCase(),
-	password = req.body.password,
-  isMobile = req.body.mobile;
+	password = req.body.password;
 
   // pull the user and belonging spheres 
   User.findOne({email: email}).populate('spheres.object contacts requests').exec(function(err, user){
@@ -243,140 +251,18 @@ exports.login = function(req, res){
           console.log("Incorrect Login Credentials");
           res.json(400, {message: "The email or password you entered is incorrect"});
         }else{
-
-
-          // track target sphereID depending on login situation and join date to get all relevant posts
-          var sphereID,
-              joined;
-
-          // create hash for session tracking
-          sessionData = Session.createSessionData();
-          sessionData.username = user.name;
-          sessionData.userID = user.id;
-
-          // gather data about all of the current user's spheres 
-          var sphereData = user.sphereData(ENV);
-          sessionData.sphereMap = sphereData["sphereMap"],
-          sessionData.sphereIDs = sphereData["sphereIDs"],
-          sessionData.totalUpdates = sphereData["totalUpdates"];
-          
-          console.log("User's spheremap: " + JSON.stringify(sessionData.sphereMap));
-
-          // if the user is being invited to a sphere just track the nickname and sphere id for now
-          if(req.session.invite == true){
-              sessionData.nickname = user.name;
-            	sphereID = req.session.inviteID;
-            	joined = moment(); // track the time the user joined the sphere as now 
-          }else{	
-
-              // otherwise we already have the target sphere so track its data 
-              targetSphere = user.targetSphere();
-              targetSphere.updates = 0; // served sphere doesn't need update notifications
-        			sessionData.nicknames = targetSphere.object.nicknames;
-              sessionData.nickname = targetSphere.nickname;
-              sessionData.currentSphere = targetSphere.object._id;
-              sphereID = sessionData.currentSphere;
-      				joined = targetSphere.joined;
-    	  	}
-          
-          Sphere.findOne({_id: sphereID}).populate('posts').exec(function(err, sphere){ 
-            if(err|!sphere){
-            	console.log("unable to populate sphere");
-            }else{
-            	// if the user has been invited to a sphere, make sure its valid and plop them in with a joined message 
-        		 	if(req.session.invite == true){
-                    if(!user.isMember(sphere)){  
-          		 			// add the user to the sphere and the sphere to the user's sphere list 
-          		 			sphere.members.push({id: user.id , name: user.name});
-          		 			user.spheres.push({object: sphere, nickname: user.name});
-
-                    var sphereName = sphere.getName(user.id);
-
-          		 			// create a sphere map key/value for the invited sphere and add the name to the list of user's spheres 
-          		 			sessionData.currentSphere = sphere.id;
-          		 			sessionData.nicknames = sphere.nicknames;
-                    sessionData.sphereIDs.push(sessionData.currentSphere); 
-
-                    var mapData = {name: sphere.getName(user.id), 
-                                nickname: sessionData.nickname, 
-                                link: sphere.link(ENV), 
-                                updates: 0, 
-                                type: sphere.type, 
-                                isOwner: user.isOwner(sphere) };
-
-                    sessionData.sphereMap[sessionData.currentSphere] = mapData;
-          		 		
-   
-
-          		 			sessionData.announcements["joined"] = user.name + " joined the sphere";
-          		 			req.session.invite = false; 
-          		 			req.session.newMember = true;
-          		 			sphere.save(function(err){
-          		 				if(err){console.log(err);}
-          		 			});
-                  } else{
-                    console.log("User already exists in sphere");
-                    res.redirect('/bookmark');
-                  }
-             
-        		 	 // otherwise just get all the recorded messages since the user has joined the sphere 
-        		 	}else{
-	              for(var i = sphere.posts.length - 1; i > -1 ; i--){
-                    var currentPost = sphere.posts[i];
-                    var post = currentPost.getPostData(user, sphere.id, isMobile);
-                    var key = currentPost.id;
-                    sessionData.feed.push(key);
-                    sessionData.posts[key] = post;
-                }   
-	           }
-
-             // get all the user contacts 
-             user.getContacts(function(contacts, requests){
-               sessionData.contacts = contacts; 
-               sessionData.requests = requests;
-               sessionData.newRequests = user.newRequests; 
-                // if the user is logging in through a mobile platform respond with JSON session data 
-                if(isMobile == "true"){
-                  Session.respondJSON(res, sessionData);
-                }else{
-                  Session.render(res, "includes/feed", sessionData);
-                } 
-
-
-               // store session data 
-               Session.storeData(req, sessionData);
-
-
-                 // flag user as logged in 
-               req.session.isLogged = true;
-
-               // store the new session 
-               user.sessions.push(req.sessionID);
-
-               user.save(function(err,user){
-                 if(err){console.log(err);}
-                 else{
-                   console.log("new user session saved: " + user.sessions);
-                 }
-                }); 
-
-             });
-          
-           }
-        });
-
-            
-          }
-        });
-      }
-    }); // end query 
+          retrieveSessionData(user, req, res, "includes/feed");
+        }
+      });
+  }
+  }); // end query 
 
 }
 
 
 exports.logout = function(req, res){
 	req.session.destroy();
-	console.log("Session ended");
+	console.log("Session ended: " + req.session);
 	res.render("includes/login");
 }
 
@@ -430,29 +316,6 @@ exports.invite = function(req,res){
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
                   updateContacts(sphere, user, sessionData, "template_feed", res, req);
-
-                  /*
-                  var contacts = sphere.getOtherMembers(user.id);
-
-                  // add the sphere members to invited user's contacts 
-                  user.addSphereContacts(sphere.memberIds, function(members){
- 
-                      sessionData.contacts = contacts;
-  
-                      user.save(function(err){
-                        if(err){
-                          console.log(err);
-                        }else{
-                          //render feed 
-                          Session.render(res, "template_feed", sessionData);
-                          // store session data 
-                          Session.storeData(req, sessionData);
-                        }
-                      });
-                      sphere.save(function(err){console.log(err);})
-                      User.updateMemberContacts(members, user);     
-                  }); 
-                */
 
                 }else{
                   exports.bookmark(req,res);
@@ -586,11 +449,142 @@ function updateContacts(user, sphere, sessionData, view, res, req, isMobile){
               }else{
                   Session.render(res, view, sessionData);
               }
+
+
               // store session data 
               Session.storeData(req, sessionData);
+              Session.sendCookie(res, user.email);
            }
           });
           sphere.save(function(err){console.log(err);})
           User.updateMemberContacts(members, user);     
       }); 
+}
+
+
+
+function retrieveSessionData(user, req, res, layout){
+          // mobile flag
+          var isMobile = req.body.mobile;
+
+          // track target sphereID depending on login situation and join date to get all relevant posts
+          var sphereID,
+              joined;
+
+          // create hash for session tracking
+          sessionData = Session.createSessionData();
+          sessionData.username = user.name;
+          sessionData.userID = user.id;
+
+          // gather data about all of the current user's spheres 
+          var sphereData = user.sphereData(ENV);
+          sessionData.sphereMap = sphereData["sphereMap"],
+          sessionData.sphereIDs = sphereData["sphereIDs"],
+          sessionData.totalUpdates = sphereData["totalUpdates"];
+          
+          console.log("User's spheremap: " + JSON.stringify(sessionData.sphereMap));
+
+          // if the user is being invited to a sphere just track the nickname and sphere id for now
+          if(req.session.invite == true){
+              sessionData.nickname = user.name;
+              sphereID = req.session.inviteID;
+              joined = moment(); // track the time the user joined the sphere as now 
+          }else{  
+
+              // otherwise we already have the target sphere so track its data 
+              targetSphere = user.targetSphere();
+              targetSphere.updates = 0; // served sphere doesn't need update notifications
+              sessionData.nicknames = targetSphere.object.nicknames;
+              sessionData.nickname = targetSphere.nickname;
+              sessionData.currentSphere = targetSphere.object._id;
+              sphereID = sessionData.currentSphere;
+              joined = targetSphere.joined;
+          }
+          
+          Sphere.findOne({_id: sphereID}).populate('posts').exec(function(err, sphere){ 
+            if(err|!sphere){
+              console.log("unable to populate sphere");
+            }else{
+              // if the user has been invited to a sphere, make sure its valid and plop them in with a joined message 
+              if(req.session.invite == true){
+                    if(!user.isMember(sphere)){  
+                    // add the user to the sphere and the sphere to the user's sphere list 
+                    sphere.members.push({id: user.id , name: user.name});
+                    user.spheres.push({object: sphere, nickname: user.name});
+
+                    var sphereName = sphere.getName(user.id);
+
+                    // create a sphere map key/value for the invited sphere and add the name to the list of user's spheres 
+                    sessionData.currentSphere = sphere.id;
+                    sessionData.nicknames = sphere.nicknames;
+                    sessionData.sphereIDs.push(sessionData.currentSphere); 
+
+                    var mapData = {name: sphere.getName(user.id), 
+                                nickname: sessionData.nickname, 
+                                link: sphere.link(ENV), 
+                                updates: 0, 
+                                type: sphere.type, 
+                                isOwner: user.isOwner(sphere) };
+
+                    sessionData.sphereMap[sessionData.currentSphere] = mapData;
+                  
+   
+
+                    sessionData.announcements["joined"] = user.name + " joined the sphere";
+                    req.session.invite = false; 
+                    req.session.newMember = true;
+                    sphere.save(function(err){
+                      if(err){console.log(err);}
+                    });
+                  } else{
+                    console.log("User already exists in sphere");
+                    res.redirect('/bookmark');
+                  }
+             
+               // otherwise just get all the recorded messages since the user has joined the sphere 
+              }else{
+                for(var i = sphere.posts.length - 1; i > -1 ; i--){
+                    var currentPost = sphere.posts[i];
+                    var post = currentPost.getPostData(user, sphere.id, isMobile);
+                    var key = currentPost.id;
+                    sessionData.feed.push(key);
+                    sessionData.posts[key] = post;
+                }   
+             }
+
+             // get all the user contacts 
+             user.getContacts(function(contacts, requests){
+               sessionData.contacts = contacts; 
+               sessionData.requests = requests;
+               sessionData.newRequests = user.newRequests; 
+                // if the user is logging in through a mobile platform respond with JSON session data 
+                if(isMobile == "true"){
+                  Session.respondJSON(res, sessionData);
+                }else{
+                  Session.render(res, layout, sessionData);
+                } 
+
+
+               // flag user as logged in 
+               req.session.isLogged = true;
+
+               // store session data 
+               Session.storeData(req, sessionData);
+
+               Session.sendCookie(res, user.email);
+
+               // store the new session 
+               user.sessions.push(req.sessionID);
+
+               user.save(function(err,user){
+                 if(err){console.log(err);}
+                 else{
+                   console.log("new user session saved: " + user.sessions);
+                 }
+                }); 
+
+             });
+          
+           }
+        });
 }

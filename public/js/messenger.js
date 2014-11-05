@@ -172,10 +172,12 @@ function Chat(username){
 
     this.EditPost = function(postID, newtext){
         socket.emit('editPost', {postID: postID, newtext: newtext});
+        notify("Post Changes Made");
     }
 
     this.DeletePost = function(postID){
         socket.emit('deletePost', {postID: postID, sphere: sphereID });
+         notify("Post Deleted");
     }
 
     this.OpenPersonal = function(userID){
@@ -218,7 +220,6 @@ function Chat(username){
     }
 
     this.AddContact = function(contact){
-        alert("hit");
         socket.emit('addContact', contact);
     }
 
@@ -410,6 +411,8 @@ function Chat(username){
     });
 
     socket.on('newSphere', function(data){
+
+        notify("Sphere Created");
 
         // track new sphere data 
         sphereMap = data.sphereMap;
