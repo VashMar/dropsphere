@@ -44,12 +44,14 @@ var sessionStore;
 
 if(process.env.REDISTOGO_URL){
   console.log("connecting to  redis to go in production..");
-  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+   var url = require('url');
+   var redisUrl = url.parse(process.env.REDISTOGO_URL),
+       redisAuth = redisUrl.auth.split(':');
   sessionStore = new RedisStore({
-        host: rtg.host,
-        port: rtg.port, 
-        db: 1, 
-        pass: '21b64f652693cdfc1353e1ddebd1c805'
+        host: redisUrl.hostname,
+        port: redisUrl.port, 
+        db: redisAuth[0], 
+        pass: redisAuth[1]
   }); 
 }else{
     console.log("connecting to local redis server..");
