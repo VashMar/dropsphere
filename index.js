@@ -44,9 +44,10 @@ var sessionStore;
 
 if(process.env.REDISTOGO_URL){
   console.log("connecting to  redis to go in production..");
+  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
   sessionStore = new RedisStore({
-        host:'redis://redistogo:21b64f652693cdfc1353e1ddebd1c805@greeneye.redistogo.com',
-        port: 11137, 
+        host: rtg.host,
+        port: rtg.port, 
         db: 1, 
         pass: '21b64f652693cdfc1353e1ddebd1c805'
   }); 
