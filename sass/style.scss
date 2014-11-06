@@ -161,7 +161,7 @@ input{
 
   /* removing list styling on sphere lists */
 
-	#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests{
+	#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests, #inviteContacts{
 		list-style:none;
 	}
 
@@ -270,7 +270,6 @@ input{
 	}
 
 
-
 	#contactList h5{
 		margin-top:0px;
 		width:95px;
@@ -297,6 +296,29 @@ input{
 
 	#pendingRequests a{
 		padding-right:5px;
+	}
+
+	#inviteContacts{
+		float:left;
+		margin-top:5px;
+	}
+
+	#inviteContacts li{
+		float:left;
+		clear:both
+	}
+
+	#inviteContacts a{
+		padding-left: 5px;
+	}
+
+	#shareModal .modal-footer{
+		margin-top: 0px;
+		padding: 0;	
+	}
+
+	#inviteContacts .btn{
+		margin-top:10px;
 	}
 
 	/* share menus */

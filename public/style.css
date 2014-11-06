@@ -136,7 +136,7 @@ input {
 
 /************************************* Menus **********************************/
 /* removing list styling on sphere lists */
-#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests {
+#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests, #inviteContacts {
   list-style: none; }
 
 .modal-dialog ul li {
@@ -247,6 +247,24 @@ ul li a {
 
 #pendingRequests a {
   padding-right: 5px; }
+
+#inviteContacts {
+  float: left;
+  margin-top: 5px; }
+
+#inviteContacts li {
+  float: left;
+  clear: both; }
+
+#inviteContacts a {
+  padding-left: 5px; }
+
+#shareModal .modal-footer {
+  margin-top: 0px;
+  padding: 0; }
+
+#inviteContacts .btn {
+  margin-top: 10px; }
 
 /* share menus */
 #share_small {

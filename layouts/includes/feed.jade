@@ -82,7 +82,7 @@
                     if announcements.indexOf("welcome") >= 0
                         p.announcement
                             | Welcome to dropsphere! Hit drop on any page to grab its content, then post to share it! 
-                    if announcements.indexOf("yourSphere") >= 0
+                    if sphereMap[currentSphere].type === "Main"
                         p.announcement
                             | You currently are in your sphere, your private space to save links. If you want to share links with others just
                             a(data-toggle="modal" data-target="#sphereDialog" href="#")  create a new sphere 
@@ -174,11 +174,21 @@
             .modal-content
               .modal-header
                 button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
-                h4.modal-title Invite your friends
-              
+                h4.modal-title Invite Your Friends! 
               .modal-body
-                label Copy and Paste the link below
+                label Copy and paste the link below
                 input#inviteLink(class="form-control" placeholder="New Name" value= sphereMap[currentSphere].link readonly="readonly")
+                if contactIds.length > 0
+                    label(style="margin-top:20px;") Or select from your contact list
+                    ul#inviteContacts
+                        each contactId in contactIds
+                            - var contact = contacts[contactId];
+                            li(data=contactId) 
+                                span(class="glyphicon glyphicon-user")
+                                a(href='#')=contact 
+                    .modal-footer
+                        button#inviteToSphere.btn.btn-primary(type="button") Invite 
+               
 #contactList.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
          .modal-dialog
             .modal-content
