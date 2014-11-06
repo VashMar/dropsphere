@@ -64,7 +64,7 @@ exports.signup = function(req, res){
          sessionData.userID = user.id;
 
          // create a welcome message 
-         sessionData.announcements["welcome"] = "Welcome to your sphere!";
+         sessionData.announcements["welcome"] = "";
 
          //send welcome email 
          Mailer.welcome(user.email);
@@ -180,6 +180,8 @@ exports.signup = function(req, res){
                   sphereIDs = [mainSphere.id];
                   nicknames = mainSphere.nicknames;
                   current = mainSphere.id;
+                  // flag the yourSphere announcement
+                  sessionData.announcements["yourSphere"] = "";
                 }
 
                	// build chat data for client side 

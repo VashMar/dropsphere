@@ -439,6 +439,7 @@ function Chat(username){
 
         if(sphereMap[currentSphere].isOwner){
             $("#deletableSpheres").append("<li data='" + currentSphere + "'><a href='#'>" + sphereName + "</a></li> ");
+            $("#shareModal").modal();
         }
 
         if(sharedPost){

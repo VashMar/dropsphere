@@ -82,6 +82,11 @@
                     if announcements.indexOf("welcome") >= 0
                         p.announcement
                             | Welcome to dropsphere! Hit drop on any page to grab its content, then post to share it! 
+                    if announcements.indexOf("yourSphere") >= 0
+                        p.announcement
+                            | You currently are in your sphere, your private space to save links. If you want to share links with others just
+                            a(data-toggle="modal" data-target="#sphereDialog" href="#")  create a new sphere 
+
                 if feed.length > 0 
                     each postID in feed
                         - var post = posts[postID];
