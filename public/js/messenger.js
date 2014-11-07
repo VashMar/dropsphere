@@ -224,6 +224,11 @@ function Chat(username){
         socket.emit("setNickname", {spheres: spheres, nickname: newNick});
     }
 
+    this.SendInvite = function(invited){
+        notify("Invite Sent");
+        socket.emit('sphereInvite', {sphere:currentSphere, invited:invited});
+    }
+
     this.AddContact = function(contact){
         socket.emit('addContact', contact);
     }
@@ -240,6 +245,14 @@ function Chat(username){
         socket.emit('ignoreRequest', requester);
     }
 
+    this.AcceptInvite = function(sphere){
+        socket.emit('acceptInvite', sphere);
+        notify("Joined Sphere");
+    }
+
+    this.IgnoreInvite = function(sphere){
+        socket.emit('ignoreInvite', sphere);
+    }
 
  /* Socket Bindings */
 
@@ -475,7 +488,7 @@ function Chat(username){
     socket.on('pendingRequest', function(data){
 
         if($("#pendingRequests li").length > 0){
-            $("#contactListContainer p").show();
+            $("#requestLabel").show();
         }
 
         //update requests notifications and add the request to the requests list
@@ -489,6 +502,25 @@ function Chat(username){
         // update session           
         socket.emit('newRequest');
     });
+
+    socket.on('pendingInvite', function(data){
+        if($("#pendingInvites li").length > 0){
+            $("#inviteLabel").show();
+        }
+
+        //update requests notifications and add the request to the requests list
+        var glyphicon = "<span class='glyphicon glyphicon-globe'></span>";
+        var sphereName  = "<span id='invitedSphere'>" + data.sphereName + "</span>";
+        var sender = "<span id='inviteSender'>" + data.sender + "</span>";
+        var accept = "<a id='acceptInvite' href='#'>Accept</a>";
+        var ignore = "<a id='ignoreInvite' href='#'>Ignore</a>";;
+        $("#pendingInvites").append("<li data='" + data.sphere + "'>" + glyphicon + sphereName + sender + accept + ignore + "</li>");
+        $("#newRequests").html("<p>" + data.newRequests + "</p>");
+        $("#newRequests").show();
+        // update session           
+        socket.emit('newRequest');
+    });
+
 
     socket.on('contactNotFound', function(data){
         $("#contactAdding input").css("border-color", "red");

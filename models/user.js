@@ -48,6 +48,11 @@ var userSchema = new Schema({
     mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 
     contacts: [{type: ObjectId, ref: 'User'}],
     requests: [{type: ObjectId, ref: 'User'}],
+    invites: [{
+        sphereID: String,
+        sphereName: String,
+        sender:  String
+        }],
     newRequests: {type:Number, default: 0},
     passReset: {
                  token: {type:String},
@@ -120,6 +125,12 @@ userSchema.methods.pendingRequest = function(user){
      }
 }
 
+userSchema.methods.pendingInvite = function(sphereID, sphereName, sender){
+        this.invites.push({sphereID: sphereID, sphereName: sphereName, sender:sender});
+        this.newRequests++;
+        console.log("Pending invite added");
+}
+
 userSchema.methods.requestsSeen = function(){
     this.newRequests = 0;
 }
@@ -178,20 +189,23 @@ userSchema.methods.addSphereContacts = function(contactIds, next){
     next(contactIds);
 };
 
-// retrieve the contact names and ids with requests
-userSchema.methods.getContacts = function(next){
-
-    var contacts = this.contacts;
+// retrieve the contact names and ids with requests and invites
+userSchema.methods.getContactInfo = function(next){
+    var user = this;
+    var contacts = user.contacts;
     var contactInfo = {};
 
-    this.getRequests(function(requestInfo){
+    user.getRequests(function(requestInfo){
 
-        for(var i = 0; i < contacts.length; i++){
-            console.log("adding contact for retrieval");
-            contactInfo[contacts[i].id] = contacts[i].name; 
-        }
+        user.getInvites(function(inviteInfo){
+           for(var i = 0; i < contacts.length; i++){
+                console.log("adding contact for retrieval");
+                contactInfo[contacts[i].id] = contacts[i].name; 
+            }
 
-        next(contactInfo, requestInfo); 
+              next(contactInfo, requestInfo, inviteInfo); 
+        });
+      
     });
 }
 
@@ -204,6 +218,17 @@ userSchema.methods.getRequests = function(next){
     });
 
     next(requestInfo);
+}
+
+
+userSchema.methods.getInvites = function(next){
+    var invites = this.invites;
+    inviteInfo = {};
+    invites.forEach(function(invite){
+        inviteInfo[invite.sphereID] = [invite.sphereName, invite.sender]; 
+    });
+
+    next(inviteInfo);
 }
 
 // checks if user is a member of a given sphere 

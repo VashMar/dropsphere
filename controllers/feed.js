@@ -284,7 +284,7 @@ exports.invite = function(req,res){
           if(!sphere){
             console.log("Invited Sphere doesn't exist");
            } else{
-              if(!user.isMember(sphere)){       // if the user isn't already  member plop them in 
+              if(!user.isMember(sphere.id)){       // if the user isn't already  member plop them in 
 
                  var sessionData = req.session;
                  console.log("The Session Data: " + sessionData);
@@ -510,7 +510,7 @@ function retrieveSessionData(user, req, res, layout){
             }else{
               // if the user has been invited to a sphere, make sure its valid and plop them in with a joined message 
               if(req.session.invite == true){
-                    if(!user.isMember(sphere)){  
+                    if(!user.isMember(sphere.id)){  
                     // add the user to the sphere and the sphere to the user's sphere list 
                     sphere.members.push({id: user.id , name: user.name});
                     user.spheres.push({object: sphere, nickname: user.name});
@@ -556,9 +556,10 @@ function retrieveSessionData(user, req, res, layout){
              }
 
              // get all the user contacts 
-             user.getContacts(function(contacts, requests){
+             user.getContactInfo(function(contacts, requests, invites){
                sessionData.contacts = contacts; 
                sessionData.requests = requests;
+               sessionData.invites = invites;
                sessionData.newRequests = user.newRequests; 
                 // if the user is logging in through a mobile platform respond with JSON session data 
                 if(isMobile == "true"){

@@ -211,6 +211,10 @@ $(document).ready(function(){
     });
 
 
+    $("#inviteContacts").on("click", "a", function(){
+         $(this).toggleClass("selectedInvite");
+    });
+
     $("#nickAddingSpheres").on("click", "a", function(){
         $(this).toggleClass("selected");
     });
@@ -244,7 +248,46 @@ $(document).ready(function(){
         checkRemainingRequests();
     });
 
-    
+
+    $("#contactList").on("click", "a#acceptInvite", function(){
+        var item = $(this).parents('li');
+        var sphereID = item.attr('data');
+        chat.AcceptInvite(sphereID);
+        $("#contactList").modal('hide');
+        item.remove();
+        checkRemainingInvites();
+
+    });
+
+    $("#contactList").on("click", "a#ignoreInvite", function(){
+        var item = $(this).parents('li');
+        var sphereID = item.attr('data');
+        chat.IgnoreInvite(sphereID);
+        item.remove();
+        checkRemainingInvites();
+    });
+
+    $("#inviteToSphere").click(function(){
+        var invited = [];
+        var selected = [];
+        // collect all invited users and selected DOM elements
+        $("#inviteContacts .selectedInvite").each(function(){
+            invited.push($(this).attr('data'));
+            selected.push($(this));
+        });
+
+        //send the invited users along to the socket event handler 
+        chat.SendInvite(invited);
+
+        //close the modal 
+        $("#shareModal").modal('hide');
+
+        //remove the selected flags
+        selected.forEach(function(element){
+            element.toggleClass("selectedInvite");
+        });
+    });
+
 });
 
     
@@ -334,7 +377,7 @@ $(document).ready(function(){
 
 
     function saveNick(){
-        var nickname = $("#newNick").val().trim();
+       var nickname = $("#newNick").val().trim();
        var nicknamedSpheres = [];
 
         $("#nickAddingSpheres .selected").each(function(){
@@ -344,9 +387,22 @@ $(document).ready(function(){
         chat.SetNickname(nicknamedSpheres,nickname);
     }
 
+    function inviteToSphere(){
+        $("#inviteContacts .selectedInvite").each(function(){
+            alert($(this).attr('data'));
+           // nicknamedSpheres.push($(this).parents('li').attr('data'));
+        });
+    }
+
     function checkRemainingRequests(){
         if($("#pendingRequests li").length < 1){
-            $("#contactListContainer p").hide();
+            $("#requestLabel").hide();
+        }
+    }
+
+    function checkRemainingInvites(){
+        if($("#pendingInvites li").length < 1){
+            $("#inviteLabel").hide();
         }
     }
 

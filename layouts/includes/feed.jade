@@ -9,6 +9,8 @@
 - var contactIds = Object.keys(contacts);
 - var requests = data.requests;
 - var requesterIds = Object.keys(requests);
+- var invites = data.invites; 
+- var invitedSpheres = Object.keys(invites);
 - var newRequests = data.newRequests;
 #container
     #chat
@@ -174,7 +176,7 @@
             .modal-content
               .modal-header
                 button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
-                h4.modal-title Invite Your Friends! 
+                h4.modal-title Invite Others to this Sphere! 
               .modal-body
                 label Copy and paste the link below
                 input#inviteLink(class="form-control" placeholder="New Name" value= sphereMap[currentSphere].link readonly="readonly")
@@ -183,9 +185,10 @@
                     ul#inviteContacts
                         each contactId in contactIds
                             - var contact = contacts[contactId];
-                            li(data=contactId) 
-                                span(class="glyphicon glyphicon-user")
-                                a(href='#')=contact 
+                            li
+                                a(href='#' data=contactId)
+                                  span(class="glyphicon glyphicon-user")
+                                  span.beingInvited=contact 
                     .modal-footer
                         button#inviteToSphere.btn.btn-primary(type="button") Invite 
                
@@ -201,7 +204,24 @@
                     a#addContact(href="#") Add Contact
                     a#backToContacts(style="display:none;" href="#") Contact List
                 #contactListContainer
-                    p(style="display:none") Pending Requests..
+                    if invitedSpheres.length > 0 
+                        label#inviteLabel Sphere Invitations..
+                    else
+                        label#inviteLabel(style="display:none") Sphere Invitations..
+                    ul#pendingInvites
+                        each invitedSphere in invitedSpheres
+                            - var sphereName = invites[invitedSphere][0];
+                            - var sender = "(from:" + invites[invitedSphere][1] + ")";
+                            li(data=invitedSphere)
+                                span(class="glyphicon glyphicon-globe")
+                                span#invitedSphere=sphereName 
+                                span#inviteSender=sender
+                                a#acceptInvite(href='#') Accept
+                                a#ignoreInvite(href='#') Ignore
+                    if requesterIds.length > 0
+                        label#requestLabel Pending Requests..
+                    else 
+                        label#requestLabel (style="display:none") Pending Requests..
                     ul#pendingRequests
                         each requesterId in requesterIds
                             - var requester = requests[requesterId];

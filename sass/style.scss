@@ -161,7 +161,7 @@ input{
 
   /* removing list styling on sphere lists */
 
-	#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests, #inviteContacts{
+	#deletableSpheres, #nickAddingSpheres, #contactNames, #shareSelection, #pendingRequests, #pendingInvites,  #inviteContacts{
 		list-style:none;
 	}
 
@@ -175,7 +175,7 @@ input{
 		color: #428bca;
 	}
 
-	.modal-dialog li a:hover{
+	.modal-dialog li a:hover, .selectedInvite{
 		background: #428bca;
 		text-decoration: none;
 		color: white;
@@ -294,8 +294,12 @@ input{
 		color:green;
 	}
 
-	#pendingRequests a{
+	#pendingRequests a, #pendingInvites a{
 		padding-right:5px;
+	}
+
+	#contactListContainer label{
+		margin-right:80px;
 	}
 
 	#inviteContacts{
@@ -309,7 +313,11 @@ input{
 	}
 
 	#inviteContacts a{
-		padding-left: 5px;
+		color: black;
+	}
+
+	.beingInvited{
+		padding-left:5px;
 	}
 
 	#shareModal .modal-footer{
@@ -320,6 +328,8 @@ input{
 	#inviteContacts .btn{
 		margin-top:10px;
 	}
+
+
 
 	/* share menus */
 	#share_small{
