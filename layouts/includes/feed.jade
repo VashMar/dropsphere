@@ -181,16 +181,18 @@
                 label Copy and paste the link below
                 input#inviteLink(class="form-control" placeholder="New Name" value= sphereMap[currentSphere].link readonly="readonly")
                 if contactIds.length > 0
-                    label(style="margin-top:20px;") Or select from your contact list
-                    ul#inviteContacts
-                        each contactId in contactIds
-                            - var contact = contacts[contactId];
-                            li
-                                a(href='#' data=contactId)
-                                  span(class="glyphicon glyphicon-user")
-                                  span.beingInvited=contact 
-                    .modal-footer
-                        button#inviteToSphere.btn.btn-primary(type="button") Invite 
+                    label#inviteSelectLabel(style="margin-top:20px;") Or select from your contact list
+                else
+                    label#inviteSelectLabel(style="display:none; margin-top:20px;") Or select from your contact list
+                ul#inviteContacts
+                    each contactId in contactIds
+                        - var contact = contacts[contactId];
+                        li
+                            a(href='#' data=contactId)
+                                span(class="glyphicon glyphicon-user")
+                                span.beingInvited=contact 
+                .modal-footer
+                    button#inviteToSphere.btn.btn-primary(type="button") Invite 
                
 #contactList.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
          .modal-dialog
@@ -211,7 +213,7 @@
                     ul#pendingInvites
                         each invitedSphere in invitedSpheres
                             - var sphereName = invites[invitedSphere][0];
-                            - var sender = "(from:" + invites[invitedSphere][1] + ")";
+                            - var sender = "(from: " + invites[invitedSphere][1] + ")";
                             li(data=invitedSphere)
                                 span(class="glyphicon glyphicon-globe")
                                 span#invitedSphere=sphereName 
@@ -221,7 +223,7 @@
                     if requesterIds.length > 0
                         label#requestLabel Pending Requests..
                     else 
-                        label#requestLabel (style="display:none") Pending Requests..
+                        label#requestLabel(style="display:none") Pending Requests..
                     ul#pendingRequests
                         each requesterId in requesterIds
                             - var requester = requests[requesterId];

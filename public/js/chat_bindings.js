@@ -234,9 +234,13 @@ $(document).ready(function(){
         chat.AcceptRequest(requesterID);
         item.remove();
         checkRemainingRequests();
-        //add contact to both contact names and shareable 
-        $("#contactNames").append("<li data='"+ requesterID +"'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>");
-        $("#shareContacts").append("<li data='" + requesterID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>");
+        //add contact to both contact names, shareable and invite contacts 
+        var contactItem = "<li data='" + requesterID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + requester + "</a></li>";
+        var invContact = "<li><a href='#' data='" + requesterID + "'><span class='glyphicon glyphicon-user'></span><span class='beingInvited'>" + requester + "</span></a></li>";
+        $("#contactNames").append(contactItem);
+        $("#shareContacts").append(contactItem);
+        $("#inviteContacts").append(invContact);
+        $("#inviteSelectLabel").show();
     });
 
 
@@ -291,10 +295,6 @@ $(document).ready(function(){
 });
 
     
-    function saveLink(postID){
-        alert(postID);
-    }
-
     function feedReturn(){
          chat.FeedReturn();
     }
@@ -385,13 +385,6 @@ $(document).ready(function(){
         });
 
         chat.SetNickname(nicknamedSpheres,nickname);
-    }
-
-    function inviteToSphere(){
-        $("#inviteContacts .selectedInvite").each(function(){
-            alert($(this).attr('data'));
-           // nicknamedSpheres.push($(this).parents('li').attr('data'));
-        });
     }
 
     function checkRemainingRequests(){

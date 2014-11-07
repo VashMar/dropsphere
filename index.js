@@ -824,7 +824,7 @@ sessionSockets.on('connection', function (err, socket, session){
              sphere.members.push({id: currentUser.id , name: currentUser.name}); 
              currentUser.spheres.push({object: sphere, nickname: currentUser.name });
           
-        
+            currentUser.removeInvite(sphere.id)
           
             // add the sphere to the sphereMap
             session.sphereMap[sphere.id] = { name: sphere.name, 
@@ -837,10 +837,12 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
             session.sphereIDs.push(sphere.id);
-                                           
+            console.log(sphere);
+            console.log(sphere.nicknames);
             socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: sphere.id });
-            socket.emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id}); 
-
+            io.sockets.in(sphere.id).emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
+            socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere" });
+  
             sendFeed(sphere);
             sphere.save();
             currentUser.save();

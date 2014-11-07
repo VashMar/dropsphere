@@ -141,6 +141,17 @@ userSchema.methods.removeRequest = function(user){
     console.log(this.requests);
 }
 
+userSchema.methods.removeInvite = function(sphereID){
+    var invites = this.invites;
+    console.log("Removing invite " + sphereID + "from: " +  invites);
+    for(var i = 0; i < this.invites.length; i++){
+        if(invites[i].sphereID == sphereID){
+            invites.splice(i,1);
+            console.log("Invite Removed");
+        }
+    }
+    console.log("Updated Invites:" + invites);
+}
 
 userSchema.methods.hasContact = function(user){
     if(this.contacts.indexOf(user.id) > 0){

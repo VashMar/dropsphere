@@ -247,7 +247,6 @@ function Chat(username){
 
     this.AcceptInvite = function(sphere){
         socket.emit('acceptInvite', sphere);
-        notify("Joined Sphere");
     }
 
     this.IgnoreInvite = function(sphere){
@@ -430,8 +429,7 @@ function Chat(username){
 
     socket.on('newSphere', function(data){
 
-        notify("Sphere Created");
-
+       
         // track new sphere data 
         sphereMap = data.sphereMap;
         sphereIDs = data.sphereIDs;
@@ -440,6 +438,8 @@ function Chat(username){
         sphereName = sphereMap[currentSphere].name;
         sphereLink = sphereMap[currentSphere].link;
         nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
+
+        notify("You have joined " + sphereName);
 
         // the current sphere is the newly created one 
         $("span#currentSphere").html(sphereName).append("<span class='caret'></span>");   
@@ -511,7 +511,7 @@ function Chat(username){
         //update requests notifications and add the request to the requests list
         var glyphicon = "<span class='glyphicon glyphicon-globe'></span>";
         var sphereName  = "<span id='invitedSphere'>" + data.sphereName + "</span>";
-        var sender = "<span id='inviteSender'>" + data.sender + "</span>";
+        var sender = "<span id='inviteSender'>(from: " + data.sender + ")</span>";
         var accept = "<a id='acceptInvite' href='#'>Accept</a>";
         var ignore = "<a id='ignoreInvite' href='#'>Ignore</a>";;
         $("#pendingInvites").append("<li data='" + data.sphere + "'>" + glyphicon + sphereName + sender + accept + ignore + "</li>");
@@ -771,8 +771,12 @@ function Chat(username){
     }
 
     function addNewContact(name, userID){
-        $("#contactNames").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + name + "</a></li>");
-        $("#shareContacts").append("<li data='" + userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + name + "</a></li>");
+        var contactItem = "<li data='" + userID + "'><span class='glyphicon glyphicon-user'></span><a href='#'>" + name + "</a></li>";
+        var invContact = "<li><a href='#' data='" + userID + "'><span class='glyphicon glyphicon-user'></span><span class='beingInvited'>" + name + "</span></a></li>";
+        $("#contactNames").append(contactItem);
+        $("#shareContacts").append(contactItem);
+        $("#inviteContacts").append(invContact);
+        $("#inviteSelectLabel").show();
     }
 
     function notify(msg){

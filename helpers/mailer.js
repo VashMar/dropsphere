@@ -22,11 +22,8 @@ exports.welcome = function(email){
 	    text: 'Welcome to dropsphere! We hope it makes your life easier!', // plaintext body
 	};
 
-	if(email.indexOf('@test.com') < 0){
-		send(mailOptions);
-	}else{
-		console.log("test email");
-	}
+	send(mailOptions);
+
 }
 
 exports.sendReset = function(email, token, ENV){
@@ -51,7 +48,7 @@ exports.sendReset = function(email, token, ENV){
 
 exports.newRequest = function(email, requester){
 	var mailOptions = {
-	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
+	    from: 'Dropsphere Team <admin@dropshere.com>', // sender address
 	    to: email, // list of receivers
 	    subject: 'You have a friend request from ' + requester + '!', // Subject line
 	    text: "It looks as though " + requester + " wants to drop stuff to you, do you feel the same way?",
@@ -74,7 +71,7 @@ exports.inviteEmail = function(email, senderName, senderEmail, ENV, token){
   	var msg = senderName + " seems to want to share stuff they find on the web with you. Five them what they want by click this link: " + "<a href=''";
 
 	var mailOptions = {
-	    from: 'Dropsphere Team <vash@dropshere.com>', // sender address
+	    from: 'Dropsphere Team <admin@dropshere.com>', // sender address
 	    to: email, // list of receivers
 	    subject: senderName + ' (' + senderEmail + ') ' + 'has invited you to join DropSphere!', // Subject line
 	    html:  senderName + " seems to want to share stuff they find on the web with you! Give them what they want: " + link,
@@ -84,12 +81,17 @@ exports.inviteEmail = function(email, senderName, senderEmail, ENV, token){
 }
 
 function send(mailOptions){
-	// send mail with defined transport object
-	transporter.sendMail(mailOptions, function(error, info){
-	    if(error){
-	        console.log(error);
-	    }else{
-	        console.log('Message sent: ' + info.response);
-	    }
-	});
+
+	if(mailOptions.to.indexOf('@test.com') < 0){
+		// send mail with defined transport object
+		transporter.sendMail(mailOptions, function(error, info){
+		    if(error){
+		        console.log(error);
+		    }else{
+		        console.log('Message sent: ' + info.response);
+		    }
+		});
+	}else{
+		console.log("test email");
+	}
 }
