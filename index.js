@@ -779,6 +779,7 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
   socket.on('newRequest', function(){
+    console.log("Incrementing Requests");
     session.newRequests++;
     session.save();
   });
@@ -842,13 +843,26 @@ sessionSockets.on('connection', function (err, socket, session){
             socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: sphere.id });
             io.sockets.in(sphere.id).emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
             socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere" });
-  
+    
+            delete session.invites[sphere];
+
             sendFeed(sphere);
             sphere.save();
             currentUser.save();
           }
         }
     });
+  });
+
+  socket.on('ignoreInvite', function(sphere){
+      currentUser.removeInvite(sphere);
+      currentUser.save(function(err){
+        if(!err){
+          console.log("Invite ignored");
+        }
+      });
+      delete session.invites[sphere];
+      session.save();
   });
 
   socket.on('seenChat', function(data){
@@ -991,6 +1005,40 @@ sessionSockets.on('connection', function (err, socket, session){
       }
     });
    });
+
+  socket.on('cacheNicknames', function(nicknames){
+      session.nicknames = nicknames;
+      session.save(function(err){
+        if(!err){
+          console.log("Nicknames Updated");
+        }
+      });
+  });
+
+  socket.on('cacheRequest', function(data){
+    console.log("Caching Request..");
+    session.requests[data.requestID] = data.sender;
+    session.save(function(err){
+      if(!err){
+        console.log("Request Cached");
+      }else{
+        console.log(err);
+      }
+           
+    });
+  });
+
+  socket.on('cacheInvite', function(data){
+    console.log("Caching Invite..");
+    session.invites[data.sphereID] = [data.sphereName, data.sender];
+    session.save(function(err){
+      if(!err){
+        console.log("Invite Cached");
+      }else{
+        console.log(err);
+      }
+    });
+  });
 
   socket.on('requestUsers', function(data){
     console.log("Requesting users..");

@@ -271,6 +271,8 @@ function Chat(username){
                 $("#users").prepend("<a id='share_small' data-toggle='modal' data-target='#shareModal'></a>");
             }
 
+            cacheNicknames(nicknames);
+
         }
     });
 
@@ -501,6 +503,7 @@ function Chat(username){
         $("#newRequests").show();
         // update session           
         socket.emit('newRequest');
+        socket.emit('cacheRequest', {requestID: userID, sender: requester });
     });
 
     socket.on('pendingInvite', function(data){
@@ -517,8 +520,9 @@ function Chat(username){
         $("#pendingInvites").append("<li data='" + data.sphere + "'>" + glyphicon + sphereName + sender + accept + ignore + "</li>");
         $("#newRequests").html("<p>" + data.newRequests + "</p>");
         $("#newRequests").show();
-        // update session           
+        // update session         
         socket.emit('newRequest');
+        socket.emit('cacheInvite', {sphereID: data.sphere, sender: data.sender, sphereName: data.sphereName });
     });
 
 
@@ -571,6 +575,7 @@ function Chat(username){
                 }
         });
     });
+
 
     /* Extra Functions */
 
@@ -746,6 +751,9 @@ function Chat(username){
         socket.emit("seenChat", {postID: postID, sphereID: currentSphere});
     }
 
+    function cacheNicknames(nicknames){
+        socket.emit("cacheNicknames", nicknames);
+    }
 
     function clearUpdates(){
 
