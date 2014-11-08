@@ -171,7 +171,8 @@ userSchema.methods.setNick = function(sphereID, nickname){
 }
 
 userSchema.methods.targetSphere = function(){
-   return this.spheres[this.currentSphere];
+   var current = this.spheres[this.currentSphere] || 0; 
+   return current;
 };
 
 // compares user submitted pass to saved salted one
@@ -287,18 +288,18 @@ userSchema.methods.sphereData = function(ENV){
             link = "http://localhost:3500/invite/" + sphereID;
         }
        
+        if(sphereIDs.indexOf(sphereID) < 0){
+            // add each sphere to the sphereMap for client side tracking 
+            sphereMap[sphereID] = {name: sphereName, 
+                                    nickname: sphere.nickname, 
+                                    link: link,
+                                    updates: sphere.updates,
+                                    type: type,
+                                    isOwner: isOwner
+                                    };
 
-        // add each sphere to the sphereMap for client side tracking 
-        sphereMap[sphereID] = {name: sphereName, 
-                                nickname: sphere.nickname, 
-                                link: link,
-                                updates: sphere.updates,
-                                type: type,
-                                isOwner: isOwner
-                                };
-
-        sphereIDs.push(sphereID);
-
+            sphereIDs.push(sphereID);
+        }
     });
 
     sphereData["sphereMap"] = sphereMap;
