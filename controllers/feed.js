@@ -275,7 +275,7 @@ exports.invite = function(req,res){
 
    req.session.inviteID = inviteID;
    req.session.invite = true; 
-
+   console.log("Invite Session: " + req.session);
    if(req.session.isLogged == true){
     User.findOne({sessions: {$in : [req.sessionID]}}, function(err, user){
       if(user){
@@ -318,7 +318,7 @@ exports.invite = function(req,res){
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
-                  updateContacts(sphere, user, sessionData, "template_feed", res, req);
+                  updateContacts(user, sphere, sessionData, "template_feed", res, req);
 
                 }else{
                   exports.bookmark(req,res);
