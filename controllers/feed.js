@@ -318,7 +318,7 @@ exports.invite = function(req,res){
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
-                  updateContacts(user, sphere, sessionData, "template_feed", res, req);
+                  updateContacts(user,sphere, sessionData, "template_feed", res, req);
 
                 }else{
                   exports.bookmark(req,res);
@@ -496,12 +496,17 @@ function retrieveSessionData(user, req, res, layout){
 
               // otherwise we already have the target sphere so track its data 
               targetSphere = user.targetSphere();
-              targetSphere.updates = 0; // served sphere doesn't need update notifications
               sessionData.nicknames = targetSphere.object.nicknames;
               sessionData.nickname = targetSphere.nickname;
               sessionData.currentSphere = targetSphere.object._id;
               sphereID = sessionData.currentSphere;
               joined = targetSphere.joined;
+              
+              // we can subtract the updates of the sphere that's going to be accessed 
+              sessionData.totalUpdates = sessionData.totalUpdates - sessionData.sphereMap[sessionData.currentSphere].updates;
+              // served sphere doesn't need update notifications
+              targetSphere.updates = 0; 
+              sessionData.sphereMap[sessionData.currentSphere].updates = 0; 
           }
           
           Sphere.findOne({_id: sphereID}).populate('posts').exec(function(err, sphere){ 

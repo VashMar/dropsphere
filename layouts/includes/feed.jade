@@ -42,21 +42,22 @@
                 li.dropdown-header(role="presentation") My Spheres
                 li(role="presentation" id="sphereNames")
                     each sphereID, i in sphereIDs 
-                        - var updates = sphereMap[sphereID].updates;
-                        - var sphereName = sphereMap[sphereID].name;
-                        a(class = "sphere" data=sphereID role="menuitem" tabindex="-1" data-toggle="modal" href="#")
-                            if updates > 0
-                                span.sphereUpdates(id="updates-" + i)
-                                    =updates
-                                &nbsp;
-                            else
-                                if sphereMap[sphereID].type == "Personal"
-                                    span(id ="okcircle-" + i class="glyphicon glyphicon-user") 
+                        if sphereMap[sphereID]
+                            - var updates = sphereMap[sphereID].updates;
+                            - var sphereName = sphereMap[sphereID].name;
+                            a(class = "sphere" data=sphereID role="menuitem" tabindex="-1" data-toggle="modal" href="#")
+                                if updates > 0
+                                    span.sphereUpdates(id="updates-" + i)
+                                        =updates
+                                    &nbsp;
                                 else
-                                    span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
-                                &nbsp;
-                            span.sphereName
-                                =sphereName
+                                    if sphereMap[sphereID].type == "Personal"
+                                        span(id ="okcircle-" + i class="glyphicon glyphicon-user") 
+                                    else
+                                        span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
+                                    &nbsp;
+                                span.sphereName
+                                    =sphereName
                 li#sphereDivider.divider(role="presentation" )
                 li(role="presentation")
                     a#sphereCreate(role="menuitem" tabindex="-1" data-toggle="modal" data-target="#sphereDialog" href="#") <span class="glyphicon glyphicon-plus-sign"></span> Create Sphere
@@ -267,19 +268,20 @@
         input#newNick(class="form-control" placeholder="(Mom, Dad, Heisenberg, Flynn)")
         h5.modal-title Where would you like it seen?
         ul#nickAddingSpheres
-            each sphereID, i in sphereIDs 
-                - var sphereName = sphereMap[sphereID].name;
-                - var sphereNick = sphereMap[sphereID].nickname;
-                li(data=sphereID)
-                    a#selectingSphere
-                    =sphereName 
-                    = ' '
-                    span 
-                        if sphereNick.length > 0
-                            - sphereNick = "(" + sphereNick + ")";
-                        else
-                            - sphereNick = "(No Nickname)";
-                        =sphereNick
+            each sphereID, i in sphereIDs
+                if sphereMap[sphereID] 
+                    - var sphereName = sphereMap[sphereID].name;
+                    - var sphereNick = sphereMap[sphereID].nickname;
+                    li(data=sphereID)
+                        a#selectingSphere
+                        =sphereName 
+                        = ' '
+                        span 
+                            if sphereNick.length > 0
+                                - sphereNick = "(" + sphereNick + ")";
+                            else
+                                - sphereNick = "(No Nickname)";
+                            =sphereNick
       .modal-footer
         button#saveNick.btn.btn-primary(type="button") Apply 
 #sphereDialog.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
@@ -304,10 +306,11 @@
       .modal-body
             ul#deletableSpheres
                 each sphereID, i in sphereIDs
-                    if sphereMap[sphereID].isOwner === true && sphereMap[sphereID].type != "Main"
-                        - var sphereName = sphereMap[sphereID].name;
-                        li(data=sphereID)
-                            a(href='#')=sphereName
+                    if sphereMap[sphereID]
+                        if sphereMap[sphereID].isOwner === true && sphereMap[sphereID].type != "Main"
+                            - var sphereName = sphereMap[sphereID].name;
+                            li(data=sphereID)
+                                a(href='#')=sphereName
                            
           
       .modal-footer
@@ -327,11 +330,12 @@
         #shareRecipients.modal-body
             ul#shareSpheres
                 each sphereID, i in sphereIDs 
-                    if sphereMap[sphereID].type == "Group"
-                        - var sphereName = sphereMap[sphereID].name;
-                        li(data=sphereID)
-                            span(class="glyphicon glyphicon-globe")
-                            a(href='#')=sphereName
+                    if sphereMap[sphereID]
+                        if sphereMap[sphereID].type == "Group"
+                            - var sphereName = sphereMap[sphereID].name;
+                            li(data=sphereID)
+                                span(class="glyphicon glyphicon-globe")
+                                a(href='#')=sphereName
             ul#shareContacts(style='display:none;')
                 each contactId in contactIds
                     - var contact = contacts[contactId];

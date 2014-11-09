@@ -338,24 +338,26 @@ function Chat(username){
                  var time = data.time || moment().calendar();       
                  createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
                  socket.emit("seen", {sphere: data.sphere});
-            }else if(sphereIDs.indexOf(data.sphere) > 0){
+            }else if(sphereIDs.indexOf(data.sphere) > 0 && sphereMap[data.sphere]){
                  // find the sphere the message is meant for and send the user an update notification
                 for(var i = 0; i < sphereIDs.length; i++){
-                    if(sphereIDs[i] == data.sphere){
-                        sphereMap[sphereIDs[i]].updates++;            // increment this spheres updates on client side 
-                        var updates = sphereMap[sphereIDs[i]].updates;
-                        totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
-                        $("#notifications").html(totalUpdates); 
+                    var sphereID = sphereIDs[i];
+      
+                        if(sphereID == data.sphere){
+                            sphereMap[sphereID].updates++;            // increment this spheres updates on client side 
+                            var updates = sphereMap[sphereID].updates;
+                            totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
+                            $("#notifications").html(totalUpdates); 
 
-                        if($("#updates-" + i ).length){
-                          $("#updates-" + i ).html(updates);
-                        }else{
-                          var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
-                          $("#okcircle-" + i).replaceWith(updateIcon);
-                        } 
-                    }
-                     
-                } 
+                            if($("#updates-" + i ).length){
+                              $("#updates-" + i ).html(updates);
+                            }else{
+                              var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
+                              $("#okcircle-" + i).replaceWith(updateIcon);
+                            } 
+                        }
+                
+                } // end loop  
             }else{
                 // this mean that there's a sphere connected to the socket but not on the client's sphereMap yet, so let's cache it
                 socket.emit("cacheSphere", data.sphere);

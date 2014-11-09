@@ -287,18 +287,22 @@ userSchema.methods.sphereData = function(ENV){
         }else{
             link = "http://localhost:3500/invite/" + sphereID;
         }
-       
-        if(sphereIDs.indexOf(sphereID) < 0){
-            // add each sphere to the sphereMap for client side tracking 
-            sphereMap[sphereID] = {name: sphereName, 
-                                    nickname: sphere.nickname, 
-                                    link: link,
-                                    updates: sphere.updates,
-                                    type: type,
-                                    isOwner: isOwner
-                                    };
+        
+        var empty = type == "Personal" && sphere.object.posts.length < 1;
 
+        if(sphereIDs.indexOf(sphereID) < 0){
             sphereIDs.push(sphereID);
+
+            if(!empty){
+                // add each sphere to the sphereMap for client side tracking 
+                sphereMap[sphereID] = {name: sphereName, 
+                                        nickname: sphere.nickname, 
+                                        link: link,
+                                        updates: sphere.updates,
+                                        type: type,
+                                        isOwner: isOwner
+                                        };
+            }
         }
     });
 

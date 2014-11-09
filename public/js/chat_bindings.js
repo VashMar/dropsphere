@@ -151,7 +151,7 @@ $(document).ready(function(){
         $("#newRequests").hide();
         $("#newRequests").html("");
         chat.RequestsSeen();
-    })
+    });
 
     $("#contactNames").on("click", "a", function(){
         var userID = $(this).parents("li").attr('data');

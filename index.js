@@ -406,7 +406,7 @@ sessionSockets.on('connection', function (err, socket, session){
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
           console.log("clients: " + sphereClients);
           data.time = moment().format("MMM Do, h:mm a");
-        //  data.connected = isConnected(sphereString);
+
 
           var url = data.url || "",
               thumbnail = data.thumbnail || "",
@@ -918,8 +918,8 @@ sessionSockets.on('connection', function (err, socket, session){
                 if(newSphere){
                   console.log("Personal Sphere Created: " + newSphere);
                   newSphereMade(newSphere, currentUser, "Personal");
-                  
-
+                /*io.sockets.in(user.mainSphere).emit('joinSphere', sphere.id);
+                  user.save(); */
                   user.spheres.push({object: sphere, nickname: user.name }); // add the sphere to user's sphere list 
                   user.save(function(err,user){
                     if(!err){
