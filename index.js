@@ -482,7 +482,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
        Post.findOne({_id: data.postID}, function(err, post){
         if(post){
-          console.log("sphere found")
+          console.log("sphere found");
           var message = new Message({text: data.msg, sender: data.sender});
           console.log(message);
     
@@ -812,6 +812,10 @@ sessionSockets.on('connection', function (err, socket, session){
           }
         });
 
+       session.contacts[sender.id] = sender.name; 
+       delete session.requests[requester];
+       session.save();
+
       }
 
     }); 
@@ -833,8 +837,6 @@ sessionSockets.on('connection', function (err, socket, session){
       }
     }); */
 
-     delete session.requests[requester];
-     session.save();
   });
 
   socket.on('ignoreRequest', function(requester){

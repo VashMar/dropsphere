@@ -117,12 +117,12 @@ $(document).ready(function(){
     });
 
 
-    $("#feed").on("click", "a#chatIcon, a#unseenChat", function(){
+    $("#feed").on("click", "a.chatIcon, a.unseenChat", function(){
         chat.SelectPost($(this).parents(".post"));
     });
 
 
-    $("#feed").on("click", "a#saveIcon", function(){
+    $("#feed").on("click", "a.saveIcon", function(){
         var postID = $(this).parents('.post').attr('data');
         chat.SavePost(postID);
     });
@@ -178,7 +178,7 @@ $(document).ready(function(){
         $("#contactsContent h5 span").attr('class', 'glyphicon glyphicon-plus-sign');
     });
 
-    $("#feed").on("click", "a#shareIcon", function(){
+    $("#feed").on("click", "a.shareIcon", function(){
         var post = $(this).parents(".post");
         var postID = post.attr('data');
         $("#shareSelection").attr('data', postID);

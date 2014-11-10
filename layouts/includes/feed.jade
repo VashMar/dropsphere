@@ -36,6 +36,10 @@
             a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
                 span#notifications.badge.badge-success
                 span#currentSphere
+                    if sphereMap[currentSphere].type == "Personal"
+                        span(class="glyphicon glyphicon-user" style="padding-right:5px;")
+                    else
+                        span(class="glyphicon glyphicon-globe" style="padding-right:5px;")
                     =sphereMap[currentSphere].name 
                     span.caret 
             ul#sphereList.dropdown-menu(role="menu" aria-labelledby="dLabel")
@@ -147,21 +151,21 @@
                                 ul
                                     if sphereMap[currentSphere].type != "Main"
                                         li(style="float:left;")
-                                            a#viewedIcon(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
+                                            a.viewedIcon(href='#' data-toggle="showViewers" data-placement="top" title=viewerNames)
                                                 if viewers.length > 0
                                                     span.viewedNum
                                                         =viewers.length 
                                     li
-                                        a#shareIcon(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
+                                        a.shareIcon(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
                                     if sphereMap[currentSphere].type != "Main"
                                         li
-                                            a#saveIcon(href='#' title="Save Link")   
+                                            a.saveIcon(href='#' title="Save Link")   
                                         li
                                             a(href='#' title="Comments")    
                                                 if seenConvo === false 
-                                                    a#unseenChat(href='#' title="Comments")  
+                                                    a.unseenChat(href='#' title="Comments")  
                                                 else 
-                                                    a#chatIcon(href='#' title="Comments")
+                                                    a.chatIcon(href='#' title="Comments")
         #messageBox.controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
@@ -392,9 +396,9 @@ script.
     sphereLink = sphereMap[currentSphere].link;
     posts = sphereData.posts; 
     feed = sphereData.feed;
-    viewedIcon = "<a id='viewedIcon' href='#' data-toggle='tooltip' data-placement='top' title=''></a>";
-    shareIcon = "<a id='shareIcon' href='#' data-toggle='modal' data-target='#sharePost' title='Share'></a>";
-    saveIcon = "<a id='saveIcon' href='#'></a>";
+    viewedIcon = "<a class='viewedIcon' href='#' data-toggle='tooltip' data-placement='top' title=''></a>";
+    shareIcon = "<a class='shareIcon' href='#' data-toggle='modal' data-target='#sharePost' title='Share'></a>";
+    saveIcon = "<a class='saveIcon' href='#'></a>";
     chat = new Chat(username); 
 script.
     $(document).ready(function(){

@@ -377,30 +377,30 @@ ul li a {
   width: 180px; }
 
 /* Post Icons */
-#saveIcon, #chatIcon, #unseenChat, #shareIcon, #viewedIcon {
+.saveIcon, .chatIcon, .unseenChat, .shareIcon, .viewedIcon {
   height: 16px;
   width: 16px;
   display: block; }
 
-#saveIcon {
+.saveIcon {
   background: url("/img/sphere_add.png") no-repeat; }
 
-#saveIcon:hover {
+.saveIcon:hover {
   background: url("/img/sphere_add_hover.png") no-repeat; }
 
-#chatIcon {
+.chatIcon {
   background: url("/img/chat_icon.png") no-repeat; }
 
-#shareIcon {
+.shareIcon {
   background: url("/img/share_post.png") no-repeat; }
 
-#shareIcon:hover {
+.shareIcon:hover {
   background: url("/img/share_post_hover.png") no-repeat; }
 
-#viewedIcon {
+.viewedIcon {
   background: url("/img/viewed.png") no-repeat; }
 
-#chatIcon:hover, #unseenChat {
+.chatIcon:hover, .unseenChat {
   background: url("favicon.png") no-repeat; }
 
 /* Chat Body */

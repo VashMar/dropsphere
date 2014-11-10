@@ -31,8 +31,8 @@ function Chat(username){
     var sharedPost = null,
         sharedPostID;
 
-    var seenIcon = "<a href='#' id='chatIcon'></a>";
-    var unseenIcon = "<a href='#' id='unseenChat'></a>";
+    var seenIcon = "<a href='#' class='chatIcon'></a>";
+    var unseenIcon = "<a href='#' class='unseenChat'></a>";
 
 
     var postImage = "",
@@ -114,7 +114,7 @@ function Chat(username){
 
     this.SwitchSphere = function(sphereID){
         
-        currentSphere = sphereID;         
+        currentSphere = sphereID;          
 
         if(currentPost){
             $(".controls").hide();
@@ -128,7 +128,12 @@ function Chat(username){
         sphereIndex = sphereIDs.indexOf(currentSphere);   
         sphereLink = sphereMap[currentSphere].link;
         
-        $("span#currentSphere").html(sphereName);
+        var type = sphereMap[currentSphere].type;
+        var caret = "<span class='caret'></span>";
+        var globe = "<span class='glyphicon glyphicon-globe' style='padding-right:5px;''></span>" + sphereName + caret;
+        var user = "<span class='glyphicon glyphicon-user' style='padding-right:5px;''></span>" + sphereName + caret;
+        (type == "Personal") ? $("span#currentSphere").html(user) : $("span#currentSphere").html(globe);
+
         $("#inviteLink").val(sphereLink); 
             
         // socket.emit('requestUsers', {sphereID : sphereID});
@@ -324,7 +329,9 @@ function Chat(username){
                  $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                  scrollBottom();
             }else if(currentSphere == data.sphere){
-                $(".post[data='" + data.postID + "']").find(".chatIcon").attr('src', 'favicon.png');
+              var newMsgIcon = $(".post[data='" + data.postID + "']").find(".chatIcon");
+              newMsgIcon.addClass('unseenChat');
+              newMsgIcon.removeClass('chatIcon');      
             }
         }           
     });
@@ -505,7 +512,7 @@ function Chat(username){
         $("#newRequests").show();
         // update session           
         socket.emit('newRequest');
-        socket.emit('cacheRequest', {requestID: userID, sender: requester });
+        socket.emit('cacheRequest', {requestID: data.userID, sender: requester });
     });
 
     socket.on('pendingInvite', function(data){
