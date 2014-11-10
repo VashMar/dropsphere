@@ -1097,19 +1097,20 @@ sessionSockets.on('connection', function (err, socket, session){
       console.log("Requesting Feed..");
  
       var targetSphere = null;
+      var sphereIndex = data.sphereIndex;
       var posts = {};
       var feed = [];
-      console.log(currentUser.spheres);
       console.log(data.sphereIndex);
-      console.log(currentUser.spheres[data.sphereIndex]);
-      var sphereObj = currentUser.spheres[data.sphereIndex].object; 
+      console.log(currentUser.spheres[sphereIndex]);
+      var sphereObj = currentUser.spheres[sphereIndex].object; 
       var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID 
       if(sphereMatch ){
-        targetSphere = currentUser.spheres[data.sphereIndex];
+        targetSphere = currentUser.spheres[sphereIndex];
       } else{
           for(var i = 0; i < currentUser.spheres.length; i++){
-              if(sphereMatch){
-                  targetSphere = currentUser.spheres[i];     
+              if(sphereID == currentUser.spheres[i].object){
+                  targetSphere = currentUser.spheres[i];  
+                  sphereIndex = i;    
               }
           }
       } 
@@ -1121,7 +1122,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
             // resets the notifications in a sphere to 0 once the user has accessed it 
             targetSphere.updates = 0;
-            currentUser.currentSphere = data.sphereIndex;       
+            currentUser.currentSphere = sphereIndex;       
             sendFeed(sphere);
             currentUser.save(function(err){
               if(err){console.log(err);}
