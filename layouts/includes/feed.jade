@@ -303,13 +303,14 @@
         button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
         h4.modal-title Select a Sphere to Delete
       
-      .modal-body
+      .modal-body(style="text-align:left;")
             ul#deletableSpheres
                 each sphereID, i in sphereIDs
                     if sphereMap[sphereID]
                         if sphereMap[sphereID].isOwner === true && sphereMap[sphereID].type != "Main"
                             - var sphereName = sphereMap[sphereID].name;
                             li(data=sphereID)
+                                span(class="glyphicon glyphicon-globe" style="padding-right:5px;")
                                 a(href='#')=sphereName
                            
           
