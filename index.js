@@ -767,16 +767,21 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
   socket.on('requestsSeen', function(){
-    currentUser.requestsSeen();
-    session.newRequests = 0;
-
-    currentUser.save(function(err){
-      if(!err){
-        console.log("New requests reset");
-      }
+    User.reload(currentUser.id, function(user){
+      currentUser = user; 
+      currentUser.requestsSeen();
+      session.newRequests = 0;
+      currentUser.save(function(err){
+        if(!err){
+          console.log("New requests reset");
+        }else{
+          console.log(err);
+        }
+      });
+     session.save();
     });
-    session.save();
   });
+
 
   socket.on('newRequest', function(){
     console.log("Incrementing Requests");
@@ -786,19 +791,45 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
   socket.on('acceptRequest', function(requester){
-    //remove the requestID from the list and add it to contacts 
+    var sender = requester; 
+    console.log("REQUESTERID: " + requester);
+    var contacted = [requester, currentUser._id];
+    User.find({'_id' : {$in: contacted }}, function(err, users){
+      console.log(users);
+      if(users && users.length == 2){
+        sender = (users[0]._id == sender) ? users[0] : users[1];
+        currentUser = users[1];
+        console.log("Adding to contacts: " + sender.id);
+        currentUser.removeRequest(sender.id);
+        currentUser.addContact(sender);
+        currentUser.save(function(err){
+          if(!err){
+            console.log("Requested accepted");
+          }else{
+            console.log(err);
+          }
+        });
+
+      }
+
+    }); 
+
+  /*  //remove the requestID from the list and add it to contacts 
     User.findOne({_id:requester}, function(err, user){
       if(user){
+
         console.log("Adding to contacts: " + user.id);
         currentUser.removeRequest(user.id);
         currentUser.addContact(user);
         currentUser.save(function(err){
           if(!err){
             console.log("Requested accepted");
+          }else{
+            console.log(err);
           }
         });
       }
-    });
+    }); */
 
      delete session.requests[requester];
      session.save();
@@ -820,36 +851,42 @@ sessionSockets.on('connection', function (err, socket, session){
     console.log("Accepting Invite to sphere: " + sphere);
     Sphere.findOne({_id: sphere}).populate('posts').exec(function(err, sphere){
         if(sphere){
-          // and user to sphere and track the sphere from user end 
-          if(!currentUser.isMember(sphere.id)){
-             sphere.members.push({id: currentUser.id , name: currentUser.name}); 
-             currentUser.spheres.push({object: sphere, nickname: currentUser.name });
-          
-            currentUser.removeInvite(sphere.id)
-          
-            // add the sphere to the sphereMap
-            session.sphereMap[sphere.id] = { name: sphere.name, 
-                                               nickname: currentUser.name, 
-                                               link: sphere.link(ENV),
-                                               updates: 0,        
-                                               type: sphere.type,
-                                               isOwner: false
-                                            };
+          User.reload(currentUser.id, function(user){
+            if(user){
+              currentUser = user; 
+              // and user to sphere and track the sphere from user end 
+              if(!currentUser.isMember(sphere.id)){
+                 sphere.members.push({id: currentUser.id , name: currentUser.name}); 
+                 currentUser.spheres.push({object: sphere, nickname: currentUser.name });
+              
+                currentUser.removeInvite(sphere.id)
+              
+                // add the sphere to the sphereMap
+                session.sphereMap[sphere.id] = { name: sphere.name, 
+                                                   nickname: currentUser.name, 
+                                                   link: sphere.link(ENV),
+                                                   updates: 0,        
+                                                   type: sphere.type,
+                                                   isOwner: false
+                                                };
 
 
-            session.sphereIDs.push(sphere.id);
-            console.log(sphere);
-            console.log(sphere.nicknames);
-            socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: sphere.id });
-            io.sockets.in(sphere.id).emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
-            socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere" });
-    
-            delete session.invites[sphere];
+                session.sphereIDs.push(sphere.id);
+                console.log(sphere);
+                console.log(sphere.nicknames);
+                socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: sphere.id });
+                io.sockets.in(sphere.id).emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
+                socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere" });
+        
+                delete session.invites[sphere];
 
-            sendFeed(sphere);
-            sphere.save();
-            currentUser.save();
+                sendFeed(sphere);
+                sphere.save();
+                currentUser.save();
+              }
           }
+        });
+
         }
     });
   });

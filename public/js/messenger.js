@@ -665,7 +665,7 @@ function Chat(username){
                             text = msg[1], 
                             memberNum = nicknames.indexOf(sender);
 
-                        $("#feed").append("<p class='message'><span class='user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
+                        $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
                     }
                 }       
             } 

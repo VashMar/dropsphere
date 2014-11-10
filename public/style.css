@@ -538,6 +538,9 @@ a.post_image img {
 .time {
   font-size: 10px; }
 
+.chatSender {
+  font-weight: bold; }
+
 /* Controls */
 .controls .slimScrollDiv, .controls .slimScrollBar {
   background: none !important; }
