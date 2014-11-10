@@ -1100,7 +1100,8 @@ sessionSockets.on('connection', function (err, socket, session){
       var posts = {};
       var feed = [];
       console.log(currentUser.spheres);
-      console.log(currentUser.spheres[data.sphereIndex].object);
+      console.log(data.sphereIndex);
+      console.log(currentUser.spheres[data.sphereIndex]);
       var sphereObj = currentUser.spheres[data.sphereIndex].object; 
       var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID 
       if(sphereMatch ){
@@ -1138,6 +1139,8 @@ sessionSockets.on('connection', function (err, socket, session){
             console.log("User requested a sphere that magically doesn't exist!");
            }
          });
+      }else{
+        console.log("sphereIndex issue");
       }
   });
 
