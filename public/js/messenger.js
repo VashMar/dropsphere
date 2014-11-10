@@ -321,7 +321,7 @@ function Chat(username){
             // if the message is being sent to the currently viewed chat, append it
             if(currentSphere == data.sphere && currentPost == data.postID) {    
                  var memberNum = nicknames.indexOf(data.sender);         
-                 $("#feed").append("<p class='message'><span class='user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
+                 $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                  scrollBottom();
             }else if(currentSphere == data.sphere){
                 $(".post[data='" + data.postID + "']").find(".chatIcon").attr('src', 'favicon.png');
