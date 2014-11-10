@@ -157,11 +157,13 @@ app.post('/signup', Feed.signup);
 
 
 app.get("/invite/:id", function(req, res){
+  console.log("recieving invite");
   var inviteID = req.param('id');
+  console.log(inviteID);
   var url = "/bookmark/invite/" + inviteID;
-
+  console.log(url);
   if(ENV == 'production'){
-     url = "https://dropsphere.com/" + url;
+     url = "http://dropsphere.herokuapp.com/" + url;
      res.render("invite", {url: url});
   } else {
      url = "http://localhost:3500/" + url;

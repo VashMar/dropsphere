@@ -135,7 +135,7 @@ userSchema.methods.requestsSeen = function(){
     this.newRequests = 0;
 }
 
-userSchema.methods.removeRequest = function(user){
+userSchema.methods.removeReqAduest = function(user){
     console.log(this.requests);
     this.requests.splice(this.requests.indexOf(user), 1);
     console.log(this.requests);
