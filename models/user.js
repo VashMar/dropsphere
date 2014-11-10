@@ -249,11 +249,13 @@ userSchema.methods.isMember = function(givenSphere){
     var isMember = false;
 
     this.spheres.forEach(function(sphere){
-        if(givenSphere.id == sphere.object){
+        if(givenSphere == sphere.object){
             isMember = true;
+            console.log("user already member");
         }
     });
 
+    console.log("isMember: " + isMember);
     return isMember; 
 };
 
