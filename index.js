@@ -1346,7 +1346,8 @@ sessionSockets.on('connection', function (err, socket, session){
                   session.currentSphere = sphereID;
                   session.messages = {};
                   session.nickname = user.name;
-
+                  session.feed = [];
+                  session.posts = {};
                   socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: session.currentSphere });
                   socket.emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id}); 
 
