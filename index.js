@@ -1108,7 +1108,7 @@ sessionSockets.on('connection', function (err, socket, session){
         targetSphere = currentUser.spheres[sphereIndex];
       } else{
           for(var i = 0; i < currentUser.spheres.length; i++){
-              if(sphereID == currentUser.spheres[i].object){
+              if(data.sphereID == currentUser.spheres[i].object){
                   console.log("match found");
                   targetSphere = currentUser.spheres[i];  
                   sphereIndex = i;    
