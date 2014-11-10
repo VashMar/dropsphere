@@ -114,9 +114,9 @@ exports.signup = function(req, res){
 
                   // if its a personal invite find the user who sent it and update their spheres and notify them 
                   if(invSphere.type == "Personal"){
-                    var sender = this.members[0].id;
+                    var sender = invSphere.members[0].id;
                     if(sender == user.id){
-                       sender = this.members[1].id;
+                       sender = invSphere.members[1].id;
                     }
 
                     User.findOne({_id:sender}, function(err, sender){
