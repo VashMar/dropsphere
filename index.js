@@ -130,7 +130,7 @@ app.get("/", function(req, res){
   console.log("ENVIRONMENT IS: " + ENV);
   if(ENV == 'production'){
       console.log("RUNNING ON PORT: " + process.env.PORT);
-      console.log("rendering heroku bookmarklet");
+      console.log("rendering production bookmarklet");
       res.render("home");
   }else{
      res.render("dev_home");
@@ -161,7 +161,7 @@ app.get("/invite/:id", function(req, res){
   var url = "/bookmark/invite/" + inviteID;
 
   if(ENV == 'production'){
-     url = "https://dropsphere.herokuapp.com/" + url;
+     url = "https://dropsphere.com/" + url;
      res.render("invite", {url: url});
   } else {
      url = "http://localhost:3500/" + url;
