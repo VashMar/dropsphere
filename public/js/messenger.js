@@ -96,7 +96,15 @@ function Chat(username){
         $(".post").children(".postButtons").css("display", "none");
         // resize the scroller for sphere chat view
         $(".slimScrollDiv").css('height', '75%');
-        $("#feed").css('height', '90%');
+
+        var ch = $("#content").height();
+        var viewerHeight = $("#postViewer").height();
+        var pbHeight = $(".postBox").height();
+        var mbHeight = $("#messageBox").height();
+        var feedResize = ch - (viewerHeight + pbHeight + mbHeight + 30);
+        feedResize += 'px';
+
+        $("#feed").css('height', feedResize);
         requestMessages();
         // the chat for this post will be seen by this user 
         seenChat(currentPost);
