@@ -92,8 +92,8 @@ function Chat(username){
         $(".controls").show();
         //empty the chat space
         $("#feed").empty();
-        $("<div class='post'>" + postContent + "</div>").insertAfter(".postBox");
-        $(".post").children(".postBUttons").css("display", "none");
+        $("<div id='postViewer' class='post'>" + postContent + "</div>").insertAfter(".postBox");
+        $(".post").children(".postButtons").css("display", "none");
         // resize the scroller for sphere chat view
         $(".slimScrollDiv").css('height', '75%');
         $("#feed").css('height', '90%');
@@ -105,7 +105,7 @@ function Chat(username){
     this.FeedReturn = function(){
         $(".controls").hide();
         $(".postBox").html(postInput);
-        $(".post").remove();
+        $("#postViewer").remove();
         $(".slimScrollDiv").css('height', feedHeight);
         $("#feed").css('height', "94%");
         currentPost = null;
@@ -135,6 +135,7 @@ function Chat(username){
         (type == "Personal") ? $("span#currentSphere").html(user) : $("span#currentSphere").html(globe);
 
         $("#inviteLink").val(sphereLink); 
+        $("#postViewer").remove();
             
         // socket.emit('requestUsers', {sphereID : sphereID});
         requestFeed();
