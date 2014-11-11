@@ -462,7 +462,8 @@ function Chat(username){
         $("#inviteLink").val(sphereLink); 
 
         if(sphereMap[currentSphere].isOwner){
-            $("#deletableSpheres").append("<li data='" + currentSphere + "'><a href='#'>" + sphereName + "</a></li> ");
+            var globeIcon =  "<span class='glyphicon glyphicon-globe' style='padding-right:5px;'></span>";
+            $("#deletableSpheres").append("<li data='" + currentSphere + "'>"+globeIcon+"<a href='#'>" + sphereName + "</a></li> ");
             $("#shareModal").modal();
         }
 
