@@ -438,6 +438,11 @@ input{
 		border-bottom:none;
 	}
 
+	/* Delete Menu */
+
+	#deleteSphere p{
+		text-align:center; 
+	}
 
 /* Password Reset */
 
@@ -810,13 +815,19 @@ a#bookmarklet{
 	display:none;
 }
 
-#acceptDeletion{
+#acceptDeletion, #acceptSphereDeletion{
 	width:45%;
 	float:left;
 }
 
-#rejectDeletion{
+#rejectDeletion, #rejectSphereDeletion{
 	width:45%;
+}
+
+#sphereDeleteCheck p{
+	font-weight:500;
+	margin-top:20px;
+	color: rgb(250,5,5);
 }
 
 @media screen and (max-height:711px) {

@@ -222,6 +222,8 @@ function Chat(username){
 
         // delete from backend
         socket.emit('deleteSphere', sphereID);
+
+        notify("Sphere Deleted");
     }
 
     this.SetNickname = function(spheres, newNick){
@@ -471,6 +473,9 @@ function Chat(username){
         $("#inviteLink").val(sphereLink); 
 
         if(sphereMap[currentSphere].isOwner){
+            if($("#deleteSphere p").length > 0){
+                $("#deleteSphere p").remove();
+            }
             var globeIcon =  "<span class='glyphicon glyphicon-globe' style='padding-right:5px;'></span>";
             $("#deletableSpheres").append("<li data='" + currentSphere + "'>"+globeIcon+"<a href='#'>" + sphereName + "</a></li> ");
             $("#shareModal").modal();

@@ -351,6 +351,10 @@ ul li a {
   padding-bottom: 0px;
   border-bottom: none; }
 
+/* Delete Menu */
+#deleteSphere p {
+  text-align: center; }
+
 /* Password Reset */
 .resetNotify {
   font-size: 12px;
@@ -651,12 +655,17 @@ a#bookmarklet {
 #dropperControl {
   display: none; }
 
-#acceptDeletion {
+#acceptDeletion, #acceptSphereDeletion {
   width: 45%;
   float: left; }
 
-#rejectDeletion {
+#rejectDeletion, #rejectSphereDeletion {
   width: 45%; }
+
+#sphereDeleteCheck p {
+  font-weight: 500;
+  margin-top: 20px;
+  color: #fa0505; }
 
 @media screen and (max-height: 711px) {
   #chat #chatLogo {

@@ -317,9 +317,6 @@
                                 span(class="glyphicon glyphicon-globe" style="padding-right:5px;")
                                 a(href='#')=sphereName
                            
-          
-      .modal-footer
-        button#saveSphere.btn.btn-primary(type="button") Save changes
 #sharePost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
     .modal-content
@@ -371,6 +368,18 @@
       .modal-body
         button#acceptDeletion.btn.btn-primary(type="button") Yes
         button#rejectDeletion.btn.btn-primary(type="button") No
+#sphereDeleteCheck.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+ .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+        h4.modal-title Are you sure you want to delete 
+            span 
+            |?
+      .modal-body
+        button#acceptSphereDeletion.btn.btn-primary(type="button") Yes
+        button#rejectSphereDeletion.btn.btn-primary(type="button") No
+        p All of the sphere's content will be erased
 
 #preload
     img(src="/img/settings_hover.png")

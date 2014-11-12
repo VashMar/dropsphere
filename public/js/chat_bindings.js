@@ -200,11 +200,32 @@ $(document).ready(function(){
         $('#sharePost').modal('hide');
     });
 
-    $("#deletableSpheres").on("click", "a", function(){
+    // trigger the check overlay to make sure the user wants to delete the selected sphere
+   $("#deletableSpheres").on("click", "a", function(){
+        var name = $(this).html();
         var sphere = $(this).parents('li').attr('data');
-        chat.DeleteSphere(sphere);
-        $('#deleteSphere').modal('hide');
-    });
+        $("#sphereDeleteCheck span").html(name);
+        $("#sphereDeleteCheck").modal();
+        $("#acceptSphereDeletion").attr('data', sphere);    //track the id in the dom 
+        // chat.DeleteSphere(sphere);
+        $("#deleteSphere").modal('hide');
+    }); 
+
+
+   $("#acceptSphereDeletion").click(function(){
+        var sphere = $("#acceptSphereDeletion").attr('data'); // get the id
+        chat.DeleteSphere(sphere); 
+        $("#sphereDeleteCheck").modal('hide');
+
+        //remove sphere from deletable list
+        $("#deletableSpheres li[data='" + sphere + "']").remove();
+   });
+
+   $("#sphereDelete").click(function(){
+        if($("#deletableSpheres li").length < 1 && $("#deleteSphere p").length < 1){
+         $( "<p> You don't have any sphere's to delete. Perhaps you should create some.. </p>").insertBefore("#deletableSpheres");
+        }
+   });
 
     $("#editPost").on("click", "#saveEdits", function(){
         editPost();
