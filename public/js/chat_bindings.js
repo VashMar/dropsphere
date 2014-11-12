@@ -221,6 +221,10 @@ $(document).ready(function(){
         $("#deletableSpheres li[data='" + sphere + "']").remove();
    });
 
+   $("#rejectSphereDeletion").click(function(){
+         $("#sphereDeleteCheck").modal('hide');
+   });
+
    $("#sphereDelete").click(function(){
         if($("#deletableSpheres li").length < 1 && $("#deleteSphere p").length < 1){
          $( "<p> You don't have any sphere's to delete. Perhaps you should create some.. </p>").insertBefore("#deletableSpheres");
@@ -246,6 +250,10 @@ $(document).ready(function(){
         $('#removePost').modal('hide'); 
         post.fadeOut(550, "linear");
         chat.DeletePost(postID);
+    });
+
+    $("#rejectDeletion").click(function(){
+        $('#removePost').modal('hide'); 
     });
 
     $("#contactList").on("click", "a#acceptRequest", function(){
