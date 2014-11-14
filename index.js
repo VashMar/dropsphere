@@ -551,6 +551,18 @@ sessionSockets.on('connection', function (err, socket, session){
     });
   });
 
+
+  socket.on('checkNewPosts', function(currentSphere){
+    console.log("Checking for new posts on: " + currentSphere);
+    Sphere.findOne({_id: currentSphere}, function(err, sphere){
+
+        if(sphere){
+          console.log("The spheres posts: " + sphere.posts); 
+          console.log("The cached posts: " + session.posts);
+        }
+    });
+  });
+
   socket.on('sharePost', function(data){
 
         Post.findOne({_id: data.postID}, function(err, post){
@@ -1028,6 +1040,9 @@ sessionSockets.on('connection', function (err, socket, session){
               delete session.sphereMap[sphereID];
               session.save();
 
+              // remove for all other members as well 
+              // socket.broadcast.to(sphereID).emit('sphereDeleted', sphereID);
+
             }
           }); 
         }
@@ -1079,6 +1094,16 @@ sessionSockets.on('connection', function (err, socket, session){
         console.log(err);
       }
     });
+  });
+
+  socket.on('sphereDeleteUpdate',function(data){
+      console.log("updating sessions due to deleted sphere..");
+      console.log(data.ids);
+      session.sphereMap = data.map;
+      session.sphereIDs = data.ids;
+      session.currentSphere = data.ids[0];
+      session.sphereIndex = 0;
+      session.save();
   });
 
   socket.on('requestUsers', function(data){
@@ -1261,7 +1286,7 @@ sessionSockets.on('connection', function (err, socket, session){
   
   // sets the nickname of the user on all selected spheres
   socket.on('setNickname', function(data){
-    console.log("Setting user's nickname..")
+    console.log("Setting user's nickname..");
     var spheres = data.spheres; // selected spheres (array)
     var nickname = data.nickname; 
 

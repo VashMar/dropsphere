@@ -42,6 +42,8 @@ function Chat(username){
          
     socket.on('connect', function(){
         console.log('socket io connected');
+        requestFeed();
+        //socket.emit('requestFeed', {currentSphere});
     });
 
      /* chat object functions */
@@ -598,6 +600,21 @@ function Chat(username){
                     $(this).children('span').html("(" + data.nickname + ")");
                 }
         });
+    });
+
+
+    socket.on('sphereDeleted', function(sphere){
+        alert("sphere deleted");
+        // remove sphere from sphereMap
+        delete sphereMap[sphere]; 
+        // remove it form the sphere id's array 
+        alert(sphereIDs.indexOf(sphere));
+        sphereIDs = sphereIDs.splice(sphereIDs.indexOf(sphere), 1);
+        alert(JSON.stringify(sphereIDs));
+        sphereIndex = 0; 
+        currentSphere = sphereIDs[sphereIndex];
+        // socket.emit('sphereDeleteUpdate', {map: sphereMap, ids: sphereIDs});
+
     });
 
 
