@@ -3,7 +3,7 @@
 exports.render = function(res, layout, hash){
 	console.log("Session rendering...");
 	if(hash){
-        console.log("rendering hash:" + hash);
+        console.log("rendering session hash.." );
 		res.render(layout, { data: {
                     nickname:  hash.nickname,
                     username: hash.username,

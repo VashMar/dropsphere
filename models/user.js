@@ -355,12 +355,13 @@ userSchema.methods.removeSphere = function(sphereID){
 
 userSchema.statics.load = function(sessionID, next){
     console.log("Loading Current User.. " + sessionID);
-    this.findOne({sessions: {$in : [sessionID]}}).populate('mainSphere').exec(function(err, user, mainSphere){
+    this.findOne({sessions: {$in : [sessionID]}}, function(err, user){
         if(err || !user){
             next(err);
         } else{
             console.log("User found..");
-            next(false, user, user.mainSphere);
+
+            next(false, user);
         }
     });
 }
@@ -381,7 +382,6 @@ userSchema.statics.reload = function(userID, next){
 userSchema.statics.updateMemberContacts = function(members, user){
     console.log("Updating Contact List of other sphere members..");
     this.find({_id: {$in: members}}, function(err, docs){
-        console.log(docs);
         for(var i = 0; i < docs.length; i++){
             var member = docs[i];
             var contactList = member.contacts; // current contactList of a given sphere member 

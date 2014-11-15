@@ -62,7 +62,7 @@ exports.signup = function(req, res){
          // construct data variables for client side tracking
          var sessionData = Session.createSessionData(); 
          sessionData.userID = user.id;
-
+         
          // create a welcome message 
          sessionData.announcements["welcome"] = "";
 

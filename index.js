@@ -205,10 +205,9 @@ io.set('authorization', function (data, callback) {
                         (data.signedCookies && data.signedCookies[EXPRESS_SID_KEY]) ||
                         (data.cookies && data.cookies[EXPRESS_SID_KEY]);
 
-        console.log(sidCookie);
         // Then we just need to load the session from the Session Store
         sessionStore.load(sidCookie, function(err, session) {
-           console.log(session);
+        
             // And last, we check if the used has a valid session and if he is logged in
             if (err || !session || session.isLogged !== true) {
                 callback('Not logged in.', false);
@@ -250,9 +249,11 @@ sessionSockets.on('connection', function (err, socket, session){
   // get the current user object for this socket 
   User.load(sessionID, function(err, user, sphere){
     if(user){
+      console.log("User Loaded");
       currentUser = user;
       mainSphere = sphere;
       socket.join(currentUser.id); 
+      socket.emit('userLoaded');
     }
   });
 
@@ -262,8 +263,6 @@ sessionSockets.on('connection', function (err, socket, session){
       var sphere = sphereIDs[i];
       sphere = String(sphere);
       socket.join(sphere);
-      console.log(io.sockets.adapter.rooms);
-      console.log("Joined " + sphere);
   }
 
 
@@ -276,7 +275,6 @@ sessionSockets.on('connection', function (err, socket, session){
       io.sockets.in(sphere).emit('users', {nicknames: session.nicknames, sphereID: sphere});
       socket.broadcast.to(sphere).emit('announcement', {msg: username +  " joined the sphere" });
       socket.broadcast.to(sphere).emit('addContact', {id: session.userID, name: username});
-      console.log("User contacts: " + JSON.stringify(contacts));
       // socket.emit('updateContacts', contacts);
       session.newMember = false; 
   }
@@ -551,17 +549,6 @@ sessionSockets.on('connection', function (err, socket, session){
     });
   });
 
-
-  socket.on('checkNewPosts', function(currentSphere){
-    console.log("Checking for new posts on: " + currentSphere);
-    Sphere.findOne({_id: currentSphere}, function(err, sphere){
-
-        if(sphere){
-          console.log("The spheres posts: " + sphere.posts); 
-          console.log("The cached posts: " + session.posts);
-        }
-    });
-  });
 
   socket.on('sharePost', function(data){
 
@@ -875,7 +862,7 @@ sessionSockets.on('connection', function (err, socket, session){
                  sphere.members.push({id: currentUser.id , name: currentUser.name}); 
                  currentUser.spheres.push({object: sphere, nickname: currentUser.name });
               
-                currentUser.removeInvite(sphere.id)
+                currentUser.removeInvite(sphere.id);
               
                 // add the sphere to the sphereMap
                 session.sphereMap[sphere.id] = { name: sphere.name, 
@@ -893,7 +880,7 @@ sessionSockets.on('connection', function (err, socket, session){
                 socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: sphere.id });
                 io.sockets.in(sphere.id).emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
                 socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere" });
-        
+                socket.join(sphere.id);
                 delete session.invites[sphere];
 
                 sendFeed(sphere);
@@ -1122,13 +1109,11 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('requestFeed', function(data){
       console.log("Requesting Feed..");
- 
+      console.log(currentUser);
       var targetSphere = null;
       var sphereIndex = data.sphereIndex;
       var posts = {};
       var feed = [];
-      console.log(data.sphereIndex);
-      console.log(currentUser.spheres[sphereIndex]);
       var sphereObj = currentUser.spheres[sphereIndex].object; 
       var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID 
       if(sphereMatch ){
@@ -1406,7 +1391,6 @@ sessionSockets.on('connection', function (err, socket, session){
           feed.push(key);
       }
 
-      console.log(feed);
 
       socket.emit('updateAndView', {feed: feed, posts: posts, sphereID: sphere.id});
 

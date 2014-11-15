@@ -43,7 +43,6 @@ function Chat(username){
     socket.on('connect', function(){
         console.log('socket io connected');
         requestFeed();
-        //socket.emit('requestFeed', {currentSphere});
     });
 
      /* chat object functions */
@@ -272,6 +271,10 @@ function Chat(username){
     }
 
  /* Socket Bindings */
+
+/*    socket.on('userLoaded', function(){
+         requestFeed();
+    }); */
 
     socket.on('users', function(data){
         if(currentSphere == data.sphereID){

@@ -129,6 +129,20 @@ postSchema.methods.getViewers = function(sphereID){
 	return viewers;
 }
 
+
+// returns if the post has a conversation or not 
+postSchema.methods.hasMessages = function(sphereID){
+
+	var loc = this.findLoc(sphereID);
+
+	if(loc && loc.messages.length > 0){
+		return true; 
+	}	
+
+	return false;
+}
+
+
 // returns a list of users who have viewed the post at the given location 
 postSchema.methods.getViewed = function(viewers){
 
@@ -147,16 +161,17 @@ postSchema.methods.getViewed = function(viewers){
 }
 
 // returns whether a user has seen the post's chat or not 
-postSchema.methods.hasSeenChat = function(userID, viewers){
-	console.log(viewers);
+postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
+
+	console.log("Does the post have messages?: " + hasMessages);
 	console.log("USERID: " + userID);
 	for(var v = 0; v < viewers.length; v++){
-		if(viewers[v].id == userID){
+		if(viewers[v].id == userID && hasMessages){
 			console.log("VIEWERID: " + viewers[v].id + ": " + viewers[v].seen);
 			return viewers[v].seenChat;
 		}
 	}
-	return false; 
+	return true; 
 }
 
 
@@ -239,6 +254,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
 
 	var postContent = isMobile == "true" ? this.contentData : this.content;
 	var viewers =  this.getViewers(sphereID);
+	var hasMessages = this.hasMessages(sphereID);
 
  	return {sender: this.creatorName(), 
  			content: this.contentData, 
@@ -246,7 +262,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
  			isLink: this.isLink, 
  			postTime: moment(this.date).format(), 
  			viewers: this.getViewed(viewers),
- 			seen: this.hasSeenChat(user.id, viewers)
+ 			seen: this.hasSeenChat(user.id, viewers, hasMessages)
  		};
 }
 
