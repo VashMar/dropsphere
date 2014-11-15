@@ -272,9 +272,9 @@ function Chat(username){
 
  /* Socket Bindings */
 
-/*    socket.on('userLoaded', function(){
-         requestFeed();
-    }); */
+    socket.on('userLoaded', function(){
+         console.log("user loaded");
+    }); 
 
     socket.on('users', function(data){
         if(currentSphere == data.sphereID){
