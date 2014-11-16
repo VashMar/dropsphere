@@ -1120,8 +1120,10 @@ sessionSockets.on('connection', function (err, socket, session){
        }
 
       function findTarget(data){
+          console.log(data);
           var targetSphere = null;
           var sphereIndex = data.sphereIndex;
+          console.log(sphereIndex);
           var posts = {};
           var feed = [];
           var sphereObj = currentUser.spheres[sphereIndex].object; 
@@ -1159,7 +1161,7 @@ sessionSockets.on('connection', function (err, socket, session){
                 session.sphereMap[sphere.id].updates = 0;
                 session.save();
                 
-               } else{
+               }else{
                 console.log("User requested a sphere that magically doesn't exist!");
                }
              });
@@ -1401,7 +1403,7 @@ sessionSockets.on('connection', function (err, socket, session){
           feed.push(key);
       }
 
-
+      console.log("updating view..");
       socket.emit('updateView', {feed: feed, posts: posts, sphereID: sphere.id});
 
       // update the currentSphere session info 

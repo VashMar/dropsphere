@@ -419,7 +419,7 @@ function Chat(username){
     });
 
     socket.on('updateView', function(data){
-
+            console.log("updating view..");
             feed = data.feed;
             posts = data.posts;
             socket.emit('requestUsers', {sphereID : currentSphere});
