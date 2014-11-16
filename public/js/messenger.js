@@ -418,7 +418,7 @@ function Chat(username){
         }
     });
 
-    socket.on('updateAndView', function(data){
+    socket.on('updateView', function(data){
 
             feed = data.feed;
             posts = data.posts;

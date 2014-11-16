@@ -1110,51 +1110,62 @@ sessionSockets.on('connection', function (err, socket, session){
   socket.on('requestFeed', function(data){
       console.log("Requesting Feed..");
       console.log(currentUser);
-      var targetSphere = null;
-      var sphereIndex = data.sphereIndex;
-      var posts = {};
-      var feed = [];
-      var sphereObj = currentUser.spheres[sphereIndex].object; 
-      var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID 
-      if(sphereMatch ){
-        targetSphere = currentUser.spheres[sphereIndex];
-      } else{
-          for(var i = 0; i < currentUser.spheres.length; i++){
-              if(data.sphereID == currentUser.spheres[i].object){
-                  console.log("match found");
-                  targetSphere = currentUser.spheres[i];  
-                  sphereIndex = i;    
+
+       if(typeof data == 'string' || data instanceof String){
+        LinkParser.hashMeBaby(data, function(data){
+          findTarget(data);
+        });
+       }else{
+          findTarget(data);
+       }
+
+      function findTarget(data){
+          var targetSphere = null;
+          var sphereIndex = data.sphereIndex;
+          var posts = {};
+          var feed = [];
+          var sphereObj = currentUser.spheres[sphereIndex].object; 
+          var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID; 
+          if(sphereMatch){
+            targetSphere = currentUser.spheres[sphereIndex];
+          }else{
+              for(var i = 0; i < currentUser.spheres.length; i++){
+                  if(data.sphereID == currentUser.spheres[i].object){
+                      console.log("match found");
+                      targetSphere = currentUser.spheres[i];  
+                      sphereIndex = i;    
+                  }
               }
+          } 
+
+          if(targetSphere){
+             console.log("Retrieving posts from Sphere: " + targetSphere + "..");
+             Sphere.findOne({_id: data.sphereID}).populate('posts').exec(function(err, sphere){ 
+               if(sphere){      
+
+                // resets the notifications in a sphere to 0 once the user has accessed it 
+                targetSphere.updates = 0;
+                currentUser.currentSphere = sphereIndex;       
+                sendFeed(sphere);
+                currentUser.save(function(err){
+                  if(err){console.log(err);}
+
+                  else{
+                    console.log("user updates reset on requested sphere");
+                  }
+                });
+
+                //reset updates on sessions
+                session.sphereMap[sphere.id].updates = 0;
+                session.save();
+                
+               } else{
+                console.log("User requested a sphere that magically doesn't exist!");
+               }
+             });
+          }else{
+            console.log("sphereIndex issue");
           }
-      } 
-
-      if(targetSphere){
-         console.log("Retrieving posts from Sphere: " + targetSphere + "..");
-         Sphere.findOne({_id: data.sphereID}).populate('posts').exec(function(err, sphere){ 
-           if(sphere){      
-
-            // resets the notifications in a sphere to 0 once the user has accessed it 
-            targetSphere.updates = 0;
-            currentUser.currentSphere = sphereIndex;       
-            sendFeed(sphere);
-            currentUser.save(function(err){
-              if(err){console.log(err);}
-
-              else{
-                console.log("user updates reset on requested sphere");
-              }
-            });
-
-            //reset updates on sessions
-            session.sphereMap[sphere.id].updates = 0;
-            session.save();
-            
-           } else{
-            console.log("User requested a sphere that magically doesn't exist!");
-           }
-         });
-      }else{
-        console.log("sphereIndex issue");
       }
   });
 
@@ -1311,7 +1322,6 @@ sessionSockets.on('connection', function (err, socket, session){
         });
       }
 
-
     });
   });
 
@@ -1392,7 +1402,7 @@ sessionSockets.on('connection', function (err, socket, session){
       }
 
 
-      socket.emit('updateAndView', {feed: feed, posts: posts, sphereID: sphere.id});
+      socket.emit('updateView', {feed: feed, posts: posts, sphereID: sphere.id});
 
       // update the currentSphere session info 
       session.currentSphere = sphere.id; 
