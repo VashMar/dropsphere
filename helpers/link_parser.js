@@ -88,7 +88,7 @@ exports.tagWrap =  function(msg, type, title, image){
 
  exports.hashMeBaby = function(dataStr, next){
     console.log("hashing string: " + dataStr);
-    var data2hash = dataStr.split("#");
+    var data2hash = dataStr.split(",");
     var keyVal;
     data = {}; // create a hash from the string inputs 
 
