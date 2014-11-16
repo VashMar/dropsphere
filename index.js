@@ -1109,10 +1109,10 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('requestFeed', function(data){
       console.log("Requesting Feed..");
-      console.log(currentUser);
 
        if(typeof data == 'string' || data instanceof String){
         LinkParser.hashMeBaby(data, function(data){
+          console.log(data);
           findTarget(data);
         });
        }else{
@@ -1120,10 +1120,9 @@ sessionSockets.on('connection', function (err, socket, session){
        }
 
       function findTarget(data){
-          console.log(data);
           var targetSphere = null;
           var sphereIndex = data.sphereIndex;
-          console.log(sphereIndex);
+  
           var posts = {};
           var feed = [];
           var sphereObj = currentUser.spheres[sphereIndex].object; 

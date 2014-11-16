@@ -76,8 +76,7 @@ exports.signup = function(req, res){
 
               	Sphere.findOne({_id: inviteID}, function(err, invitedSphere){
               	
-              		console.log(invitedSphere);
-
+    
               		if(err || !invitedSphere){console.log("unable to find invited sphere");}
 
               		else{
