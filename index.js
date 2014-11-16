@@ -1122,27 +1122,35 @@ sessionSockets.on('connection', function (err, socket, session){
       function findTarget(data){
           var targetSphere = null;
           var sphereIndex = data.sphereIndex;
-          console.log(sphereIndex);
+          var sphereID = data.sphereID.trim();
+          console.log(sphereID);
           console.log(currentUser.spheres[sphereIndex]);
           var posts = {};
           var feed = [];
           var sphereObj = currentUser.spheres[sphereIndex].object; 
           var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID; 
+          console.log(sphereMatch);
           if(sphereMatch){
             targetSphere = currentUser.spheres[sphereIndex];
+            retrieveTarget(targetSphere, sphereID, sphereIndex);
           }else{
               for(var i = 0; i < currentUser.spheres.length; i++){
                   if(data.sphereID == currentUser.spheres[i].object){
                       console.log("match found");
                       targetSphere = currentUser.spheres[i];  
                       sphereIndex = i;    
+                      retrieveTarget(targetSphere, sphereID, sphereIndex);
                   }
               }
-          } 
+          }
 
+      } 
+
+
+      function retrieveTarget(targetSphere, sphereID, sphereIndex){
           if(targetSphere){
              console.log("Retrieving posts from Sphere: " + targetSphere + "..");
-             Sphere.findOne({_id: data.sphereID}).populate('posts').exec(function(err, sphere){ 
+             Sphere.findOne({_id:sphereID}).populate('posts').exec(function(err, sphere){ 
                if(sphere){      
 
                 // resets the notifications in a sphere to 0 once the user has accessed it 
@@ -1169,6 +1177,7 @@ sessionSockets.on('connection', function (err, socket, session){
             console.log("sphereIndex issue");
           }
       }
+     
   });
 
   socket.on('getPostConvo', function(data){
