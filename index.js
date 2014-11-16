@@ -1122,7 +1122,8 @@ sessionSockets.on('connection', function (err, socket, session){
       function findTarget(data){
           var targetSphere = null;
           var sphereIndex = data.sphereIndex;
-  
+          console.log(sphereIndex);
+          console.log(currentUser.spheres[sphereIndex]);
           var posts = {};
           var feed = [];
           var sphereObj = currentUser.spheres[sphereIndex].object; 
