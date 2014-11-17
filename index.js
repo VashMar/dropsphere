@@ -738,6 +738,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
     LinkParser.isEmail(contact, function(isEmail){
+      contact = contact.toLowerCase();
       if(isEmail){
         console.log("Searching for email: "  + contact);
         // find a user with the email
@@ -879,10 +880,11 @@ sessionSockets.on('connection', function (err, socket, session){
                 console.log(sphere.nicknames);
                 socket.emit('newSphere', {sphereMap: session.sphereMap, sphereIDs: session.sphereIDs, currentSphere: sphere.id });
                 io.sockets.in(sphere.id).emit('users', {nicknames: sphere.nicknames, sphereID: sphere.id});
-                socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere" });
+                socket.broadcast.to(sphere.id).emit('announcement', {msg: currentUser.name +  " joined the sphere"});
                 socket.join(sphere.id);
-                delete session.invites[sphere];
-
+                delete session.invites[sphere.id];
+                console.log(session.invites);
+                session.save();
                 sendFeed(sphere);
                 sphere.save();
                 currentUser.save();
@@ -902,6 +904,7 @@ sessionSockets.on('connection', function (err, socket, session){
         }
       });
       delete session.invites[sphere];
+      console.log(session.invites);
       session.save();
   });
 
@@ -1027,14 +1030,17 @@ sessionSockets.on('connection', function (err, socket, session){
               delete session.sphereMap[sphereID];
               session.save();
 
-              // remove for all other members as well 
-              // socket.broadcast.to(sphereID).emit('sphereDeleted', sphereID);
-
             }
           }); 
         }
       })
    });
+
+
+  socket.on('resetSeshToMain', function(){
+      session.currentSphere = currentUser.mainSphere;
+      session.save();
+  });
 
    socket.on('cacheSphere', function(sphere){
     console.log("Caching New Sphere..");
@@ -1085,11 +1091,10 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('sphereDeleteUpdate',function(data){
       console.log("updating sessions due to deleted sphere..");
+      console.log(session.sphereIDs)
       console.log(data.ids);
       session.sphereMap = data.map;
       session.sphereIDs = data.ids;
-      session.currentSphere = data.ids[0];
-      session.sphereIndex = 0;
       session.save();
   });
 
@@ -1120,30 +1125,33 @@ sessionSockets.on('connection', function (err, socket, session){
        }
 
       function findTarget(data){
-          var targetSphere = null;
           var sphereIndex = data.sphereIndex;
+          var targetSphere = currentUser.spheres[sphereIndex];
           var sphereID = data.sphereID.trim();
-          console.log(sphereID);
-          console.log(currentUser.spheres[sphereIndex]);
           var posts = {};
           var feed = [];
-          var sphereObj = currentUser.spheres[sphereIndex].object; 
-          var sphereMatch = sphereObj == data.sphereID ||  sphereObj.id == data.sphereID; 
-          console.log(sphereMatch);
-          if(sphereMatch){
-            targetSphere = currentUser.spheres[sphereIndex];
-            retrieveTarget(targetSphere, sphereID, sphereIndex);
-          }else{
-              for(var i = 0; i < currentUser.spheres.length; i++){
-                  if(data.sphereID == currentUser.spheres[i].object){
-                      console.log("match found");
-                      targetSphere = currentUser.spheres[i];  
-                      sphereIndex = i;    
-                      retrieveTarget(targetSphere, sphereID, sphereIndex);
+          if(targetSphere){
+             if(targetSphere.object == sphereID || targetSphere.object.id == sphereID){
+                retrieveTarget(targetSphere, sphereID, sphereIndex);
+              }else{
+                  targetSphere = null;
+                  for(var i = 0; i < currentUser.spheres.length; i++){
+                      if(data.sphereID == currentUser.spheres[i].object){
+                          console.log("match found");
+                          targetSphere = currentUser.spheres[i];  
+                          sphereIndex = i;    
+                          retrieveTarget(targetSphere, sphereID, sphereIndex);
+                      }
+
+                      if(i == currentUser.spheres.length - 1 && !targetSphere){
+                        socket.emit("nonexistingSphere");
+                      }
+
                   }
               }
+          }else{
+           socket.emit("nonexistingSphere");      
           }
-
       } 
 
 
@@ -1171,6 +1179,7 @@ sessionSockets.on('connection', function (err, socket, session){
                 
                }else{
                 console.log("User requested a sphere that magically doesn't exist!");
+                socket.emit('nonexistingSphere', {sphereID: sphereID});
                }
              });
           }else{

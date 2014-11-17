@@ -477,7 +477,8 @@ ul li a {
 span.title {
   font-size: 14px;
   min-width: 100px;
-  max-width: 150px; }
+  max-width: 150px;
+  font-weight: 600; }
 
 span.title.image {
   float: none;
@@ -623,13 +624,16 @@ a#bookmarklet {
   padding-left: 3px;
   padding-right: 6px; }
 
+.postername {
+  font-weight: 600; }
+
 .post {
-  font-size: 12px;
+  font-size: 13px;
   padding: 14px 12px;
   margin-top: 6px;
   margin-bottom: 6px;
   box-shadow: 3px 2px 2px #888888;
-  color: #999;
+  color: #555;
   min-height: 120px;
   position: relative;
   text-align: center; }

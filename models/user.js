@@ -171,7 +171,7 @@ userSchema.methods.setNick = function(sphereID, nickname){
 }
 
 userSchema.methods.targetSphere = function(){
-   var current = this.spheres[this.currentSphere] || 0; 
+   var current = this.spheres[this.currentSphere] || this.spheres[0]; 
    return current;
 };
 
@@ -267,7 +267,6 @@ userSchema.methods.sphereData = function(ENV){
         sphereMap = {},
         sphereIDs = [],
         totalUpdates = 0,
-        index = this.currentSphere,
         link = "";
    
     user.spheres.forEach(function(sphere){

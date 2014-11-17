@@ -42,7 +42,9 @@ function Chat(username){
          
     socket.on('connect', function(){
         console.log('socket io connected');
-        requestFeed();
+        if(!login){
+            requestFeed();
+        }
     });
 
      /* chat object functions */
@@ -122,32 +124,7 @@ function Chat(username){
     }
 
     this.SwitchSphere = function(sphereID){
-        
-        currentSphere = sphereID;          
-
-        if(currentPost){
-            $(".controls").hide();
-            $(".postBox").html(postInput);
-            currentPost = null;
-        }
-
-        // set the user's name to their name in the new sphere 
-        nickname = sphereMap[currentSphere].nickname;
-        sphereName = sphereMap[currentSphere].name;
-        sphereIndex = sphereIDs.indexOf(currentSphere);   
-        sphereLink = sphereMap[currentSphere].link;
-        
-        var type = sphereMap[currentSphere].type;
-        var caret = "<span class='caret'></span>";
-        var globe = "<span class='glyphicon glyphicon-globe' style='padding-right:5px;''></span>" + sphereName + caret;
-        var user = "<span class='glyphicon glyphicon-user' style='padding-right:5px;''></span>" + sphereName + caret;
-        (type == "Personal") ? $("span#currentSphere").html(user) : $("span#currentSphere").html(globe);
-
-        $("#inviteLink").val(sphereLink); 
-        $("#postViewer").remove();
-            
-        // socket.emit('requestUsers', {sphereID : sphereID});
-        requestFeed();
+        switchSphere(sphereID);
     }
 
  
@@ -606,27 +583,28 @@ function Chat(username){
     });
 
 
-    socket.on('sphereDeleted', function(sphere){
-        alert("sphere deleted");
+    socket.on('nonexistingSphere', function(){
+
+        //remove the sphere from the dropdown 
+        $("#sphereNames a[data='" + currentSphere + "']").remove();
+        console.log(JSON.stringify(sphereIDs));
+        console.log(currentSphere);
+        sphereIDs.splice(sphereIDs.indexOf(currentSphere), 1);
+        console.log(JSON.stringify(sphereIDs));
         // remove sphere from sphereMap
-        delete sphereMap[sphere]; 
-        // remove it form the sphere id's array 
-        alert(sphereIDs.indexOf(sphere));
-        sphereIDs = sphereIDs.splice(sphereIDs.indexOf(sphere), 1);
-        alert(JSON.stringify(sphereIDs));
-        sphereIndex = 0; 
-        currentSphere = sphereIDs[sphereIndex];
-        // socket.emit('sphereDeleteUpdate', {map: sphereMap, ids: sphereIDs});
+        delete sphereMap[currentSphere]; 
+        switchSphere(sphereIDs[0]);    
+        notify("Sphere doesn't exist");
+        socket.emit('sphereDeleteUpdate', {map: sphereMap, ids: sphereIDs});
 
     });
-
 
     /* Extra Functions */
 
 
     var requestFeed = function(){
         clearUpdates(); // get rid of notifications for the sphere being accessed 
-        socket.emit('requestFeed',  {sphereID: currentSphere, sphereIndex: sphereIndex});
+        socket.emit('requestFeed', {sphereID: currentSphere, sphereIndex: sphereIndex});
     };
 
 
@@ -657,6 +635,7 @@ function Chat(username){
             share();
         }
     };
+
 
 
     var share = function(){
@@ -714,6 +693,35 @@ function Chat(username){
             scrollBottom();
         });
     };
+
+
+    var switchSphere = function(sphereID){
+        currentSphere = sphereID;          
+
+        if(currentPost){
+            $(".controls").hide();
+            $(".postBox").html(postInput);
+            currentPost = null;
+        }
+
+        // set the user's name to their name in the new sphere 
+        nickname = sphereMap[currentSphere].nickname;
+        sphereName = sphereMap[currentSphere].name;
+        sphereIndex = sphereIDs.indexOf(currentSphere);   
+        sphereLink = sphereMap[currentSphere].link;
+        
+        var type = sphereMap[currentSphere].type;
+        var caret = "<span class='caret'></span>";
+        var globe = "<span class='glyphicon glyphicon-globe' style='padding-right:5px;''></span>" + sphereName + caret;
+        var user = "<span class='glyphicon glyphicon-user' style='padding-right:5px;''></span>" + sphereName + caret;
+        (type == "Personal") ? $("span#currentSphere").html(user) : $("span#currentSphere").html(globe);
+
+        $("#inviteLink").val(sphereLink); 
+        $("#postViewer").remove();
+            
+        // socket.emit('requestUsers', {sphereID : sphereID});
+        requestFeed();
+    }
 
 
     function buildPostContent(isLink, content){

@@ -3,6 +3,10 @@
 exports.render = function(res, layout, hash){
 	console.log("Session rendering...");
 	if(hash){
+        var login = (layout == "includes/feed") ? true : false
+
+        
+
         console.log("rendering session hash.." );
 		res.render(layout, { data: {
                     nickname:  hash.nickname,
@@ -18,7 +22,8 @@ exports.render = function(res, layout, hash){
                     contacts: hash.contacts,
                     requests: hash.requests,
                     invites: hash.invites,
-                    newRequests: hash.newRequests
+                    newRequests: hash.newRequests,
+                    login: login
                 }
            });       		
 
@@ -32,6 +37,7 @@ exports.render = function(res, layout, hash){
 exports.respondJSON = function(res, hash){
 	console.log("Sending Session data as JSON...");
 	if(hash){
+        var login = (layout == "includes/feed") ? true : false
 		res.json(200, { data: {
                     nickname:  hash.nickname,
                     username: hash.username,
@@ -46,7 +52,8 @@ exports.respondJSON = function(res, hash){
                     contacts: hash.contacts,
                     requests: hash.requests,
                     invites: hash.invites,
-                    newRequests: hash.newRequests
+                    newRequests: hash.newRequests,
+                    login: login
                 }
            });       		
 	 }
