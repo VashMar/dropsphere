@@ -42,7 +42,7 @@ function Chat(username){
          
     socket.on('connect', function(){
         console.log('socket io connected');
-        if(!login){
+        if(!logged){
             requestFeed();
         }
     });

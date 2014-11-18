@@ -23,7 +23,7 @@ exports.render = function(res, layout, hash){
                     requests: hash.requests,
                     invites: hash.invites,
                     newRequests: hash.newRequests,
-                    login: login
+                    logged: login
                 }
            });       		
 
