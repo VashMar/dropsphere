@@ -37,7 +37,6 @@ exports.render = function(res, layout, hash){
 exports.respondJSON = function(res, hash){
 	console.log("Sending Session data as JSON...");
 	if(hash){
-        var login = (layout == "includes/feed") ? true : false
 		res.json(200, { data: {
                     nickname:  hash.nickname,
                     username: hash.username,
