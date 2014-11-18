@@ -1346,19 +1346,31 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
 
-  socket.on('leaveRooms', function(data){
+  socket.on('leaveRooms', function(spheres){
     console.log("ending session");
     currentUser.endSession(sessionID);
     console.log("leaving  rooms");
-    var spheres = data.spheres;
-    console.log(spheres);
 
-    for(var i = 0; i < spheres.length; i++){
+
+    if(typeof spheres == 'string' || spheres instanceof String){
+      LinkParser.arrayMeBaby(data, function(data){
+        leaveRooms(spheres);
+      });
+    }else{
+        leaveRooms(spheres);
+    }
+
+
+    function leaveRooms(spheres){
+      
+      for(var i = 0; i < spheres.length; i++){
 
         var sphereID = spheres[i];
         console.log(sphereID);
         socket.leave((String(sphereID)));
+      }
     }
+
   });
 
 

@@ -53,7 +53,7 @@ function Chat(username){
     }
 
     this.Disconnect = function(){
-        socket.emit('leaveRooms', {spheres: sphereIDs} );
+        socket.emit('leaveRooms', sphereIDs );
         socket.disconnect();
     }
    
