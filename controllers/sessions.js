@@ -51,8 +51,7 @@ exports.respondJSON = function(res, hash){
                     contacts: hash.contacts,
                     requests: hash.requests,
                     invites: hash.invites,
-                    newRequests: hash.newRequests,
-                    login: login
+                    newRequests: hash.newRequests
                 }
            });       		
 	 }
