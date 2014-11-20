@@ -337,6 +337,7 @@ sessionSockets.on('connection', function (err, socket, session){
               }
           } else{
             console.log(err);
+            console.log(response.statusCode);
           }
 
         });
