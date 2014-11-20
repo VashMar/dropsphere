@@ -309,7 +309,14 @@ sessionSockets.on('connection', function (err, socket, session){
           viewWrapped();
       }else{
 
-        request(url, function(err, response, html){
+        var options = {
+          url:url,
+          headers: {
+              'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.94 Safari/537.36'
+          }
+        };
+
+        request(options, function(err, response, html){
           if (!err && response.statusCode == 200){
             console.log("URL crawled");
             var $ = cheerio.load(html);
