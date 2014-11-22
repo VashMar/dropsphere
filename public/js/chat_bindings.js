@@ -107,7 +107,22 @@ $(document).ready(function(){
 
     $("#postInput").on("change keyup paste", function(){
         if( $("#previewLink").is(":visible") ){
-            $("#previewLink span.title").html($("#postInput").val());
+            var caption = $("#postInput").val();
+
+            var spaced = false;
+            for(var i=0; i< caption.length; i++){
+                if(caption[i] == " "){
+                    spaced = true;
+                }
+
+                // check every 40 chars for a space
+                if(i > 0 && i%25 == 0 && !spaced){
+                    caption = caption.substr(0, i) + "<br>" + caption.substr(i);   
+                    spaced = false; 
+                }
+
+            }
+            $("#previewLink span.title").html(caption);
         }
     });
 
@@ -198,6 +213,11 @@ $(document).ready(function(){
         chat.OpenPersonal(contact);
         chat.setShared(postID);
         $('#sharePost').modal('hide');
+    });
+
+    $("#shareSelection").on("click", "li", function(){
+        $('#shareSelection li.active').removeClass('active');
+        $(this).addClass('active');
     });
 
     // trigger the check overlay to make sure the user wants to delete the selected sphere

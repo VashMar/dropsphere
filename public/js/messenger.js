@@ -168,13 +168,13 @@ function Chat(username){
     }
 
     this.EditPost = function(postID, newtext){
-        socket.emit('editPost', {postID: postID, newtext: newtext});
+        socket.emit('editPost', {postID: postID, newtext: newtext, sphere: currentSphere});
         notify("Post Changes Made");
     }
 
     this.DeletePost = function(postID){
         socket.emit('deletePost', {postID: postID, sphere: sphereID });
-         notify("Post Deleted");
+        notify("Post Deleted");
     }
 
     this.OpenPersonal = function(userID){
@@ -338,7 +338,7 @@ function Chat(username){
                  var time = data.time || moment().calendar();       
                  createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
                  socket.emit("seen", {sphere: data.sphere});
-            }else if(sphereIDs.indexOf(data.sphere) > 0 && sphereMap[data.sphere]){
+            }else if(sphereIDs.indexOf(data.sphere) >= 0 && sphereMap[data.sphere]){
                  // find the sphere the message is meant for and send the user an update notification
                 for(var i = 0; i < sphereIDs.length; i++){
                     var sphereID = sphereIDs[i];
@@ -393,6 +393,11 @@ function Chat(username){
             feed = data.feed;
             posts = data.posts;
         }
+    });
+
+    socket.on('postEdited', function(data){
+        var postTitle =  $(".post[data=" + data.postID + "] span.title");
+        postTitle.html(data.title);
     });
 
     socket.on('updateView', function(data){
@@ -479,7 +484,9 @@ function Chat(username){
 
 
     socket.on('addContact', function(data){
-        addNewContact(data.name, data.id);
+        if(contacts.indexOf(data.id) < 0){
+            addNewContact(data.name, data.id);
+        }
     });
 
     socket.on('contactAdded', function(data){

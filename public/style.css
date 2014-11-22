@@ -305,7 +305,11 @@ ul li a {
 
 #shareSelection li {
   display: inline;
-  padding: 30px; }
+  padding-left: 25px;
+  padding-right: 25px; }
+
+#shareSelection li.active {
+  border-bottom: 3px solid #428bca; }
 
 #shareRecipients li {
   margin-right: 110px;

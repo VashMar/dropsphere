@@ -630,9 +630,10 @@ sessionSockets.on('connection', function (err, socket, session){
 
           else{
             console.log(numAffected);
+             socket.broadcast.to(data.sphere).emit('postEdited', {title: data.newtext, postID: data.postID, sphereID: data.sphere});
           }
     });
-  
+   
     session.posts[data.postID]['content']['title'] = data.newtext;
     session.save();
 
