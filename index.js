@@ -391,8 +391,20 @@ sessionSockets.on('connection', function (err, socket, session){
       }
       console.log(socket.rooms);
   });
+
+
+  socket.on('getUpdates', function(sphere){
+    console.log("Getting Updates..");
+    currentUser.getUpdates(function(updateList, totalUpdates){
+        console.log("Update List: " + JSON.stringify(updateList));
+        console.log("totalUpdates: " + totalUpdates);
+        totalUpdates -= updateList[sphere];  // subtract the updates from currentSphere
+        updateList[sphere] = 0; // set the updates to 0 on sphere being accessed
+        socket.emit('updates', {updateList: updateList, totalUpdates:totalUpdates});
+    });
+  });
   
-  // if the posted content is a link
+
   socket.on('post', function(data){
 
       console.log(currentUser.name + " is posting URL..");

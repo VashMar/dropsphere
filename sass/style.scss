@@ -417,7 +417,27 @@ input{
 		font-weight: 200;
 	}
 
-	
+	.sphereName{
+		padding-left:4px;
+	}
+
+	.sphereUpdates{
+		background-color: #ED3C3C;
+		width: 11px;
+		height: 11px;
+		position: absolute;
+		color: white;
+		margin-top: 10px;
+		padding-right: 2px;
+		box-shadow: 0px 1px 1px;
+		font-weight: bold;
+		margin-right: 10px;
+		right: 109px;
+		text-align: center;
+		border-radius: 5px;
+		font-size: 8px;
+	}
+
 	#selectingSphere{
 		height:16px;
 		width:16px;

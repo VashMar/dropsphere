@@ -114,6 +114,21 @@ userSchema.pre('save', function(next) {
     });
 });
 
+
+// dynamically gets updates for user returns hash at ids and total update count 
+userSchema.methods.getUpdates = function(next){
+    var spheres = this.spheres;
+    var totalUpdates = 0;
+    var updateList = {};
+
+    for(var i =0; i < spheres.length; i++){
+        totalUpdates += spheres[i].updates;
+        updateList[spheres[i].object] = spheres[i].updates;
+    }
+
+    next(updateList, totalUpdates);
+}
+
 userSchema.methods.addContact = function(user){
     this.contacts.push(user);
 }

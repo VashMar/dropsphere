@@ -43,6 +43,7 @@ function Chat(username){
     socket.on('connect', function(){
         console.log('socket io connected');
         if(!logged){
+            socket.emit('getUpdates', currentSphere);
             requestFeed();
         }
     });
@@ -353,7 +354,7 @@ function Chat(username){
                               $("#updates-" + i ).html(updates);
                             }else{
                               var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
-                              $("#okcircle-" + i).replaceWith(updateIcon);
+                              $(updateIcon).insertAfter("#okcircle-" + i);
                             } 
                         }
                 
@@ -398,6 +399,31 @@ function Chat(username){
     socket.on('postEdited', function(data){
         var postTitle =  $(".post[data=" + data.postID + "] span.title");
         postTitle.html(data.title);
+    });
+
+    socket.on('updates', function(data){
+        var updateList = data.updateList;
+        var spheres = Object.keys(updateList);
+        var totalUpdates = data.totalUpdates;
+
+        if(totalUpdates > 0){
+            $("#notifications").html(totalUpdates); 
+        }
+
+        for(var i = 0; i < spheres.length; i++){
+            var sphere = spheres[i];
+            sphereMap[sphere].updates = updateList[sphere];
+            var updates = sphereMap[sphere].updates;
+            if(updates > 0){
+                 if($("#updates-" + i ).length){
+                    $("#updates-" + i ).html(updates);
+                 }else{
+                    var updateIcon = "<span id='updates-" + i + "' class='sphereUpdates'>" + updates + "</span>";
+                    $(updateIcon).insertAfter("#okcircle-" + i);
+                 } 
+            }
+        }
+
     });
 
     socket.on('updateView', function(data){
