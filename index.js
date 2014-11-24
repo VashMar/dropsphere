@@ -1068,6 +1068,7 @@ sessionSockets.on('connection', function (err, socket, session){
     console.log("Caching New Sphere..");
     Sphere.findOne({_id:sphere}, function(err,sphere){
       if(sphere){
+        session.totalUpdates += 1;
         session.sphereMap[sphere.id] = {name: sphere.getName(currentUser.id),  nickname: username, link: sphere.link(ENV), updates: 1, type: sphere.type };
         session.sphereIDs.push(sphere.id);
         session.save();
@@ -1196,6 +1197,7 @@ sessionSockets.on('connection', function (err, socket, session){
                 });
 
                 //reset updates on sessions
+                session.totalUpdates -= session.sphereMap[sphere.id].updates;
                 session.sphereMap[sphere.id].updates = 0;
                 session.save();
                 

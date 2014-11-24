@@ -12,6 +12,7 @@
 - var invites = data.invites; 
 - var invitedSpheres = Object.keys(invites);
 - var newRequests = data.newRequests;
+- var totalUpdates = data.totalUpdates;
 #container
     #chat
         .dropdown
@@ -35,6 +36,8 @@
         .dropdown
             a#currentInfo.btn.btn-primary( data-toggle="dropdown" href="#")
                 span#notifications.badge.badge-success
+                    if totalUpdates > 0 
+                        =totalUpdates
                 span#currentSphere
                     if sphereMap[currentSphere].type == "Personal"
                         span(class="glyphicon glyphicon-user" style="padding-right:5px;")
@@ -50,16 +53,17 @@
                             - var updates = sphereMap[sphereID].updates;
                             - var sphereName = sphereMap[sphereID].name;
                             a(class = "sphere" data=sphereID role="menuitem" tabindex="-1" data-toggle="modal" href="#")
+                                if sphereMap[sphereID].type == "Personal"
+                                    span(id ="okcircle-" + i class="glyphicon glyphicon-user") 
+                                else
+                                    span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
+            
                                 if updates > 0
                                     span.sphereUpdates(id="updates-" + i)
                                         =updates
-                                    &nbsp;
                                 else
-                                    if sphereMap[sphereID].type == "Personal"
-                                        span(id ="okcircle-" + i class="glyphicon glyphicon-user") 
-                                    else
-                                        span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
-                                    &nbsp;
+                                    span.sphereUpdates(id="updates-" + i style="display:none;")
+                                        =updates
                                 span.sphereName
                                     =sphereName
                 li#sphereDivider.divider(role="presentation" )
