@@ -44,7 +44,6 @@ function Chat(username){
         console.log('socket io connected');
         if(!logged){
             socket.emit('getUpdates', currentSphere);
-            requestFeed();
         }
     });
 
@@ -275,44 +274,6 @@ function Chat(username){
         }
     });
 
-  /*  socket.on('sphereMap', function(data){
-        sphereMap = data.sphereMap;
-        sphereIDs = Object.keys(sphereMap);
-        currentSphere = sphereIDs[data.index];
-        nickname = sphereMap[currentSphere].nickname; // user's name on sphere (username by default)
-        totalUpdates = data.totalUpdates;
-
-        $("span#currentSphere").html(currentSphere).append("<span class='caret'></span>");   
-        $(".sphere").parent().remove();
-
-        for(var i = 0; i < sphereIDs.length; i++){
-            var sphereName = sphereIDs[i].name,
-                updates = sphereIDs[i].updates;
-            $("<li role='presentation'><a class='sphere' href='#' tabindex='-1' role='menuitem'><span class='glyphicon glyphicon-globe'></span> &nbsp;" + 
-            sphereName + "</a><span id='updates-"+i+"' class='sphereUpdates'></span></li>")
-            .insertBefore("#sphereDivider");
-
-            // post the updates next to their appropriate sphere dropdown item, ignore the current sphere because thats already being viewed
-            if(updates > 0 && sphereIDs[i] !== currentSphere){
-                $("#updates-" + i ).html(sphereMap[sphereIDs[i]].updates);
-            }
-
-        }
-           
-        // if the user has a different name on the sphere specify it 
-        if(sphereMap[currentSphere].nickname !== name){
-            nickname = sphereMap[currentSphere].nickname;
-         }
-
-        // track sphere data 
-        sphereName = sphereMap[currentSphere].name;
-        sphereIndex = sphereIDs.indexOf(currentSphere);
-        sphereLink = sphereMap[currentSphere].link;
-
-        $("#inviteLink").val(sphereLink);
-
-
-    }); */
 
     socket.on('message', function(data){
            
@@ -399,11 +360,7 @@ function Chat(username){
     socket.on('updates', function(data){
         var updateList = data.updateList;
         var spheres = Object.keys(updateList);
-        var totalUpdates = data.totalUpdates;
-
-        if(totalUpdates > 0){
-            $("#notifications").html(totalUpdates); 
-        }
+        totalUpdates = data.totalUpdates;
 
         for(var i = 0; i < spheres.length; i++){
             var sphere = spheres[i];
@@ -414,6 +371,9 @@ function Chat(username){
                 $("#updates-" + i).css('display', 'inline');
             }
         }
+
+        
+        requestFeed();
 
     });
 

@@ -395,13 +395,20 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('getUpdates', function(sphere){
     console.log("Getting Updates..");
-    currentUser.getUpdates(function(updateList, totalUpdates){
-        console.log("Update List: " + JSON.stringify(updateList));
-        console.log("totalUpdates: " + totalUpdates);
-        totalUpdates -= updateList[sphere];  // subtract the updates from currentSphere
-        updateList[sphere] = 0; // set the updates to 0 on sphere being accessed
-        socket.emit('updates', {updateList: updateList, totalUpdates:totalUpdates});
+
+    User.reload(currentUser.id, function(user){
+        if(user){
+          currentUser = user;
+          currentUser.getUpdates(function(updateList, totalUpdates){
+            console.log("Update List: " + JSON.stringify(updateList));
+            console.log("totalUpdates: " + totalUpdates);
+            totalUpdates -= updateList[sphere];  // subtract the updates from currentSphere
+            updateList[sphere] = 0; // set the updates to 0 on sphere being accessed
+            socket.emit('updates', {updateList: updateList, totalUpdates:totalUpdates});
+         });
+        }
     });
+
   });
   
 
