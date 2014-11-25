@@ -364,12 +364,14 @@ function Chat(username){
 
         for(var i = 0; i < spheres.length; i++){
             var sphere = spheres[i];
-            sphereMap[sphere].updates = updateList[sphere];
-            var updates = sphereMap[sphere].updates;
-            if(updates > 0){
-                $("#updates-" + i ).html(updates);
-                $("#updates-" + i).css('display', 'inline');
-            }
+            if(sphereMap[sphere]){
+                sphereMap[sphere].updates = updateList[sphere];
+                var updates = sphereMap[sphere].updates;
+                if(updates > 0){
+                    $("#updates-" + i ).html(updates);
+                    $("#updates-" + i).css('display', 'inline');
+                }
+            } 
         }
 
         
