@@ -93,9 +93,10 @@ exports.tagWrap =  function(msg, type, title, image){
     data = {}; // create a hash from the string inputs 
 
     for(var i = 0; i< data2hash.length; i++){
-        keyVal = data2hash[i].split(":") // key : value => [key,value]
-        data[keyVal[0]] = keyVal[1];    // data[key] = value
-
+        keyVal = data2hash[i]; // key : value => [key,value]
+        key = keyVal.substring(0,keyVal.indexOf(':'));
+        val = keyVal.substring(keyVal.indexOf(':')+1);
+        data[key] = val;    // data[key] = value
         if(i == data2hash.length -1 ){
           next(data);
         }
