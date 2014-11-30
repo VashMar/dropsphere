@@ -330,19 +330,17 @@ sessionSockets.on('connection', function (err, socket, session){
               thumbnail = "";
               console.log($('img'));
               $('img').each(function(index, img){
-                    console.log(img);
                     var imgAttr = img.attribs;
                     if(imgAttr.height > 40 && imgAttr.width > 40){
                         thumbnail = imgAttr.src;
                         return false;
                       } 
-
                   });
                 viewWrapped(); 
               }else{
                 viewWrapped();
               }
-          } else{
+          }else{
             console.log(err);
             console.log(response.statusCode);
             console.log(html);
@@ -429,6 +427,7 @@ sessionSockets.on('connection', function (err, socket, session){
       }
 
       function saveAndEmit(data){      
+          console.log(data);
           var sphereString = String(data.sphere).trim();       // we need the sphere id in string format for emitting 
           console.log("The sphere: " + sphereString);
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
@@ -439,12 +438,9 @@ sessionSockets.on('connection', function (err, socket, session){
           var url = data.url || "",
               thumbnail = data.thumbnail || "",
               image = data.image || "",
-              title = data.title;
-
+              title = data.title || "";
 
           data.post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
-
-
 
           if(url){
             data.isLink = true;

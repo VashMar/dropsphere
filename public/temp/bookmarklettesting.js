@@ -102,18 +102,34 @@ javascript:(function(){
 
     function dropsphereXDM(){
           socketxdm = new easyXDM.Socket({
-            remote: 'http://localhost:3500/invite/',
+            remote: 'http://localhost:3500/bookmark/',
             container:'dropsphere',
 
             onMessage: function(message, origin){
               if(message == 'getURL'){
                   console.log('URL requested from ' + origin);
-                  socketxdm.postMessage(document.URL);
-              }
-            },
-            onReady : function() {
+                  var preview = {};
+                  preview['url'] = document.URL;
+                  preview['title'] = document.title; 
+                  preview['image'] = '';
+                  preview['thumbnail'] = '';
+
+
+                  var suffix = /[^.]+$/.exec(preview['url']);
+
+                  if(suffix == 'jpg' || suffix == 'jpeg' || suffix == 'gif' || suffix == 'png'){
+                     preview['image'] =  preview['url'];
+                  }
+                  
+                  var og = 'og:image';
+                  preview['thumbnail'] = $('meta[property=og:image]').attr('content') ||
+                                         $('meta[name=og:image]').attr('content');
+
+                  socketxdm.postMessage(preview);
+              }},
+              onReady: function(){
                     socketxdm.postMessage('bookmarkletSuccess');
-            }
+              }
           });
     }
   }

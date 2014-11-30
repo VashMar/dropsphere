@@ -352,10 +352,11 @@ $(document).ready(function(){
         socketxdm.postMessage('getURL');
     }
 
-    function dropLink(url){
-        var link = url;
+    function dropLink(preview){
+        alert(preview);
+        /*var link = url;
         $("#urlInput").val(link);
-        chat.Preview(link);
+        chat.Preview(link); */
     }
 
     function editPost(){

@@ -14,6 +14,7 @@ $(document).ready(function(){
 
         }
     });
+    
     $("#dropperControl .btn").on('click',function() {
     	var index = $(this).index();
     	if(index==0){
