@@ -284,11 +284,11 @@ sessionSockets.on('connection', function (err, socket, session){
       var json; 
       try {
         json = JSON.parse(data);
-      } catch (exception) {
+      }catch(exception){
         console.log("This isn't JSON");
       }
 
-      if(json) {
+      if(json){
         console.log("this is json");
       }
 
@@ -300,7 +300,7 @@ sessionSockets.on('connection', function (err, socket, session){
       var image = "";  
       var type; 
       var isImage = LinkParser.isImage(url);
-      console.log(isImage);
+
       if(isImage){
           console.log("URL is Image..");
           type = "image";
@@ -347,7 +347,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
         });
 
-    } 
+      } 
 
 
             function viewWrapped(){
@@ -430,7 +430,6 @@ sessionSockets.on('connection', function (err, socket, session){
           var sphereString = String(data.sphere).trim();       // we need the sphere id in string format for emitting 
           console.log("The sphere: " + sphereString);
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
-          console.log("clients: " + sphereClients);
           data.time = moment().format("MMM Do, h:mm a");
 
 
@@ -439,7 +438,7 @@ sessionSockets.on('connection', function (err, socket, session){
               image = data.image || "",
               title = data.title || "";
 
-          data.post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
+          post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
 
           if(url){
             data.isLink = true;

@@ -221,12 +221,9 @@ postSchema.methods.updatedChat = function(senderID, sphereID){
 
 // stores all the users that could potentially view the post 
 postSchema.methods.fillViewers = function(members, sphereID, sphereName, next){
-	console.log(members);
 
 	// get post location
 	var loc = this.findLoc(sphereID);
-
-	console.log(loc);
 
 	// fill viewers at location with the sphere members 
 	for(var m = 0; m < members.length; m++){

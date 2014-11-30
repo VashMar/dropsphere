@@ -136,7 +136,6 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
               }
 
               if(msg){
-                console.log("Post Saved: " + msg);
                 next(msg);
               }
             }); 
@@ -153,7 +152,6 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
           for(var i = 0; i < sphere.members.length; i++){
              var member = sphere.members[i].id;
              var postCreator = post.creator.object;
-             console.log(member != postCreator);
              if(member != postCreator){
                 User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
                     if(err){console.log(err);}
