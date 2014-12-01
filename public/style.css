@@ -474,6 +474,10 @@ ul li a {
   margin-left: 119px;
   z-index: 20; }
 
+#closePreview img {
+  height: 12px;
+  margin-bottom: 2px; }
+
 #previewLink {
   min-height: 90px; }
 
@@ -601,7 +605,7 @@ textarea {
   height: 55px; }
 
 #urlInput {
-  height: 32px;
+  height: 35px;
   overflow: hidden; }
 
 #postDropdown {

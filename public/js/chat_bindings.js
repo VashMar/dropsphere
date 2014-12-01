@@ -353,10 +353,19 @@ $(document).ready(function(){
     }
 
     function dropLink(preview){
-        alert(preview);
-        /*var link = url;
+        var items = preview.split(',');
+        var hash = {};
+        var key;
+        var val;
+        items.forEach(function(item){
+            key = item.substring(0, item.indexOf(':'));
+            val = item.substring(item.indexOf(':')+1);
+            hash[key] = val;    // data[key] = value
+        });
+
+        var link = hash['url'];
         $("#urlInput").val(link);
-        chat.Preview(link); */
+        chat.Preview(hash);
     }
 
     function editPost(){

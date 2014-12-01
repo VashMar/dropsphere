@@ -100,6 +100,13 @@ javascript:(function(){
       document.body.appendChild(css);
     }
 
+
+    function getContentByMetaTagName(c){
+        for (var b = document.getElementsByTagName('meta'), a = 0; a < b.length; a++){
+          if (c == b[a].name || c == b[a].getAttribute('property')) { return b[a].content; }
+        } return false;
+    }
+
     function dropsphereXDM(){
           socketxdm = new easyXDM.Socket({
             remote: 'http://localhost:3500/bookmark/',
@@ -108,24 +115,36 @@ javascript:(function(){
             onMessage: function(message, origin){
               if(message == 'getURL'){
                   console.log('URL requested from ' + origin);
-                  var preview = {};
-                  preview['url'] = document.URL;
-                  preview['title'] = document.title; 
-                  preview['image'] = '';
-                  preview['thumbnail'] = '';
+          
+                  var url = document.URL;
+                  var title = document.title; 
+                  var image  = '';
+                  var thumbnail = '';
 
-
-                  var suffix = /[^.]+$/.exec(preview['url']);
+                  var suffix = /[^.]+$/.exec(url);
 
                   if(suffix == 'jpg' || suffix == 'jpeg' || suffix == 'gif' || suffix == 'png'){
-                     preview['image'] =  preview['url'];
+                     image = url;
                   }
-                  
-                  var og = 'og:image';
-                  preview['thumbnail'] = $('meta[property=og:image]').attr('content') ||
-                                         $('meta[name=og:image]').attr('content');
 
+                  thumbnail = getContentByMetaTagName('og:image');
+
+                  if(!thumbnail){
+                     $('img').each(function(index, img){
+                        if(img.height > 40 && img.width > 40){
+                            thumbnail = img.src;
+                            return false;
+                          } 
+                      });
+                  }
+
+                  var preview = '';
+                  preview += 'url:' + url; 
+                  preview += ',title:' + title;
+                  preview += ',image:' + image;
+                  preview += ',thumbnail:' + thumbnail;
                   socketxdm.postMessage(preview);
+
               }},
               onReady: function(){
                     socketxdm.postMessage('bookmarkletSuccess');

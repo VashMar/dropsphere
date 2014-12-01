@@ -63,10 +63,21 @@ function Chat(username){
     }
 
 
-    this.Preview = function(link){
-        $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
+    this.Preview = function(data){
+        previewURL = buildPostContent(true, data);
+        postThumb = data['thumbnail'];
+        postTitle = data['title'];
+        postURL = data['url'];
+        postImage = data['image'];
+        var x = $("#previewLink").html(previewURL);
+        
+        $("#previewLink").html(previewURL);
         $("#previewContainer").show();
-        socket.emit("crawl", link);
+
+
+      /* $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
+         $("#previewContainer").show();
+         socket.emit("crawl", link); */
     }
 
 
