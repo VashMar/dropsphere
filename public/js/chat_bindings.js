@@ -405,6 +405,7 @@ $(document).ready(function(){
 
     function closePreview(){
         $("#previewContainer").hide();
+        $("#urlInput").val("");
     }
 
     function sendMsg(){

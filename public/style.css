@@ -485,7 +485,9 @@ ul li a {
   margin-top: 0px; }
 
 #previewLink img {
-  margin-top: 0px; }
+  margin-top: 0px;
+  background: white;
+  padding: 2px; }
 
 #selectedPost span {
   margin-top: 5px; }
