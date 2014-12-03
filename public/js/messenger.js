@@ -70,17 +70,19 @@ function Chat(username){
         postURL = data['url'];
         postImage = data['image'];
         var x = $("#previewLink").html(previewURL);
-        
+
         $("#previewLink").html(previewURL);
         $("#previewContainer").show();
 
-
-      /* $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
-         $("#previewContainer").show();
-         socket.emit("crawl", link); */
     }
 
 
+
+    this.Crawl = function(link){
+        $("#previewLink").html("<img style='float:none;' src='/img/loading.gif' />");
+        $("#previewContainer").show();
+        socket.emit("crawl", link);
+    }
     
     this.setShared = function(postID){
         sharedPost = posts[postID];
@@ -130,7 +132,62 @@ function Chat(username){
         $("#postViewer").remove();
         $(".slimScrollDiv").css('height', feedHeight);
         $("#feed").css('height', "94%");
+        $("#search").show();
         currentPost = null;
+        viewFeed();
+    }
+
+    this.Search = function(keyword){
+        if(keyword.length > 0){
+            if(feed.length > 0){
+                for(var i = feed.length -1 ; i > -1 ; i--){
+                    var postID = feed[i];
+                    var post = posts[postID];
+                    var title = post['content']['title'];   
+                    var sender = post['sender'];
+                    title = title.toLowerCase();
+                    sender = sender.toLowerCase();
+                    if(title.indexOf(keyword) < 0 && sender.indexOf(keyword) < 0){
+                       var element = $(".post[data=" + postID + "]");
+                       element.remove();
+                    }
+                }
+            }
+      }else{
+        viewFeed();
+      }
+    }
+
+    this.FilterType = function(type){
+        $("#feed").empty();
+        if(feed.length > 0){
+            for(var i = feed.length -1 ; i > -1 ; i--){
+                var postID = feed[i];
+                var post = posts[postID];
+                var sender = post['sender'];
+                var content = post['content'];
+                var isOwner = post['isOwner'];
+                var isLink = post['isLink'];
+                var postTime = post['postTime'];
+                var seen = post['seen'];
+                var viewers = post['viewers'];
+                var memberNum = nicknames.indexOf(sender); 
+                time = moment(postTime).format("MMM Do, h:mm a");
+
+
+                var passFilter = (type == "text" && isLink == false) || 
+                                 (type == "image" && content['image'] != "") ||  
+                                 (type == "link" && isLink == true && content['image'] == "" ) ||
+                                 (type == "unread" && !seen);
+                if(passFilter){
+                    content = buildPostContent(isLink, content);
+                    createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length);
+                }
+            }
+        }
+    }
+
+    this.FilterRecent = function(){
         viewFeed();
     }
 
@@ -705,6 +762,11 @@ function Chat(username){
             $(".postBox").html(postInput);
             currentPost = null;
         }
+
+        $(".slimScrollDiv").css('height', feedHeight);
+        $("#feed").css('height', "94%");
+        $("#search").show();
+        currentPost = null;
 
         // set the user's name to their name in the new sphere 
         nickname = sphereMap[currentSphere].nickname;

@@ -763,6 +763,30 @@ textarea{
 	overflow:hidden;
 }
 
+#searchInput{
+	height:35px;
+	background-color: white;
+	width:80%
+}
+
+#searchIcon{
+	height:24px;
+	width:24px;
+	position:absolute; 
+	background: url("/img/search.png");
+	margin-top:7px;
+	margin-left:57px;
+}
+
+#searchFilter{
+	background: url("/img/search_filter.png");
+	height:32px;
+	width:32px;
+	position:absolute;
+	margin-left:97px;
+	margin-top:2px;
+}
+
 #postDropdown{
 	margin-left:80px;
 	margin-top:10px;

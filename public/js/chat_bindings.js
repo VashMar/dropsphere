@@ -88,12 +88,11 @@ $(document).ready(function(){
     });
 
     $("#urlInput").on('paste', function(){
-
         var self = $(this);
         setTimeout(function(e) {
            var isLink =  checkLink(self.val());
 
-           if(isLink){chat.Preview(self.val());}
+           if(isLink){chat.Crawl(self.val());}
 
         }, 0);
 
@@ -126,6 +125,37 @@ $(document).ready(function(){
         }
     });
 
+
+    $("#searchInput").on("change keyup paste", function(){
+       var keyword = $("#searchInput").val().toLowerCase();
+       chat.Search(keyword);  
+    });
+
+    $("#container").on("click", "a#filterLinks", function(){
+        chat.FilterType("link");
+    });
+
+    $("#container").on("click", "a#filterImages", function(){
+        chat.FilterType("image");
+    });
+
+
+    $("#container").on("click", "a#filterText", function(){
+        chat.FilterType("text");
+    });
+
+    $("#container").on("click", "a#filterUnread", function(){
+        chat.FilterType("unread");
+    });
+
+    $("#container").on("click", "a#filterRecent", function(){
+        chat.FilterRecent();
+    });
+
+    $("#container").on("click", "a#filterUnread", function(){
+
+    });
+
     $("#feed").on("click", "a span.title", function(){
         var postID = $(this).parents('.post').attr('data');
         chat.ViewedPost(postID);
@@ -133,6 +163,7 @@ $(document).ready(function(){
 
 
     $("#feed").on("click", "a.chatIcon, a.unseenChat", function(){
+        $("#search").hide();
         chat.SelectPost($(this).parents(".post"));
     });
 
@@ -350,6 +381,17 @@ $(document).ready(function(){
 
     function getLink(){
         socketxdm.postMessage('getURL');
+    }
+
+    function drop(ev){
+        ev.preventDefault();
+        var link = ev.dataTransfer.getData("text");
+        var isLink =  checkLink(link);
+
+        if(isLink){
+            $("#urlInput").val(link);
+            chat.Crawl(link);
+        }
     }
 
     function dropLink(preview){

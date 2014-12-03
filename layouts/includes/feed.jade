@@ -79,7 +79,7 @@
                 p=nickname
         #content(class="form-control")
             .postBox
-                 textarea#urlInput(class="form-control" placeholder="Drop or paste URL")
+                 textarea#urlInput(class="form-control" ondrop="drop(event)" placeholder="Drop or paste URL")
                  textarea#postInput(class="form-control" maxlength="140" placeholder="Add or change a title to a post ")
                  #previewContainer(style="display:none")
                     a#closePreview(href="#" onclick="closePreview();")
@@ -170,6 +170,25 @@
                                                     a.unseenChat(href='#' title="Comments")  
                                                 else 
                                                     a.chatIcon(href='#' title="Comments")
+        #search
+            a#searchIcon(href="#")
+            .dropdown
+                a#searchFilter(class="button" href="#" data-toggle="dropdown")
+                ul.dropdown-menu(role="menu" aria-labelledby="dLabel" style="margin-top:-164px; margin-left:100px")
+                    li(role="presentation" class="dropdown-header") Filter Posts By
+                    li(role="presentation")
+                        a#filterRecent(role="menuitem" tabindex="-1" href="#") Most Recent 
+                    li(role="presentation")
+                        a#filterUnread(role="menuitem" tabindex="-1" href="#") Unread Conversations
+                    li(role="presentation")
+                        a#filterImages(role="menuitem" tabindex="-1" href="#") Only Images  
+                    li(role="presentation")
+                        a#filterText(role="menuitem" tabindex="-1" href="#") Only Text
+                    li(role="presentation")
+                        a#filterLinks(role="menuitem" tabindex="-1" href="#") Only Links
+
+
+            textarea#searchInput(class="form-control" placeholder="Search posts by tag or title..")
         #messageBox.controls(style="display:none")
             textarea#messageInput(class="form-control" placeholder="Enter a message...")
             input#send(type='button' class="btn btn-primary" value='send')
