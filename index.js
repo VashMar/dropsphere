@@ -87,7 +87,7 @@ mongoose.connect(database, function(err, res){
 
 app.locals.moment = require('moment');
 
-app.configure(function () {
+app.configure(function(){
 	 app.use(
 	 // sass compilation
      	sass.middleware({
@@ -392,20 +392,22 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('getUpdates', function(sphere){
     console.log("Getting Updates..");
+    setTimeout(reloadAndUpdate, 0);  
 
-    User.reload(currentUser.id, function(user){
-        if(user){
-          currentUser = user;
-          currentUser.getUpdates(function(updateList, totalUpdates){
-            console.log("Update List: " + JSON.stringify(updateList));
-            console.log("totalUpdates: " + totalUpdates);
-            totalUpdates -= updateList[sphere];  // subtract the updates from currentSphere
-            updateList[sphere] = 0; // set the updates to 0 on sphere being accessed
-            socket.emit('updates', {updateList: updateList, totalUpdates:totalUpdates});
-         });
-        }
-    });
-
+    function reloadAndUpdate(){
+      User.reload(currentUser.id, function(user){
+          if(user){
+            currentUser = user;
+            currentUser.getUpdates(function(updateList, totalUpdates){
+              console.log("Update List: " + JSON.stringify(updateList));
+              console.log("totalUpdates: " + totalUpdates);
+              totalUpdates -= updateList[sphere];  // subtract the updates from currentSphere
+              updateList[sphere] = 0; // set the updates to 0 on sphere being accessed
+              socket.emit('updates', {updateList: updateList, totalUpdates:totalUpdates});
+           });
+          }
+      });
+    }
   });
   
 
@@ -438,7 +440,7 @@ sessionSockets.on('connection', function (err, socket, session){
               image = data.image || "",
               title = data.title || "";
 
-          post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
+          data.post = data.post || "<a href='#' class='textPost'>" + title + "</a>";
 
           if(url){
             data.isLink = true;
@@ -454,7 +456,7 @@ sessionSockets.on('connection', function (err, socket, session){
                   }
           }
 
-          var postInfo = {content: post, 
+          var postInfo = {content: data.post, 
                           creator: {object: currentUser, name: data.sender}, 
                           contentData:{
                              url: url,
@@ -488,7 +490,7 @@ sessionSockets.on('connection', function (err, socket, session){
       data.msg = LinkParser.tagWrap(data.msg, "msgLink");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
-      var messageData = "<p>" + data.sender + ": " + data.msg  + "</p>";
+      var message = new Message({text: data.msg, sender: data.sender});
 
   	  io.sockets.in(sphereString).emit('message', data);
 
@@ -498,30 +500,49 @@ sessionSockets.on('connection', function (err, socket, session){
             socket.broadcast.to(sphereClients[i]).emit('notifySound');
           }
       } 
+              
+
+      if(data.postID != "sphereChat"){
+         Post.findOne({_id: data.postID}, function(err, post){
+          if(post){
+            console.log("Message sent to post convo: " + message);
+      
+            post.updatedChat(currentUser.id, sphereString); // update conversation notifier 
+
+            message.save(function(err, msg){
+              if(err){
+                console.log(err);
+              }
+
+              if(msg){
+                console.log("Message Saved: " + msg);
+                post.addMessage(message, sphereString);
+              }
+
+            });
+          }
+        });
+      }else{
+        Sphere.findOne({_id: sphereString}, function(err, sphere){
+          if(sphere){
+            console.log("Message sent to sphere chat: " + message);
+            sphere.updateChat(currentUser.id);
+            message.save(function(err, msg){
+              if(err){
+                console.log(err);
+              }
+
+              if(msg){
+                console.log("Message Saved: " + msg);
+                sphere.addMessage(message);
+              }
+
+            });
 
 
-       Post.findOne({_id: data.postID}, function(err, post){
-        if(post){
-          console.log("sphere found");
-          var message = new Message({text: data.msg, sender: data.sender});
-          console.log(message);
-    
-          post.updatedChat(currentUser.id, sphereString); // update conversation notifier 
-
-          message.save(function(err, msg){
-            if(err){
-              console.log(err);
-            }
-
-            if(msg){
-              console.log("Message Saved: " + msg);
-              post.addMessage(message, sphereString);
-            }
-
-          });
-
-        }
-      });
+         }
+        });
+      }
 
   	}); // end send 
 
@@ -662,7 +683,6 @@ sessionSockets.on('connection', function (err, socket, session){
     io.sockets.in(sphereString).emit('removePost', {postID: data.postID});
     io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
   });
-
 
 
   socket.on('updateSession', function(data){ 
@@ -843,23 +863,6 @@ sessionSockets.on('connection', function (err, socket, session){
 
     }); 
 
-  /*  //remove the requestID from the list and add it to contacts 
-    User.findOne({_id:requester}, function(err, user){
-      if(user){
-
-        console.log("Adding to contacts: " + user.id);
-        currentUser.removeRequest(user.id);
-        currentUser.addContact(user);
-        currentUser.save(function(err){
-          if(!err){
-            console.log("Requested accepted");
-          }else{
-            console.log(err);
-          }
-        });
-      }
-    }); */
-
   });
 
   socket.on('ignoreRequest', function(requester){
@@ -893,6 +896,7 @@ sessionSockets.on('connection', function (err, socket, session){
                                                    nickname: currentUser.name, 
                                                    link: sphere.link(ENV),
                                                    updates: 0,        
+                                                   seenChat: !sphere.hasChat(),
                                                    type: sphere.type,
                                                    isOwner: false
                                                 };
@@ -931,33 +935,45 @@ sessionSockets.on('connection', function (err, socket, session){
       session.save();
   });
 
+ // marks a chat as seen whether it's for a post or sphere 
   socket.on('seenChat', function(data){
     console.log("Conversation Seen by: " + currentUser.name );
     console.log(data.postID);
-   
-    Post.findOne({_id: data.postID}, function(err, post){
-      if(post){
-        console.log("Post Found")
-        post.chatSeen(currentUser.id, data.sphereID);
-        post.save(function(err, post){
-          if(post){
-            console.log("Saved Post...: " + post);
+    
+    if(data.postID != "sphereChat"){
+      Post.findOne({_id: data.postID}, function(err, post){
+        if(post){
+          console.log("Post Found")
+          post.chatSeen(currentUser.id, data.sphereID);
+          post.save(function(err, post){
+            if(post){
+              console.log("Saved Post...: " + post);
 
-             if(!session.posts[data.postID]){
-              session.posts[post.id] = post.getPostData(currentUser, data.sphereID);
-              session.feed.push(post.id);
+               if(!session.posts[data.postID]){
+                session.posts[post.id] = post.getPostData(currentUser, data.sphereID);
+                session.feed.push(post.id);
+              }
+
+              session.posts[data.postID].seen = true;
+              console.log(session.posts[data.postID]);
+              socket.emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphereID});
+              session.save();
             }
-
-            session.posts[data.postID].seen = true;
-            console.log(session.posts[data.postID]);
-            socket.emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphereID});
+          });
+        }
+      });
+    }else{
+      Sphere.findOne({_id: data.sphereID}, function(err,sphere){
+        if(sphere){
+          sphere.chatSeen(currentUser.id);
+          sphere.save(function(err, sphere){
+            session.sphereMap[data.sphereID].seenChat = true;
             session.save();
-          }
-        });
-      }
-    });
-
-  });
+          });
+        }
+      });
+    }
+  }); // end seenChat
 
   // locates or creates a personal sphere between two users and renders it
   socket.on('personalSphere', function(userID){
@@ -1056,7 +1072,7 @@ sessionSockets.on('connection', function (err, socket, session){
             }
           }); 
         }
-      })
+      });
    });
 
 
@@ -1070,13 +1086,19 @@ sessionSockets.on('connection', function (err, socket, session){
     Sphere.findOne({_id:sphere}, function(err,sphere){
       if(sphere){
         session.totalUpdates += 1;
-        session.sphereMap[sphere.id] = {name: sphere.getName(currentUser.id),  nickname: username, link: sphere.link(ENV), updates: 1, type: sphere.type };
+        session.sphereMap[sphere.id] = {name: sphere.getName(currentUser.id), seenChat: sphere.hasSeenChat(currentUser.id), 
+                                       nickname: username, link: sphere.link(ENV), updates: 1, type: sphere.type };
         session.sphereIDs.push(sphere.id);
         session.save();
         console.log(session.sphereMap);
         socket.emit("addSphereAndNotify", {map: session.sphereMap, sphere: sphere.id});
       }
     });
+   });
+
+   socket.on('cacheSphereChat', function(data){
+       session.sphereMap[data.sphere].seenChat = data.seen;
+       session.save();
    });
 
   socket.on('cacheNicknames', function(nicknames){
@@ -1247,81 +1269,43 @@ sessionSockets.on('connection', function (err, socket, session){
       console.log("Requesting Messages..." + data.postID);
 
       var postID = data.postID;
+      if(postID != "sphereChat"){
+          Post.findOne({_id: postID}, function(err, post){ 
+            if(err){
+              console.log(err);
+            }
 
-      Post.findOne({_id: postID}, function(err, post){ 
+            if(post){
+              console.log("Extracting Messages from Post.." + post);
+              console.log("Sphere: " + data.sphereID);
+              post.getLoc(data.sphereID, function(loc){
+                console.log(loc);
+                Message.populate(loc, {path:'messages'}, function(err, loc){
+                  var messages = loc.messages || [];
+                  renderConvo(messages);
+              });
 
-        if(err){
-          console.log(err);
-        }
-
-        if(post){
-
-
-          console.log("Extracting Messages from Post.." + post);
-          console.log("Sphere: " + data.sphereID);
-          post.getLoc(data.sphereID, function(loc){
-            console.log(loc);
-            Message.populate(loc, {path:'messages'}, function(err, loc){
-              var messages = loc.messages || [];
-
-              var convo = {},
-              key,
-              currentMsg,
-              msg1, 
-              time1;
-
-              // if theres only one message just display it
-              if(messages.length == 1){
-                currentMsg = messages[0];
-                msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
-                time1 = moment(currentMsg.date);
-                key =  time1.format();
-                convo[key] = [msg1];
-              }else{
-                // otherwise loop through and sort the messages based on conversation time 
-                for(var i = 0; i < messages.length - 1; i++ ){
-                    currentMsg = messages[i];
-                    msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
-                    time1 = moment(currentMsg.date);
-
-                    // create a hash key for the date of the first message that points to an array, and store the message in the array
-                    if(i == 0){
-                      key =  time1.format();
-                      convo[key] = [msg1];
-                    }
-
-                    if(messages.length > 1 && i < messages.length - 1){
-                      var nextMsg = messages[i+1];
-                      var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
-                      var time2 = moment(nextMsg.date);
-
-                      // compare each message to the one after it
-                      if(time2.diff(time1, "minutes") <= 30 ){
-                        // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
-                        convo[key].push(msg2);
-                      }else{
-                        // if the difference is greater than 30 minutes create a new hash key for the message date
-                        key = time2.format();
-                        convo[key] = [msg2];
-                      }
-                    }
-                } 
-              }
-
-            console.log(convo);
-
-            fillMessages(convo);
-         
+            });
+      
+            }else{
+              console.log("Couldn't obtain post");
+            }
           });
+      }else{
+          Sphere.findOne({_id:data.sphereID}).populate('chat').exec(function(err, sphere){
+            if(err){
+              console.log(err);
+            }
 
-        });
-  
-        }else{
-          console.log("Couldn't obtain post");
-        }
-      });
-
-
+            if(sphere){
+                messages = sphere.chat;
+                console.log("Getting messages from sphere chat.." + messages);
+                renderConvo(messages);
+            }else{
+              console.log("Couldn't obtain sphere");
+            }
+          });
+      }
   }); // end request messages 
 
   
@@ -1374,7 +1358,7 @@ sessionSockets.on('connection', function (err, socket, session){
   socket.on('leaveRooms', function(spheres){
     console.log("ending session");
     currentUser.endSession(sessionID);
-    console.log("leaving  rooms");
+    console.log("leaving rooms");
 
 
     if(typeof spheres == 'string' || spheres instanceof String){
@@ -1415,7 +1399,8 @@ sessionSockets.on('connection', function (err, socket, session){
           session.sphereMap[sphereID] = { name: sphereName, 
                                              nickname: addedSphere.nickname, 
                                              link: link,
-                                             updates: addedSphere.updates,        
+                                             updates: addedSphere.updates,   
+                                             seenChat: true,     
                                              type: sphere.type,
                                              isOwner: isOwner
                                           };
@@ -1466,7 +1451,56 @@ sessionSockets.on('connection', function (err, socket, session){
       session.feed = feed;    
       session.posts = posts;
       session.save();
+  }
 
+
+  function renderConvo(messages){
+        console.log("Rendering Convo..");
+        var convo = {},
+        key,
+        currentMsg,
+        msg1, 
+        time1;
+
+        // if theres only one message just display it
+        if(messages.length == 1){
+          currentMsg = messages[0];
+          msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+          time1 = moment(currentMsg.date);
+          key =  time1.format();
+          convo[key] = [msg1];
+        }else{
+          // otherwise loop through and sort the messages based on conversation time 
+          for(var i = 0; i < messages.length - 1; i++ ){
+              currentMsg = messages[i];
+              msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+              time1 = moment(currentMsg.date);
+
+              // create a hash key for the date of the first message that points to an array, and store the message in the array
+              if(i == 0){
+                key =  time1.format();
+                convo[key] = [msg1];
+              }
+
+              if(messages.length > 1 && i < messages.length - 1){
+                var nextMsg = messages[i+1];
+                var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
+                var time2 = moment(nextMsg.date);
+
+                // compare each message to the one after it
+                if(time2.diff(time1, "minutes") <= 30 ){
+                  // if the difference is less than or equal to 30 minutes between messages, store them in the same array under the last made hash key
+                  convo[key].push(msg2);
+                }else{
+                  // if the difference is greater than 30 minutes create a new hash key for the message date
+                  key = time2.format();
+                  convo[key] = [msg2];
+                }
+              }
+          } 
+        }
+
+        socket.emit('renderConvo', convo);
   }
 
 

@@ -163,11 +163,8 @@ postSchema.methods.getViewed = function(viewers){
 // returns whether a user has seen the post's chat or not 
 postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
 
-	console.log("Does the post have messages?: " + hasMessages);
-	console.log("USERID: " + userID);
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id == userID && hasMessages){
-			console.log("VIEWERID: " + viewers[v].id + ": " + viewers[v].seen);
 			return viewers[v].seenChat;
 		}
 	}

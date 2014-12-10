@@ -125,17 +125,20 @@ javascript:(function(){
 
                   if(suffix == 'jpg' || suffix == 'jpeg' || suffix == 'gif' || suffix == 'png'){
                      image = url;
+                     title = ''; 
                   }
 
                   thumbnail = getContentByMetaTagName('og:image');
 
                   if(!thumbnail){
-                     $('img').each(function(index, img){
+                     var imgs = document.images;
+                     for(var i =0; i < imgs.length; i++){
+                        img = imgs[i];
                         if(img.height > 40 && img.width > 40){
                             thumbnail = img.src;
-                            return false;
-                          } 
-                      });
+                            break;
+                        } 
+                     }
                   }
 
                   var preview = '';

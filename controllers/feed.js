@@ -470,6 +470,7 @@ function updateContacts(user, sphere, sessionData, view, res, req, isMobile){
 
 
 function retrieveSessionData(user, req, res, layout){
+          console.log("Retrieving Session Data..");
           // mobile flag
           var isMobile = req.body.mobile;
 

@@ -89,7 +89,7 @@ $(document).ready(function(){
 
     $("#urlInput").on('paste', function(){
         var self = $(this);
-        setTimeout(function(e) {
+        setTimeout(function(e){
            var isLink =  checkLink(self.val());
 
            if(isLink){chat.Crawl(self.val());}
@@ -156,6 +156,10 @@ $(document).ready(function(){
 
     });
 
+    $("#feed").on("click", "#sphereChat a", function(){
+        chat.SphereChat();
+    });
+
     $("#feed").on("click", "a span.title", function(){
         var postID = $(this).parents('.post').attr('data');
         chat.ViewedPost(postID);
@@ -163,7 +167,6 @@ $(document).ready(function(){
 
 
     $("#feed").on("click", "a.chatIcon, a.unseenChat", function(){
-        $("#search").hide();
         chat.SelectPost($(this).parents(".post"));
     });
 

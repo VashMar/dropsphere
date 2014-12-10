@@ -8,11 +8,13 @@ var sphereSchema = mongoose.Schema({
 	members: [{ 					// list of all the member names in a sphere 
 			  id: {type: String },
 			  nickname: {type: String , default: ""}, //members nickname on the sphere
-			  name:  {type: String} 			// username
+			  name:  {type: String}, 			// username
+        seenChat: {type: Boolean, default: true}
 			 }],								
 	posts: [{type: ObjectId, ref: 'Post'}],
 	owner: {type: ObjectId, ref: 'User'},
-  type: {type: String, default: "Group"}
+  type: {type: String, default: "Group"},
+  chat: [{type: ObjectId, ref: 'Message'}]
 });
 
 sphereSchema.virtual('nicknames').get(function(){
@@ -28,8 +30,7 @@ sphereSchema.virtual('nicknames').get(function(){
 	return nicknames;
 });
 
-
-
+// returns the ids of all members in a sphere 
 sphereSchema.virtual('memberIds').get(function(){
   var ids = [];
   for(var i = 0; i< this.members.length ; i++){
@@ -38,6 +39,65 @@ sphereSchema.virtual('memberIds').get(function(){
   }
   return ids;
 });
+
+
+
+// stores a sphere chat message 
+sphereSchema.methods.addMessage = function(message){
+  this.chat.push(message);
+
+  this.save(function(err,sphere){
+    if(sphere){
+      console.log("Message added to sphere");
+    }
+  });
+
+
+}
+
+// returns if there is a conversation in the sphere 
+sphereSchema.methods.hasChat = function(){
+  if(this.chat.length > 0){ return true; }
+
+  return false; 
+}
+
+// updates all all members of sphere's chat to unseen besides given user
+sphereSchema.methods.updateChat = function(userID){
+  var members = this.members; 
+  members.forEach(function(member){
+      if(member.id != userID){
+          member.seenChat = false; 
+      }
+  });  
+}
+
+// returns if user has seen chat or not 
+sphereSchema.methods.hasSeenChat = function(userID){
+  console.log("Checking chat status..");
+  var members = this.members; 
+
+  for(var i = 0; i < members.length; i++){
+    member = members[i];
+    if(member.id == userID){
+        console.log("member found");
+        return member.seenChat; 
+    }
+  }
+}
+
+// flags that a user has seen the sphere convo
+sphereSchema.methods.chatSeen = function(userID){
+  var members = this.members;
+
+  for(var i =0; i< members.length; i++){
+    member = members[i];
+    if(member.id == userID){
+      member.seenChat = true;
+      console.log("Chat marked as seen");
+    }
+  }
+}
 
 // returns the name seen by the user for a sphere 
 sphereSchema.methods.getName = function(userID){

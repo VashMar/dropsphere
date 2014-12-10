@@ -43,6 +43,7 @@ var userSchema = new Schema({
         nickname: {type: String},                    // references the users name in that sphere 
         joined: {type: Date, default: Date.now},    // when the user joined the sphere
         updates: {type: Number, default: 0}        // notification counter for each sphere 
+
         }],
     currentSphere: {type: Number, default: 0}, // index of the user's current sphere 
     mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 
@@ -128,6 +129,7 @@ userSchema.methods.getUpdates = function(next){
 
     next(updateList, totalUpdates);
 }
+
 
 userSchema.methods.addContact = function(user){
     this.contacts.push(user);
@@ -276,6 +278,7 @@ userSchema.methods.isMember = function(givenSphere){
 
 // returns the information about all clients spheres with one loop
 userSchema.methods.sphereData = function(ENV){
+    console.log("Obtaining sphere data..");
     var user = this;
 
     var sphereData = {},
@@ -289,10 +292,8 @@ userSchema.methods.sphereData = function(ENV){
         var sphereName = sphere.object.getName(user.id),
             sphereID = sphere.object.id,
             type = sphere.object.type,
+            seenChat = sphere.object.hasSeenChat(user.id),
             isOwner = sphere.object.owner == user.id;
-
-        console.log("Sphere id: " + sphere.object.owner);
-        console.log("User id " + user.id);
 
         // get the updates on all spheres       
         totalUpdates += sphere.updates;
@@ -316,20 +317,22 @@ userSchema.methods.sphereData = function(ENV){
                                         link: link,
                                         updates: sphere.updates,
                                         type: type,
+                                        seenChat: seenChat, 
                                         isOwner: isOwner
                                         };
             }
         }
     });
 
+    console.log("The sphere data: " + JSON.stringify(sphereMap));
+
     sphereData["sphereMap"] = sphereMap;
     sphereData["sphereIDs"] = sphereIDs;
     sphereData["totalUpdates"] = totalUpdates;
 
-
     return sphereData; 
-
 }
+
 
 // check if post belongs to user
 userSchema.methods.isOwner = function(post){

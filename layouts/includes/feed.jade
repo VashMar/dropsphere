@@ -39,7 +39,9 @@
                     if totalUpdates > 0 
                         =totalUpdates
                 span#currentSphere
-                    if sphereMap[currentSphere].type == "Personal"
+                    if sphereMap[currentSphere].type == "Main"
+                        span(class="glyphicon glyphicon-star" style="padding-right:5px;")
+                    else if sphereMap[currentSphere].type == "Personal"
                         span(class="glyphicon glyphicon-user" style="padding-right:5px;")
                     else
                         span(class="glyphicon glyphicon-globe" style="padding-right:5px;")
@@ -53,7 +55,9 @@
                             - var updates = sphereMap[sphereID].updates;
                             - var sphereName = sphereMap[sphereID].name;
                             a(class = "sphere" data=sphereID role="menuitem" tabindex="-1" data-toggle="modal" href="#")
-                                if sphereMap[sphereID].type == "Personal"
+                                if sphereMap[sphereID].type == "Main"
+                                    span(id ="okcircle-" + i class="glyphicon glyphicon-star") 
+                                else if sphereMap[sphereID].type == "Personal"
                                     span(id ="okcircle-" + i class="glyphicon glyphicon-user") 
                                 else
                                     span(id ="okcircle-" + i class="glyphicon glyphicon-globe") 
@@ -89,6 +93,13 @@
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
             .alert(style="display:none;") text
             #feed
+                #sphereChat
+                        if sphereMap[currentSphere].seenChat == true
+                            a#sphereChatIcon
+                        else 
+                            a#unseenSphereChat
+                        a#sphereChatTitle
+                            | Open Sphere Chat
                 if announcements.length > 0
                     if announcements.indexOf("welcome") >= 0
                         p.announcement
