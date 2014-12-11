@@ -392,7 +392,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('getUpdates', function(sphere){
     console.log("Getting Updates..");
-    setTimeout(reloadAndUpdate, 0);  
+    setTimeout(reloadAndUpdate, 2);  
 
     function reloadAndUpdate(){
       User.reload(currentUser.id, function(user){

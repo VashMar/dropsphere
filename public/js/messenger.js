@@ -358,7 +358,9 @@ function Chat(username){
                     console.log(sphereMap[data.sphere]);
                 }
 
-               // update notification for chat messages
+               // update notification for chat messages   
+               addUpdate(data.sphere);  
+
             }
             
         }           
@@ -373,20 +375,7 @@ function Chat(username){
              createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
              socket.emit("seen", {sphere: data.sphere});
         }else if(sphereIDs.indexOf(data.sphere) >= 0 && sphereMap[data.sphere]){
-             // find the sphere the message is meant for and send the user an update notification
-                var index = sphereIDs.indexOf(data.sphere);
-                var sphereID = sphereIDs[index];
-                
-                sphereMap[sphereID].updates++;            // increment this spheres updates on client side 
-                var updates = sphereMap[sphereID].updates;
-                totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
-                $("#notifications").html(totalUpdates);
-
-                if(updates > 0){
-                    $("#updates-" + index).html(updates);
-                    $("#updates-" + index).css('display', 'inline');
-                }
-      
+              addUpdate(data.sphere);  
         }else{
             // this mean that there's a sphere connected to the socket but not on the client's sphereMap yet, so let's cache it
             socket.emit("cacheSphere", data.sphere);
@@ -626,15 +615,12 @@ function Chat(username){
         var glyphicon = (type == "Personal") ? 'glyphicon glyphicon-user' : 'glyphicon glyphicon-globe';
      
         $("#sphereNames").append("<a class='sphere' data='" + data.sphere +"' href='#' tabindex='-1' role='menuitem'><span id='okcircle-" +
-          sphereIndex + "' class='"+ glyphicon + "'></span><span class='sphereUpdates' style='display:none;' id='updates-"+ sphereIndex + "'>"+ updates + "</span>" + 
+          sphereIndex + "' class='"+ glyphicon + "'></span><span class='sphereUpdates' style='display:inline;' id='updates-"+ sphereIndex + "'>"+ updates + "</span>" + 
           "<span class='sphereName'>" + sphereName + "</span>");
 
         appendCurrentIcon(type);
-        totalUpdates++;  // because this sphere's updates have been incremented, so has the total
-
-        $("#notifications").html(totalUpdates); 
-
-
+        totalUpdates++;   // because this sphere's updates have been incremented, so has the total
+        $("#notifications").html(totalUpdates);
     });
 
     socket.on('nicknameSuccess', function(data){
@@ -725,7 +711,7 @@ function Chat(username){
 
 
 
-    var share = function(){
+    function share(){
 
         var postID = sharedPost;
         var sphere = currentSphere;
@@ -786,7 +772,21 @@ function Chat(username){
         requestFeed();
     }
 
+    function addUpdate(sphere){
+        // find the sphere the message is meant for and send the user an update notification
+        var index = sphereIDs.indexOf(sphere);
+        var sphereID = sphereIDs[index];
+        
+        sphereMap[sphereID].updates++;            // increment this spheres updates on client side 
+        var updates = sphereMap[sphereID].updates;
+        totalUpdates++;                                 // because this sphere's updates have been incremented, so has the total
+        $("#notifications").html(totalUpdates);
 
+        if(updates > 0){
+            $("#updates-" + index).html(updates);
+            $("#updates-" + index).css('display', 'inline');
+        }
+    }
 
     function chatView(postContent){
 
@@ -803,13 +803,13 @@ function Chat(username){
         $("<div id='postViewer' class='post'>" + postContent + "</div>").insertAfter(".postBox");
         $(".post").children(".postButtons").css("display", "none");
         // resize the scroller for sphere chat view
-        $(".slimScrollDiv").css('height', '75%');
+        $(".slimScrollDiv").css('height', '100%');
 
         var ch = $("#content").height();
         var viewerHeight = $("#postViewer").height();
         var pbHeight = $(".postBox").height();
         var mbHeight = $("#messageBox").height();
-        var feedResize = ch - (viewerHeight + pbHeight + mbHeight + 30);
+        var feedResize = ch - (viewerHeight + pbHeight + mbHeight + 10);
         feedResize += 'px';
 
         $("#feed").css('height', feedResize);
