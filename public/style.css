@@ -662,6 +662,18 @@ textarea {
   margin-left: 97px;
   margin-top: 2px; }
 
+#search li a {
+  margin-right: 4px;
+  margin-left: 4px; }
+
+#search li a:hover {
+  background: #3276b1;
+  color: white; }
+
+#search a.active {
+  background: #3276b1;
+  color: white; }
+
 #postDropdown {
   margin-left: 80px;
   margin-top: 10px; }
@@ -690,14 +702,20 @@ a#bookmarklet {
   color: #666; }
 
 .announcement {
-  font-size: 12px;
+  font-size: 16px;
   padding: 14px 12px;
   margin-top: 6px;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-  color: #000;
+  color: gray;
   text-align: center;
-  box-shadow: 1px 0.3px 1px 0.5px; }
+  font-style: italic; }
+
+.noResults {
+  font-size: 16px;
+  padding: 14px 12px;
+  margin-top: 6px;
+  color: gray;
+  text-align: center;
+  font-style: italic; }
 
 .message {
   margin-left: 4px;

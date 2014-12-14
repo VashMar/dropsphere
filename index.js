@@ -490,8 +490,8 @@ sessionSockets.on('connection', function (err, socket, session){
       data.msg = LinkParser.tagWrap(data.msg, "msgLink");
       var sphereString = String(data.sphere);       // we need the sphere id in string format for emitting 
       var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
-      var message = new Message({text: data.msg, sender: data.sender});
-
+      var tagsExist = (data.tags) ? true : false; 
+      var message = new Message({text: data.msg, sender: data.sender, hasTags: tagsExist});
   	  io.sockets.in(sphereString).emit('message', data);
 
      // emit a notification sound to all the clients in the sphere that aren't part of the current user's sessions
@@ -516,9 +516,13 @@ sessionSockets.on('connection', function (err, socket, session){
 
               if(msg){
                 console.log("Message Saved: " + msg);
-                post.addMessage(message, sphereString);
+                post.addTags(sphereString, data.tags, function(addedTags){
+                  session.posts[data.postID].tags = session.posts[data.postID].tags.concat(addedTags);  // update tags in cache 
+                  post.addMessage(message, sphereString);
+                  session.save();
+                  socket.emit('updateTags', addedTags);
+                });
               }
-
             });
           }
         });
@@ -729,14 +733,19 @@ sessionSockets.on('connection', function (err, socket, session){
     var onComplete = function(user){
       if(!currentUser.hasContact(user)){
         currentUser.addContact(user);
-        user.pendingRequest(currentUser);
+        console.log("User requests: " + user.newRequests);
+        
+        user.pendingRequest(currentUser, function(){
+          // emit the success to the person adding
+          socket.emit('contactAdded', {username: user.name, userID: user.id});
+
+          console.log("Updated user requests: " + user.newRequests);
+          // notify the pending request to the recipient
+          io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id, newRequests: user.newRequests});
+
+        });
+
         Mailer.newRequest(user.email, currentUser.name);
-
-        // emit the success to the person adding
-        socket.emit('contactAdded', {username: user.name, userID: user.id});
-
-        // notify the pending request to the recipient
-        io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id, newRequests: user.newRequests});
 
         //update sessions
         session.contacts[user.id] = user.name;
@@ -1465,7 +1474,7 @@ sessionSockets.on('connection', function (err, socket, session){
         // if theres only one message just display it
         if(messages.length == 1){
           currentMsg = messages[0];
-          msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+          msg1 = [currentMsg.sender, currentMsg.text, currentMsg.hasTags, currentMsg.isLink];
           time1 = moment(currentMsg.date);
           key =  time1.format();
           convo[key] = [msg1];
@@ -1473,7 +1482,7 @@ sessionSockets.on('connection', function (err, socket, session){
           // otherwise loop through and sort the messages based on conversation time 
           for(var i = 0; i < messages.length - 1; i++ ){
               currentMsg = messages[i];
-              msg1 = [currentMsg.sender, currentMsg.text, currentMsg.isLink];
+              msg1 = [currentMsg.sender, currentMsg.text, currentMsg.hasTags, currentMsg.isLink];
               time1 = moment(currentMsg.date);
 
               // create a hash key for the date of the first message that points to an array, and store the message in the array
@@ -1484,7 +1493,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
               if(messages.length > 1 && i < messages.length - 1){
                 var nextMsg = messages[i+1];
-                var msg2 = [nextMsg.sender, nextMsg.text, nextMsg.isLink];
+                var msg2 = [nextMsg.sender, nextMsg.text, currentMsg.hasTags, currentMsg.isLink];
                 var time2 = moment(nextMsg.date);
 
                 // compare each message to the one after it

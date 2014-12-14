@@ -22,7 +22,9 @@ function Chat(username){
     var socket = io('/', {forceNew: true}); //io.connect(window.location.hostname);  
     var username = username; 
     var currentPost = null;
-
+    var filteredPosts = [];
+    var searching = false;
+    var filtering = false;
 
     var postInput = null;
     var previewURL = null;
@@ -89,7 +91,8 @@ function Chat(username){
     }
 
     this.Send = function(msg){
-        socket.emit("sendMessage", {postID: currentPost, sphere: currentSphere, msg: msg, sender: nickname});  
+        var tags = tagStrip(msg);
+        socket.emit("sendMessage", {postID: currentPost, sphere: currentSphere, msg: msg, sender: nickname, tags: tags});  
     }
 
 
@@ -129,28 +132,68 @@ function Chat(username){
 
     this.Search = function(keyword){
         if(keyword.length > 0){
-            if(feed.length > 0){
+            searching = true;
+            var results = 0;
+            if(filteredPosts.length > 0){
+                console.log("Searching filtered posts..");
+                for(var i = 0; i < filteredPosts.length; i++){
+                    var postID = filteredPosts[i];
+                    var post = posts[postID];
+                    var title = post['content']['title'];   
+                    var sender = post['sender'];
+                    var tags = post['tags'].toString();
+                    var element = $(".post[data=" + postID + "]");
+                    title = title.toLowerCase();
+                    sender = sender.toLowerCase();
+                    tags = tags.toLowerCase();
+                    console.log("title, sender, tags: " + title +  "," + sender + "," + tags);
+                    if(title.indexOf(keyword) < 0 && sender.indexOf(keyword) < 0 && tags.indexOf(keyword) < 0){
+                       console.log("hiding element..");
+                       element.hide();
+                    }else{
+                       $(".noResults").remove();
+                       element.show();
+                       results++;
+                    }
+                }
+            }else if(feed.length > 0){
                 for(var i = feed.length -1 ; i > -1 ; i--){
                     var postID = feed[i];
                     var post = posts[postID];
                     var title = post['content']['title'];   
                     var sender = post['sender'];
+                    var tags = post['tags'].toString();
+                    var element = $(".post[data=" + postID + "]");
                     title = title.toLowerCase();
                     sender = sender.toLowerCase();
-                    if(title.indexOf(keyword) < 0 && sender.indexOf(keyword) < 0){
-                       var element = $(".post[data=" + postID + "]");
-                       element.remove();
+                    tags = tags.toLowerCase();
+                    if(title.indexOf(keyword) < 0 && sender.indexOf(keyword) < 0 && tags.indexOf(keyword) < 0){
+                       element.hide();
+                    }else{
+                       $(".noResults").remove();
+                       element.show();
+                       results++;
                     }
                 }
             }
+
+            if(results < 1 && $(".noResults").length < 1){
+              $("<p class='noResults'> No results found.. </p>").insertAfter("#sphereChat");
+            }
+
       }else{
-        viewFeed();
+        searching = false;
+        if(filteredPosts.length > 0){
+            $(".post").show();
+        }else{
+            viewFeed();
+        }
       }
     }
 
     this.FilterType = function(type){
        emptyWithChat();
-
+       filtering = true;
         if(feed.length > 0){
             for(var i = feed.length -1 ; i > -1 ; i--){
                 var postID = feed[i];
@@ -162,6 +205,7 @@ function Chat(username){
                 var postTime = post['postTime'];
                 var seen = post['seen'];
                 var viewers = post['viewers'];
+                var tags = post['tags'];
                 var memberNum = nicknames.indexOf(sender); 
                 time = moment(postTime).format("MMM Do, h:mm a");
 
@@ -172,9 +216,16 @@ function Chat(username){
                                  (type == "unread" && !seen);
                 if(passFilter){
                     content = buildPostContent(isLink, content);
-                    createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length);
+                    createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags);
+                    filteredPosts.push(postID);
+                    console.log("Filtered Posts: " + filteredPosts);
                 }
             }
+        }
+
+        if(filteredPosts.length == 0){
+            console.log("no posts found");
+            $("<p class='noResults'> No results found.. </p>").insertAfter("#sphereChat");
         }
     }
 
@@ -340,6 +391,10 @@ function Chat(username){
             if(currentSphere == data.sphere && currentPost == data.postID){    
                  // update message seen here 
                  var memberNum = nicknames.indexOf(data.sender);         
+                 for(var i = 0; i < data.tags.length; i++){
+                    var tag = data.tags[i];
+                    data.msg = data.msg.replace(data.tags[i], "<a class='postTag'>" + data.tags[i] + "</a>");
+                 }
                  $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                  scrollBottom();
             }else if(currentSphere == data.sphere && data.postID == "sphereChat"){
@@ -369,7 +424,7 @@ function Chat(username){
     socket.on('post', function(data){
         console.log("Receiving Post..");
         // if the message is being sent to the current sphere being looked at, add it to the chat 
-        if(currentSphere == data.sphere && currentPost == null){    
+        if(currentSphere == data.sphere && currentPost == null && !searching && !filtering){    
              var memberNum = data.memberNum || nicknames.indexOf(data.sender);  
              var time = data.time || moment().calendar();       
              createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
@@ -663,7 +718,10 @@ function Chat(username){
 
                     var sender = msg[0],
                         text = msg[1], 
+                        hasTags = msg[2],
                         memberNum = nicknames.indexOf(sender);
+
+                    if(hasTags){text = tagify(text)};    
 
                     $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
                 }
@@ -671,6 +729,12 @@ function Chat(username){
         }
 
         scrollBottom();
+    });
+
+    socket.on('updateTags', function(tags){
+        var post = posts[currentPost];
+        post.tags = post.tags.concat(tags);
+        console.log("Post Tags: " + post.tags);
     });
 
     /* Extra Functions */
@@ -695,13 +759,17 @@ function Chat(username){
                 var isLink = post['isLink'];
                 var postTime = post['postTime'];
                 var seen = post['seen'];
+                var tags = post['tags']
                 var viewers = post['viewers'];
                 var memberNum = nicknames.indexOf(sender); 
 
                 time = moment(postTime).format("MMM Do, h:mm a");
                 content = buildPostContent(isLink, content);
-                createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length);
+                createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags);
             }
+        }else{
+            var noPosts = "<p class='noResults'> This is a sphere of nothingness. A single drop could change that.. </p>"
+            $("#sphereChat").length > 0 ?  $(noPosts).insertAfter("#sphereChat") : $("#feed").append(noPosts);
         }
 
         if(sharedPost){
@@ -766,9 +834,12 @@ function Chat(username){
         var type = sphereMap[currentSphere].type;
         appendCurrentIcon(type);
 
-        $("#inviteLink").val(sphereLink); 
+        $("#inviteLink").val(sphereLink);
+        $("#searchInput").val(""); 
+        searching = false; 
         $("#postViewer").remove();
-            
+
+
         requestFeed();
     }
 
@@ -815,6 +886,48 @@ function Chat(username){
         $("#feed").css('height', feedResize);
     }
 
+    function tagStrip(msg){ 
+        var tags = [];
+        var start = msg.indexOf("#"); 
+
+        if(start >= 0){ 
+            var foundTag = true;
+            var tag = "#";
+            var addTag = function(tag){
+                if(tag.length > 1){
+                    tags.push(tag);
+                }
+            };
+            for(var i = start+1; i< msg.length; i++){
+                var char = msg[i];
+                if(foundTag){
+                  if(char == " "){ foundTag = false; addTag(tag); tag = ""; }
+                  else if(char == "#"){addTag(tag); tag ="#"; }
+                  else{ tag += char;}      
+                }else{
+                 if(char == "#"){ foundTag= true; tag="#"; }
+                }   
+
+                if(foundTag && i == msg.length - 1){
+                   addTag(tag);
+                }
+            }
+            if(tags.length > 0){return tags;}  
+        }
+
+        return "";
+        
+    }
+
+    function tagify(text){
+        var tags = tagStrip(text);
+        for(var i = 0; i < tags.length; i++){
+                    var tag = tags[i];
+                    text = text.replace(tags[i], "<a class='postTag'>" + tags[i] + "</a>");
+        }
+        return text;
+    }
+
     function buildPostContent(isLink, content){
         var thumbnail = content['thumbnail'];
         var image = content['image'];
@@ -845,7 +958,7 @@ function Chat(username){
         return htmlString;
     }
 
-    function createPost(postID,content,memberNum,sender,time,seen, isOwner, viewedNum){
+    function createPost(postID,content,memberNum,sender,time,seen,isOwner,viewedNum,tags){
 
         var chatIcon = (seen) ? seenIcon : unseenIcon;
             data = (postID) ? postID : '',
@@ -877,7 +990,7 @@ function Chat(username){
 
 
 
-            $("<div class='post' data=" + data + ">" + 
+        var postElement = $("<div class='post' data=" + data +  " data-tags="+ tags + ">" + 
             "<div class='sender user" + memberNum + "'>" + options + "<span>" + 
             sender + "<div class='time'>" + time + "</div></span></div>" + 
             "<div class='postContent'>" + content + "</div>" +
@@ -885,7 +998,17 @@ function Chat(username){
             viewersIcon +
             sharePost +
             savePost + 
-            postChat + "</ul></div></div>").insertAfter("#sphereChat");
+            postChat + "</ul></div></div>");
+
+        if($(".noResults").length > 0){
+            $(".noResults").remove();
+        }
+
+        if($("#sphereChat").length > 0){
+            postElement.insertAfter("#sphereChat");
+        }else{
+            $("#feed").append(postElement);
+        }
 
     }
 
@@ -922,10 +1045,16 @@ function Chat(username){
 
     function emptyWithChat(){
         console.log(sphereMap[currentSphere]);
+        filteredPosts = [];
+        filtering = false;
         var seen = sphereMap[currentSphere].seenChat;
         var icon = (seen) ? 'sphereChatIcon' : 'unseenSphereChat';
+
         $('#feed').empty();
-        $('#feed').append("<div id='sphereChat'><a id=" + icon + " href='#'></a><a id='sphereChatTitle'>Open Sphere Chat</a></div>");
+        if(sphereMap[currentSphere].type != "Main"){
+            $('#feed').append("<div id='sphereChat'><a id=" + icon + " href='#'></a><a id='sphereChatTitle'>Open Sphere Chat</a></div>");
+        }
+
     }
 
     function addNewContact(name, userID){

@@ -93,13 +93,14 @@
                  input#post(type='button' class="btn btn-primary" value='post' onclick='postMsg();')
             .alert(style="display:none;") text
             #feed
-                #sphereChat
-                        if sphereMap[currentSphere].seenChat == true
-                            a#sphereChatIcon
-                        else 
-                            a#unseenSphereChat
-                        a#sphereChatTitle
-                            | Open Sphere Chat
+                if sphereMap[currentSphere].type != "Main"
+                    #sphereChat
+                            if sphereMap[currentSphere].seenChat == true
+                                a#sphereChatIcon
+                            else 
+                                a#unseenSphereChat
+                            a#sphereChatTitle
+                                | Open Sphere Chat
                 if announcements.length > 0
                     if announcements.indexOf("welcome") >= 0
                         p.announcement
@@ -120,6 +121,7 @@
                         - var seenConvo = post['seen'];
                         - var memberNum = nicknames.indexOf(sender);
                         - var viewers = post['viewers'];
+                        - var tags = post['tags'];
                         - var viewerNames = "";
                         each viewerName, index in viewers 
                             - viewerNames += viewerName
@@ -127,7 +129,7 @@
                                 - viewerNames +=  ", ";
                         if viewerNames.length > 0
                             - viewerNames = "Viewed by: " + viewerNames; 
-                        .post(data= postID)
+                        .post(data=postID data-tags=tags)
                             .sender(class='user'+ memberNum)
                                 if isOwner === true 
                                     .dropdown

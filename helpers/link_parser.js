@@ -40,7 +40,7 @@ exports.isImage = function(url){
 }
 
 // wraps the links of each message or post in the appropriate tags 
-exports.tagWrap =  function(msg, type, title, image){
+exports.tagWrap = function(msg, type, title, image){
 	
 	console.log("Parsing Sent Message..");
 

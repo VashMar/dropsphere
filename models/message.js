@@ -8,7 +8,8 @@ var messageSchema = mongoose.Schema({
 	text: String,
 	date: {type: Date, default: Date.now },
 	sender: String,
-	isLink: {type: Boolean, default: false}
+	isLink: {type: Boolean, default: false},
+	hasTags: {type:Boolean, default: false}
 });
 
 

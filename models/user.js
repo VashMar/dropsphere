@@ -135,11 +135,10 @@ userSchema.methods.addContact = function(user){
     this.contacts.push(user);
 }
 
-userSchema.methods.pendingRequest = function(user){
-     if(this.contacts.indexOf(user.id) < 0){
-        this.requests.push(user);
-        this.newRequests++;
-     }
+userSchema.methods.pendingRequest = function(user, next){
+    this.requests.push(user);
+    this.newRequests++;
+    next();
 }
 
 userSchema.methods.pendingInvite = function(sphereID, sphereName, sender){

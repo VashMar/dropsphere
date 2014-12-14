@@ -29,9 +29,9 @@ var postSchema = mongoose.Schema({
 			seenChat: {type: Boolean, default: true},
 			seenPost: {type:Boolean, default: false},
 			shared: {type: ObjectId, ref: 'Post'}
-		}]
+		}],
+		tags: [String]
 	}],
-	// messages: [{type: ObjectId, ref: 'Message'}]
 });
 
 
@@ -97,6 +97,34 @@ postSchema.methods.getLoc = function(sphereID, next){
 	next(loc);
 }
 
+postSchema.methods.addTags = function(sphereID, tags, next){
+	if(tags){
+		var post = this;
+		var addedTags = [];
+		post.getLoc(sphereID, function(loc){
+			for(var i = 0; i < tags.length; i++){
+				var tag = tags[i];
+				if(loc.tags.indexOf(tag) < 0){
+					console.log("pushing tag..");
+					loc.tags.push(tag);
+					addedTags.push(tag);
+				}
+
+				if(i == tags.length -1 ){
+					next(addedTags);
+				}
+			}
+		});
+	}
+}
+
+postSchema.method.getTags = function(sphereID){
+	var post = this;
+	post.getLoc(sphereID, function(loc){
+		return loc.tags;
+	});
+}
+
 // adds a message to a a conversation involving this post at a certain sphere location
 postSchema.methods.addMessage = function(message, sphereID){
 	var loc = this.findLoc(sphereID);
@@ -106,6 +134,7 @@ postSchema.methods.addMessage = function(message, sphereID){
 	this.save(function(err, post){
 		if(post){
 			console.log("Message added to post");
+			console.log("Post tags: " + loc.tags);
 		}
 	});
 }
@@ -247,6 +276,7 @@ postSchema.methods.ownedBy = function(userID){
 postSchema.methods.getPostData = function(user, sphereID, isMobile){
 
 	var postContent = isMobile == "true" ? this.contentData : this.content;
+	var loc = this.findLoc(sphereID);
 	var viewers =  this.getViewers(sphereID);
 	var hasMessages = this.hasMessages(sphereID);
 
@@ -256,7 +286,8 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
  			isLink: this.isLink, 
  			postTime: moment(this.date).format(), 
  			viewers: this.getViewed(viewers),
- 			seen: this.hasSeenChat(user.id, viewers, hasMessages)
+ 			seen: this.hasSeenChat(user.id, viewers, hasMessages),
+ 			tags: loc.tags
  		};
 }
 

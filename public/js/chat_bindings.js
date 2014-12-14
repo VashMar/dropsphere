@@ -55,12 +55,8 @@ $(document).ready(function(){
 
     // get and display the new current sphere when the user chooses to switch
     $("#sphereList").on("click", "a.sphere", function(e){
-        
         var sphereID = $(this).attr('data');
-
-        if(currentSphere != sphereID){    //doesn't switch if the user chooses the sphere they're already in
-            chat.SwitchSphere(sphereID);
-        } 
+        chat.SwitchSphere(sphereID);
     });
 
     $("#saveSphere").click(function(){
@@ -251,6 +247,11 @@ $(document).ready(function(){
 
     $("#shareSelection").on("click", "li", function(){
         $('#shareSelection li.active').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#search").on("click", "li a", function(){
+        $('#search a.active').removeClass('active');
         $(this).addClass('active');
     });
 
