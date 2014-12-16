@@ -587,6 +587,8 @@ function Chat(username){
 
         if(sharedPost){
             share();
+        }else{
+            $("<p class='announcement> Don't you just love that new sphere smell? </p>").insertAfter("#sphereChat");
         }
 
     });
