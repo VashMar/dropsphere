@@ -484,7 +484,21 @@ sessionSockets.on('connection', function (err, socket, session){
 
   }); //end post
 
-
+    socket.on('addTag', function(data){
+      Post.findOne({_id: data.postID}, function(err, post){
+          if(post){
+            console.log("Adding tag to post: " + post.id);
+            post.addTags(data.sphere, data.tag, function(addedTags){
+               if(addedTags){
+                    session.posts[data.postID].tags = session.posts[data.postID].tags.concat(addedTags);  // update tags in cache 
+                    session.save();
+                    socket.emit('updateTags', {tags: addedTags, postID: post.id});
+                    post.save();
+                }
+            });
+          }
+       });
+    });
     
     socket.on('sendMessage', function(data){
       data.msg = LinkParser.tagWrap(data.msg, "msgLink");
@@ -517,10 +531,13 @@ sessionSockets.on('connection', function (err, socket, session){
               if(msg){
                 console.log("Message Saved: " + msg);
                 post.addTags(sphereString, data.tags, function(addedTags){
-                  session.posts[data.postID].tags = session.posts[data.postID].tags.concat(addedTags);  // update tags in cache 
+                
                   post.addMessage(message, sphereString);
-                  session.save();
-                  socket.emit('updateTags', addedTags);
+                  if(addedTags){
+                    session.posts[data.postID].tags = session.posts[data.postID].tags.concat(addedTags);  // update tags in cache 
+                    session.save();
+                    socket.emit('updateTags', {tags: addedTags, postID: post.id});
+                  }
                 });
               }
             });
@@ -734,7 +751,7 @@ sessionSockets.on('connection', function (err, socket, session){
       if(!currentUser.hasContact(user)){
         currentUser.addContact(user);
         console.log("User requests: " + user.newRequests);
-        
+
         user.pendingRequest(currentUser, function(){
           // emit the success to the person adding
           socket.emit('contactAdded', {username: user.name, userID: user.id});
@@ -1464,7 +1481,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
 
   function renderConvo(messages){
-        console.log("Rendering Convo..");
+        console.log("Rendering Convo.." + messages );
         var convo = {},
         key,
         currentMsg,

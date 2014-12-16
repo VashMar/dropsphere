@@ -107,7 +107,7 @@
                             | Welcome to dropsphere! Hit drop on any page to grab its content, then post to share it! 
                     if sphereMap[currentSphere].type === "Main"
                         p.announcement
-                            | You currently are in your sphere, your private space to save links. If you want to share links with others just
+                            | You are currently in your sphere, your private space to save links. If you want to share links with others just
                             a(data-toggle="modal" data-target="#sphereDialog" href="#")  create a new sphere 
 
                 if feed.length > 0 
@@ -369,18 +369,23 @@
             ul#shareSpheres
                 each sphereID, i in sphereIDs 
                     if sphereMap[sphereID]
-                        if sphereMap[sphereID].type == "Group"
+                        if sphereMap[sphereID].type != "Personal"
                             - var sphereName = sphereMap[sphereID].name;
                             li(data=sphereID)
-                                span(class="glyphicon glyphicon-globe")
+                                if sphereMap[sphereID].type == "Group"
+                                    span(class="glyphicon glyphicon-globe")
+                                else
+                                    span(class="glyphicon glyphicon-star")
                                 a(href='#')=sphereName
             ul#shareContacts(style='display:none;')
-                each contactId in contactIds
-                    - var contact = contacts[contactId];
-                        li(data=contactId) 
-                            span(class="glyphicon glyphicon-user")
-                            a(href='#')=contact 
-
+                if contactIds.length > 0
+                    each contactId in contactIds
+                        - var contact = contacts[contactId];
+                            li(data=contactId) 
+                                span(class="glyphicon glyphicon-user")
+                                a(href='#')=contact 
+                else
+                    p.announcement It appears you have no contacts.. that's cool..
 
 #editPost.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
  .modal-dialog
@@ -416,7 +421,17 @@
         button#acceptSphereDeletion.btn.btn-primary(type="button") Yes
         button#rejectSphereDeletion.btn.btn-primary(type="button") No
         p All of the sphere's content will be erased
-
+#tagList.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+    .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+            h4.modal-title #TagThisPost
+          .modal-body
+            
+          .modal-footer
+            input#inputTag(class="form-control" placeholder="Add Tag")
+            button#submitTag.btn.btn-primary(type="button") Add 
 #preload
     img(src="/img/settings_hover.png")
     img(src="/img/post_settings_hover.png")
@@ -446,7 +461,8 @@ script.
     contacts = Object.keys(sphereData.contacts);
     viewedIcon = "<a class='viewedIcon' href='#' data-toggle='tooltip' data-placement='top' title=''></a>";
     shareIcon = "<a class='shareIcon' href='#' data-toggle='modal' data-target='#sharePost' title='Share'></a>";
-    saveIcon = "<a class='saveIcon' href='#'></a>";
+    tagIcon = "<a class='tagIcon' href='#' data-toggle='modal' data-target='#tagPost' title='View Tags'></a>";
+    saveIcon = "<a class='saveIcon' href='#' title='Save to My Sphere'></a>";
     chat = new Chat(username); 
 script.
     $(document).ready(function(){
@@ -454,6 +470,10 @@ script.
         $.getScript('/js/lib/jquery.slimscroll.min.js')
             .done(function(){
                $.getScript('/js/main.js'); 
-            }); 
+            });
+        document.addEventListener("dragover", function( event ) {
+          console.log("drag");
+        }, false);
+
     });
   

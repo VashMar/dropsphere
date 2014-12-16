@@ -98,6 +98,11 @@ javascript:(function(){
       }
       ';
       document.body.appendChild(css);
+      document.addEventListener('dragend', function(event){
+          console.log('drag');
+          console.log(event.target.src);
+          socketxdm.postMessage('imgDrop:' + event.target.src);
+      }, false);
     }
 
 

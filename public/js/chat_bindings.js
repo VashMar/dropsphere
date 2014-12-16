@@ -49,6 +49,14 @@ $(document).ready(function(){
             }
     }); 
 
+
+    $('#tagList').on('keypress', 'input#inputTag', function(e){
+           if(e.keyCode==13 && !e.shiftKey){
+                e.preventDefault();
+                addPostTag();
+            }
+    });
+
     $("#send").on("click", function(){
         sendMsg();
     });
@@ -148,8 +156,17 @@ $(document).ready(function(){
         chat.FilterRecent();
     });
 
-    $("#container").on("click", "a#filterUnread", function(){
+    $("#container").on("click", "a.tagIcon", function(){
+         var postID = $(this).parents('.post').attr('data');
+         if(postID){
+            chat.fillTags(postID);
+            $("#submitTag").attr('data', postID);
+         }
+        $("#tagList").modal();
+    });
 
+    $("#submitTag").click(function(){
+        addPostTag();
     });
 
     $("#feed").on("click", "#sphereChat a", function(){
@@ -204,6 +221,7 @@ $(document).ready(function(){
         $('#contactList').modal('hide');
 
     });
+
 
     $("#addContact").click(function(){
         $("#contactListContainer").hide();
@@ -279,6 +297,7 @@ $(document).ready(function(){
    $("#rejectSphereDeletion").click(function(){
          $("#sphereDeleteCheck").modal('hide');
    });
+
 
    $("#sphereDelete").click(function(){
         if($("#deletableSpheres li").length < 1 && $("#deleteSphere p").length < 1){
@@ -376,6 +395,7 @@ $(document).ready(function(){
         });
     });
 
+
 });
 
     
@@ -390,6 +410,10 @@ $(document).ready(function(){
     function drop(ev){
         ev.preventDefault();
         var link = ev.dataTransfer.getData("text");
+        verifyAndCrawl(link);
+    }
+
+    function verifyAndCrawl(link){
         var isLink =  checkLink(link);
 
         if(isLink){
@@ -420,6 +444,7 @@ $(document).ready(function(){
         var post =  $(".post[data=" + postID + "]");
         $('#editPost').modal('hide');  
         post.find('.title').html(newText);
+        post.find('.textPost').html(newText);
         var newContent = post.find('.postContent').html();
         chat.EditPost(postID,newText);
     }
@@ -469,6 +494,13 @@ $(document).ready(function(){
     function addContact(){
         var newContact = $("#contactAdding input").val().trim();
         chat.AddContact(newContact);
+    }
+
+    function addPostTag(){
+        var tag = $("#inputTag").val();
+        var postID = $(this).attr('data');
+        chat.addTag(tag, postID);
+        $("#inputTag").val("");
     }
 
     function showContactList(){

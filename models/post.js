@@ -102,19 +102,31 @@ postSchema.methods.addTags = function(sphereID, tags, next){
 		var post = this;
 		var addedTags = [];
 		post.getLoc(sphereID, function(loc){
-			for(var i = 0; i < tags.length; i++){
-				var tag = tags[i];
+			if(tags.constructor === Array){
+				for(var i = 0; i < tags.length; i++){
+					var tag = tags[i];
+					if(loc.tags.indexOf(tag) < 0){
+						console.log("pushing tag..");
+						loc.tags.push(tag);
+						addedTags.push(tag);
+					}
+
+					if(i == tags.length -1 ){
+						next(addedTags);
+					}
+				}
+			}else{
+				var tag = tags;
 				if(loc.tags.indexOf(tag) < 0){
 					console.log("pushing tag..");
 					loc.tags.push(tag);
 					addedTags.push(tag);
-				}
-
-				if(i == tags.length -1 ){
 					next(addedTags);
 				}
 			}
 		});
+	}else{
+		next("");
 	}
 }
 

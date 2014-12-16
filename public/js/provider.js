@@ -3,6 +3,10 @@ $(document).ready(function(){
         onMessage: function(message, origin){
             if(message == 'bookmarkletSuccess'){
                 console.log("Received '" + message + "' from '" + origin + "'");
+            }else if(message.substr(0,8) == "imgDrop:"){
+                console.log("image being dropped..")
+                var image = message.substr(8, message.length);
+                verifyAndCrawl(image);
             }else{
                 console.log(message + " sent from " + origin);
                 dropLink(message);

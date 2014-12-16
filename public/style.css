@@ -311,10 +311,17 @@ ul li a {
 #shareSelection li.active {
   border-bottom: 3px solid #428bca; }
 
+#shareSelection li a:hover {
+  color: #2a6496;
+  background: none; }
+
 #shareRecipients li {
   margin-right: 110px;
   text-align: left;
   width: 200px; }
+
+#shareRecipients li a:hover {
+  padding: 3px; }
 
 #shareRecipients ul {
   list-style: none;
@@ -377,6 +384,42 @@ ul li a {
 #deleteSphere p {
   text-align: center; }
 
+/* Tagging */
+.tagList {
+  list-style: none;
+  font-size: 12px;
+  padding-top: 1px;
+  padding-left: 9px;
+  padding-right: 0px;
+  min-width: 200px; }
+
+.tagList li {
+  display: inline-block;
+  margin: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  padding: 4px;
+  padding-bottom: 0px;
+  float: left; }
+
+#tagList .modal-body {
+  padding: 10px 0px 0px 0px;
+  display: inline-block; }
+
+#tagList .modal-footer {
+  margin-top: 3px; }
+
+#tagList ul li {
+  margin-right: 0px; }
+
+#tagList #inputTag {
+  width: 65%;
+  float: left; }
+
+#tagList #submitTag {
+  width: 32%;
+  margin-right: 0; }
+
 /* Password Reset */
 .resetNotify {
   font-size: 12px;
@@ -403,7 +446,7 @@ ul li a {
   width: 180px; }
 
 /* Post Icons */
-.saveIcon, .chatIcon, .unseenChat, .shareIcon, .viewedIcon {
+.saveIcon, .chatIcon, .unseenChat, .shareIcon, .viewedIcon, .tagIcon {
   height: 16px;
   width: 16px;
   display: block; }
@@ -420,11 +463,17 @@ ul li a {
 .shareIcon {
   background: url("/img/share_post.png") no-repeat; }
 
+.tagIcon {
+  background: url("/img/tag.png") no-repeat; }
+
 .shareIcon:hover {
   background: url("/img/share_post_hover.png") no-repeat; }
 
 .viewedIcon {
   background: url("/img/viewed.png") no-repeat; }
+
+.tagIcon:hover {
+  background: url("/img/tag_hover.png") no-repeat; }
 
 .chatIcon:hover, .unseenChat {
   background: url("favicon.png") no-repeat; }
@@ -496,6 +545,9 @@ ul li a {
 
 .postBox .chatIcon {
   display: none; }
+
+#postViewer .tagIcon {
+  float: right; }
 
 #closePreview {
   position: absolute;

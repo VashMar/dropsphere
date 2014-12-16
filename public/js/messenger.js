@@ -33,8 +33,8 @@ function Chat(username){
     var sharedPost = null,
         sharedPostID;
 
-    var seenIcon = "<a href='#' class='chatIcon'></a>";
-    var unseenIcon = "<a href='#' class='unseenChat'></a>";
+    var seenIcon = "<a href='#' class='chatIcon' title='Discuss Post'></a>";
+    var unseenIcon = "<a href='#' class='unseenChat' title='Discuss Post'></a>";
 
 
     var postImage = "",
@@ -108,9 +108,13 @@ function Chat(username){
 
     this.SelectPost = function(selected){
         var postContent = selected.html();
+
         postContent = postContent.substring(0, postContent.indexOf('<div class="postButtons">'));
+        
         // track what the current post is by id 
         currentPost = selected.attr('data');
+
+        console.log(postContent);
         // store the posting text box view which disappears 
         chatView(postContent);
         requestMessages();
@@ -122,6 +126,8 @@ function Chat(username){
         $(".controls").hide();
         $(".postBox").html(postInput);
         $("#postViewer").remove();
+       // $(".tagList").parent().remove();
+        $(".tagList").remove();
         $(".slimScrollDiv").css('height', feedHeight);
         $("#feed").css('height', "94%");
         $("#search").show();
@@ -356,6 +362,17 @@ function Chat(username){
         socket.emit('ignoreInvite', sphere);
     }
 
+    this.addTag = function(tag, postID){
+        if(tag[0] != "#"){ tag = "#" + tag;}
+        if(!postID){postID = currentPost;}
+
+        socket.emit('addTag', {tag: tag, postID: postID, sphere: currentSphere});
+    }
+
+    this.fillTags = function(postID){
+        fillTags(postID);
+    }
+
  /* Socket Bindings */
 
     socket.on('userLoaded', function(){
@@ -468,7 +485,10 @@ function Chat(username){
     });
 
     socket.on('postEdited', function(data){
-        var postTitle =  $(".post[data=" + data.postID + "] span.title");
+        console.log("Editing Post..");
+        var postItem = ".post[data=" + data.postID + "]";
+        var postTitle =  $(postItem + "span.title").length > 0 ? $(postItem + "span.title") : $(postItem + "a.textPost");
+        console.log(postTitle);
         postTitle.html(data.title);
     });
 
@@ -702,7 +722,7 @@ function Chat(username){
     });
 
     socket.on('renderConvo', function(messages){
-
+        console.log("rendering convo..");
         var conversations = Object.keys(messages);
 
         if(conversations.length > 0 ){
@@ -726,15 +746,34 @@ function Chat(username){
                     $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + sender + ": </span> " + text  + "</p>");
                 }
             }       
+        }else if(sphereMap[currentSphere].type == "Main"){
+            $("#feed").append("<p class='announcement'>Tag and make notes for this post</p>");
         }
 
         scrollBottom();
     });
 
-    socket.on('updateTags', function(tags){
-        var post = posts[currentPost];
+    socket.on('updateTags', function(data){
+        console.log("updating tags..");
+        var post = posts[data.postID];
+        var tags = data.tags; 
         post.tags = post.tags.concat(tags);
-        console.log("Post Tags: " + post.tags);
+        var tagList = "<ul class='tagList'>";
+
+        for(var i = 0; i < tags.length; i++){
+            var tag = "<li>" + tags[i] + "</li>";
+            if($(".tagList").length > 0){
+                console.log("adding to taglist..");
+                $(".tagList").append(tag);
+            }else{
+                tagList += tag;
+                if(i == tags.length -1){
+                    tagList += "</ul>";
+                    console.log(tagList)
+                    $("#tagList .modal-body").html(tagList);
+                }
+            }        
+        }
     });
 
     /* Extra Functions */
@@ -839,7 +878,6 @@ function Chat(username){
         searching = false; 
         $("#postViewer").remove();
 
-
         requestFeed();
     }
 
@@ -871,11 +909,24 @@ function Chat(username){
         $(".controls").show();
         //empty the chat space
         $("#feed").empty();
+
         $("<div id='postViewer' class='post'>" + postContent + "</div>").insertAfter(".postBox");
         $(".post").children(".postButtons").css("display", "none");
+   
         // resize the scroller for sphere chat view
         $(".slimScrollDiv").css('height', '100%');
+        if($("#postViewer .dropdown").length > 0){
+            $("#postViewer .dropdown").replaceWith(tagIcon);
+        }else{
+            $("#postViewer .sender").prepend(tagIcon);
+           // $(tagIcon).insertAfter("#postViewer .sender");
+        }
 
+        feedResize();
+        if(currentPost != "sphereChat"){fillTags(currentPost);}
+    }
+
+    function feedResize(){
         var ch = $("#content").height();
         var viewerHeight = $("#postViewer").height();
         var pbHeight = $(".postBox").height();
@@ -885,6 +936,28 @@ function Chat(username){
 
         $("#feed").css('height', feedResize);
     }
+
+
+    function fillTags(postID){
+       // append a tag list if the post already has tags
+        var postTags = posts[postID].tags;
+        var tagList = "";
+
+        console.log(posts[postID].tags);
+        if(postTags.length > 0){
+            tagList = "<ul class='tagList'>";
+            for(var i =0; i< postTags.length; i++){
+                tagList += "<li>" + postTags[i] + "</li>";
+                if(i == postTags.length -1){
+                    tagList += "</ul>";
+                    $("#tagList .modal-body").html(tagList);
+                }
+            }
+        }else{
+            $("#tagList .modal-body").html("<p class='announcement'> Uh oh, it appears nothing is tagged here. Guess it's not very memorable.. </h3>");
+        }
+    }
+
 
     function tagStrip(msg){ 
         var tags = [];
@@ -969,8 +1042,8 @@ function Chat(username){
             savePost=   "<li>" + saveIcon + "</li>",
             postChat = "<li>" + chatIcon + "</li>",
             viewersIcon = "<li style='float:left;'>" + viewedIcon + viewed + "</li>",
-            sharePost = "<li>" + shareIcon + " </li>";
-
+            sharePost = "<li>" + shareIcon + " </li>",
+            tagElement = "";
 
 
         if(isOwner){
@@ -981,6 +1054,7 @@ function Chat(username){
             savePost = "";
             postChat ="";
             viewersIcon = "";
+            tagElement = "<li>" + tagIcon + "</li>";
             sender = "";
         }else if(viewedNum > 0){               
             viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
@@ -997,6 +1071,7 @@ function Chat(username){
             "<div class='postButtons'><ul>" +
             viewersIcon +
             sharePost +
+            tagElement + 
             savePost + 
             postChat + "</ul></div></div>");
 
@@ -1007,7 +1082,7 @@ function Chat(username){
         if($("#sphereChat").length > 0){
             postElement.insertAfter("#sphereChat");
         }else{
-            $("#feed").append(postElement);
+            $("#feed").prepend(postElement);
         }
 
     }
