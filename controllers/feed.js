@@ -18,21 +18,44 @@ var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "htt
 // show action
 exports.bookmark = function(req, res, cookie){
   var sesh = req.session;
-  var email = req.cookies.email; // persistent cookie session 
+  var email = req.cookies.email || sesh.passport.user; // persistent cookie session 
   
 
   console.log("Bookmarklet launching.." + JSON.stringify(sesh));
-
+  console.log("session email: " + email);
 	if(sesh.isLogged == true){ 
       Session.render(res, "template_feed", sesh);
   }else if(email){
     User.findOne({email: email}).populate('spheres.object contacts requests').exec(function(err, user){
-      retrieveSessionData(user, req, res, "template_feed");
+      if(user){
+        console.log("retrieving session..");
+        console.log(user.spheres);
+        retrieveSessionData(user, req, res, "template_feed");
+      }
     });
   }else{
     Session.render(res, "template_login");
   }
 }
+
+// finds or creates a user based on google authentication 
+exports.googleAuth = function(profile,next){
+    // find or create a user based on provider info
+    var email = profile._json.email;
+    User.findOne({email: email}, function(err, user){
+      if(user){
+        console.log("User Found");
+        next(user);
+      }else if(!err && !user){
+
+      }else{
+        console.log(err);
+      }
+    });
+}
+
+
+
 
 // create action 
 exports.signup = function(req, res){
@@ -509,7 +532,6 @@ function retrieveSessionData(user, req, res, layout){
               joined = targetSphere.joined;
 
               console.log("SPHEREID: " + sphereID);
-              
               // we can subtract the updates of the sphere that's going to be accessed 
               sessionData.totalUpdates = sessionData.totalUpdates - sessionData.sphereMap[sessionData.currentSphere].updates;
               // served sphere doesn't need update notifications

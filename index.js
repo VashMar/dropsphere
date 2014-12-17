@@ -8,6 +8,8 @@ var sass = require("node-sass");
 var moment = require("moment");
 var email = require("emailjs/email");
 
+var passport = require('passport'),
+    googleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 // models 
 var mongoose = require("mongoose"),
@@ -62,7 +64,32 @@ if(process.env.REDISTOGO_URL){
      });
 
 } 
- 
+
+
+passport.use(new googleStrategy({
+    clientID: '455565730528-8f3tt632ubgopmho7f1t9e8jh90iasn0.apps.googleusercontent.com',
+    clientSecret: '0Xt8EZ4C8fYMZD0zk1k7RhQG',
+    callbackURL: "http://localhost:3500/oauth2callback"
+},
+function (accessToken, refreshToken, profile, done){
+    console.log(profile); //profile contains all the personal data returned 
+    Feed.googleAuth(profile, function(user){
+      done(null, user.email);
+    });
+}
+));
+
+
+// passport session setup
+passport.serializeUser(function(email, callback){
+    console.log('serializing user.' + email );
+    callback(null, email);
+});
+
+passport.deserializeUser(function(user, callback){
+    console.log('deserialize user.' + user);
+    callback(null, user);
+});
 
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
@@ -103,8 +130,11 @@ app.configure(function(){
       store : sessionStore,
       key   : EXPRESS_SID_KEY,
       cookie: {httpOnly: true}
-    })); 
+    }));
 
+    app.use(passport.initialize());
+    app.use(passport.session());
+    app.use(express.methodOverride());
     app.use(express.static(__dirname + '/public'));
     app.use(express.urlencoded());
     app.use(express.json());
@@ -133,8 +163,25 @@ app.get("/", function(req, res){
       console.log("rendering production bookmarklet");
       res.render("home");
   }else{
-     res.render("dev_home");
+     (req.session.googAuth) ?  res.render("dev_auth") : res.render("dev_home");
   }    
+});
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
+                                            'https://www.googleapis.com/auth/userinfo.email'] }),
+  function(req, res){
+    console.log("Sending auth to google..");
+    // The request will be redirected to Google for authentication, so this
+    // function will not be called.
+  });
+
+app.get('/oauth2callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  function(req, res){
+    console.log("Google Callback Received..");
+    req.session.googAuth = true;
+    res.redirect('/');  
 });
 
 app.post('/login', Feed.login);
@@ -206,7 +253,7 @@ io.set('authorization', function (data, callback) {
                         (data.cookies && data.cookies[EXPRESS_SID_KEY]);
 
         // Then we just need to load the session from the Session Store
-        sessionStore.load(sidCookie, function(err, session) {
+        sessionStore.load(sidCookie, function(err, session){
         
             // And last, we check if the used has a valid session and if he is logged in
             if (err || !session || session.isLogged !== true) {
@@ -392,9 +439,9 @@ sessionSockets.on('connection', function (err, socket, session){
 
   socket.on('getUpdates', function(sphere){
     console.log("Getting Updates..");
-    setTimeout(reloadAndUpdate, 2);  
 
-    function reloadAndUpdate(){
+
+    process.nextTick(function (){
       User.reload(currentUser.id, function(user){
           if(user){
             currentUser = user;
@@ -407,7 +454,7 @@ sessionSockets.on('connection', function (err, socket, session){
            });
           }
       });
-    }
+    });
   });
   
 

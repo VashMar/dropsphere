@@ -153,7 +153,12 @@ javascript:(function(){
                   preview += ',thumbnail:' + thumbnail;
                   socketxdm.postMessage(preview);
 
-              }},
+              }if(message == 'googAuth'){
+                   var ds=document.getElementById('dropsphere');
+                    ds.parentNode.removeChild(ds);
+                    dropsphere=false;
+              }
+          },
               onReady: function(){
                     socketxdm.postMessage('bookmarkletSuccess');
               }

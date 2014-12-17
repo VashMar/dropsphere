@@ -23,6 +23,10 @@ $(document).ready(function(){
 });
 
 
+function googleAuth(){
+   window.open('http://localhost:3500/auth/google','_blank');
+   socketxdm.postMessage('googAuth');
+}
 
 function resetPass(){
     var email = $("#resetEmail").val().trim();
@@ -58,6 +62,7 @@ function resetPass(){
         $("body").html(data);
     }); 
  }
+
 
 
 var login = function(){
