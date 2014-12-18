@@ -47,11 +47,51 @@ exports.googleAuth = function(profile,next){
         console.log("User Found");
         next(user);
       }else if(!err && !user){
+        // create a user from the google provided info
+        console.log("Creating Google User..");
+        var name = profile._json.name.toLowerCase().replace(/ /g,''),
+            email = profile._json.email,
+            pass = crypto.randomBytes(16).toString('hex');
+            id = profile._json.id;
 
+        console.log("trimmed name: " + name);
+        User.count({name: name}, function(count, err){
+          if(err){
+            console.log(err);
+          }else{
+            console.log("Number of users with name: " + count);
+            if(count){name += count;}
+            var user = new User({name: name, email: email, password: pass});
+            user.save(function(err, user){
+              if(err){
+                console.log(err);
+              }else if(user){
+                 console.log("Google User Validated..");
+                  //send welcome email 
+                  Mailer.welcome(user.email);
+
+                  // create main sphere 
+                  var newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id, type: "Main" });
+                  newSphere.members.push({id: user.id , name: user.name});
+
+                  newSphere.save(function(err, sphere){
+                     user.mainSphere = sphere; // set the newly created sphere as the user's mainsphere 
+                     user.spheres.push({object: sphere, nickname: user.name}); // add the sphere to user's sphere list 
+                     user.save(function(err, user){
+                      if(user){
+                        console.log("Google User Saved");
+                        next(user);
+                      }
+                     });
+                  });
+              }
+            });
+          }
+        });
       }else{
         console.log(err);
       }
-    });
+   });
 }
 
 
@@ -79,7 +119,7 @@ exports.signup = function(req, res){
         if(err){ 
           console.log("validation errors:" + err); 
           res.json(400,  err);
-        } else{
+        }else{
          console.log("created user: " + name);
 
          var inviteID = req.session.inviteID;

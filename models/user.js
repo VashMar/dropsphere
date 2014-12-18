@@ -374,6 +374,7 @@ userSchema.statics.load = function(sessionID, next){
     console.log("Loading Current User.. " + sessionID);
     this.findOne({sessions: {$in : [sessionID]}}, function(err, user){
         if(err || !user){
+            console.log("User not found");
             next(err);
         } else{
             console.log("User found..");

@@ -49,7 +49,7 @@ if(process.env.REDISTOGO_URL){
    var url = require('url');
    var redisUrl = url.parse(process.env.REDISTOGO_URL),
        redisAuth = redisUrl.auth.split(':');
-  sessionStore = new RedisStore({
+       sessionStore = new RedisStore({
         host: redisUrl.hostname,
         port: redisUrl.port, 
         db: redisAuth[0], 
@@ -72,23 +72,28 @@ passport.use(new googleStrategy({
     callbackURL: "http://localhost:3500/oauth2callback"
 },
 function (accessToken, refreshToken, profile, done){
-    console.log(profile); //profile contains all the personal data returned 
-    Feed.googleAuth(profile, function(user){
-      done(null, user.email);
-    });
+      // asynchronous verification, for effect...
+      process.nextTick(function(){
+      console.log(profile); //profile contains all the personal data returned 
+      Feed.googleAuth(profile, function(user){
+        done(null, user.email);
+      });
+  });
 }
 ));
 
 
 // passport session setup
 passport.serializeUser(function(email, callback){
-    console.log('serializing user.' + email );
     callback(null, email);
 });
 
-passport.deserializeUser(function(user, callback){
-    console.log('deserialize user.' + user);
-    callback(null, user);
+passport.deserializeUser(function(email, callback){
+    User.findOne({email:email}, function(err, user){
+      if(user){
+        callback(null, email);
+      }
+    });
 });
 
 var port = process.env.PORT || 3500; 
@@ -179,8 +184,9 @@ app.get('/auth/google',
 app.get('/oauth2callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res){
-    console.log("Google Callback Received..");
+    console.log("Google Callback Received.." );
     req.session.googAuth = true;
+    console.log(req.session);
     res.redirect('/');  
 });
 
@@ -205,14 +211,13 @@ app.post('/signup', Feed.signup);
 
 app.get("/invite/:id", function(req, res){
   console.log("recieving invite");
-  var inviteID = req.param('id');
-  console.log(inviteID);
+  var inviteID = req.param('id'); 
   var url = "/bookmark/invite/" + inviteID;
   console.log(url);
   if(ENV == 'production'){
      url = "http://dropsphere.herokuapp.com/" + url;
      res.render("invite", {url: url});
-  } else {
+  }else{
      url = "http://localhost:3500/" + url;
      res.render("dev_invite", {url: url});
   }

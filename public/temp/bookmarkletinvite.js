@@ -165,40 +165,88 @@ function launchBookmark(inviteURL){
       }
       ";
       document.body.appendChild(css);
+      document.addEventListener('dragend', function(event){
+          console.log('drag');
+          console.log(event.target.src);
+          socketxdm.postMessage('imgDrop:' + event.target.src);
+      }, false);
 
-        }
+    }
+
+
+    function getContentByMetaTagName(c){
+        for (var b = document.getElementsByTagName('meta'), a = 0; a < b.length; a++){
+          if (c == b[a].name || c == b[a].getAttribute('property')) { return b[a].content; }
+        } return false;
+    }
 
     function book2(){
-          socketxdm = new easyXDM.Socket({
-            remote: 'http://localhost:3500/bookmark',
+            socketxdm = new easyXDM.Socket({
+            remote: inviteURL,
             container:'dropsphere',
 
             onMessage: function(message, origin){
               if(message == 'getURL'){
                   console.log('URL requested from ' + origin);
-                  socketxdm.postMessage(document.URL);
+          
+                  var url = document.URL;
+                  var title = document.title; 
+                  var image  = '';
+                  var thumbnail = '';
+
+                  var suffix = /[^.]+$/.exec(url);
+
+                  if(suffix == 'jpg' || suffix == 'jpeg' || suffix == 'gif' || suffix == 'png'){
+                     image = url;
+                     title = ''; 
+                  }
+
+                  thumbnail = getContentByMetaTagName('og:image');
+
+                  if(!thumbnail){
+                     var imgs = document.images;
+                     for(var i =0; i < imgs.length; i++){
+                        img = imgs[i];
+                        if(img.height > 40 && img.width > 40){
+                            thumbnail = img.src;
+                            break;
+                        } 
+                     }
+                  }
+
+                  var preview = '';
+                  preview += 'url:' + url; 
+                  preview += ',title:' + title;
+                  preview += ',image:' + image;
+                  preview += ',thumbnail:' + thumbnail;
+                  socketxdm.postMessage(preview);
+
+              }if(message == 'googAuth'){
+                   var ds=document.getElementById('dropsphere');
+                    ds.parentNode.removeChild(ds);
+                    dropsphere=false;
               }
-            },
-            onReady : function() {
+          },
+              onReady: function(){
                     socketxdm.postMessage('bookmarkletSuccess');
-            }
+              }
           });
     }
     
     function draggify(){
-      $("p, a, h1, h2, h3, h4").draggable({
+      $('p, a, h1, h2, h3, h4').draggable({
           stack: 'div',
           zIndex:99999999,
           start: function() {
             $(this).height(100).width(100);   
           },
       });
-      $( "#dropper" ).droppable({
+      $( '#dropper' ).droppable({
         drop: function( event, ui ) {
         $( this )
-        .addClass( "ui-state-highlight" )
-        .find( "p" )
-        .html( "Dropped!" );
+        .addClass( 'ui-state-highlight' )
+        .find( 'p' )
+        .html( 'Dropped!' );
         }
       });
     }
