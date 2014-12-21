@@ -13,7 +13,16 @@ var Session = require("../controllers/sessions");
 
 var Mailer = require("../helpers/mailer");
 
-var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
+var baseURL = "";
+var launchView = "";
+
+if(ENV == "production"){
+  baseURL = "https://dropsphere.herokuapp.com/"; 
+  launchView = "auth";
+}else{
+  baseURL = "http://localhost:3500/";
+  launchView = "dev_auth";
+} 
 
 // show action
 exports.bookmark = function(req, res, cookie){
@@ -277,12 +286,12 @@ exports.signup = function(req, res){
 
                // if the user was invited to a sphere update the contacts before rendering 
                if(invSphere){
-                 updateContacts(user, invSphere, sessionData, "dev_auth", res, req, isMobile);
+                 updateContacts(user, invSphere, sessionData, launchView, res, req, isMobile);
                }else{
                   if(isMobile == "true"){
                     Session.respondJSON(res, sessionData);
                   }else{
-                    Session.render(res, "dev_auth", sessionData);
+                    Session.render(res, launchView, sessionData);
                   }
                  Session.storeData(req, sessionData);
                  Session.sendCookie(res, user.email);
@@ -319,7 +328,7 @@ exports.login = function(req, res){
           console.log("Incorrect Login Credentials");
           res.json(400, {message: "The email or password you entered is incorrect"});
         }else{
-          retrieveSessionData(user, req, res, "dev_auth");
+          retrieveSessionData(user, req, res, launchView);
         }
       });
   }

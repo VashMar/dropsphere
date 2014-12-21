@@ -3,7 +3,7 @@
 exports.render = function(res, layout, hash){
 	console.log("Session rendering...");
 	if(hash){
-        var login = (layout == "dev_auth") ? true : false
+        var login = (layout === "dev_auth" || layout === "auth") ? true : false
 
         if(login){
             res.json(200);

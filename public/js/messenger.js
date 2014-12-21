@@ -628,6 +628,7 @@ function Chat(username){
         }
 
         //update requests notifications and add the request to the requests list
+        console.log(data.username);
         var glyphicon = "<span class='glyphicon glyphicon-user'></span>";
         var requester = "<span id='requesterName'>" + data.username + "</span>";
         var accept = "<a id='acceptRequest' href='#'>Accept</a>";
