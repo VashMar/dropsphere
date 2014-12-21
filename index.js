@@ -101,6 +101,7 @@ var port = process.env.PORT || 3500;
 // connect websockets to our server 
 
 var ENV = process.env.NODE_ENV;
+var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
 
 var io = require('socket.io');
 
@@ -164,15 +165,16 @@ var SessionSockets = require('session.socket.io'),
 // Routing -- Move to router file eventually //////////////////////////////////////////////////////////////////////////////////////////////////
 app.get("/", function(req, res){
   console.log("ENVIRONMENT IS: " + ENV);
+  var isLogged = req.session.isLogged || req.cookies.email || req.session.passport.user;
   if(ENV == 'production'){
       console.log("rendering production bookmarklet");
-      if(req.session.isLogged || req.cookies.email || req.session.passport.user){
-        res.render("dev_auth");
+      if(isLogged){
+        res.render("auth");
       }else{
         res.render("home");
       }
   }else{
-     if(req.session.isLogged || cookie){
+     if(isLogged){
         res.render("dev_auth");   
      }else{
         res.render("dev_home");
@@ -235,10 +237,6 @@ app.get('/resetPass/:token', Feed.resetPass);
 
 app.post('/newPass', Feed.newPass);
 
-app.get('/isLogged', function(req, res){
-  console.log("Is logged hit");
-  res.json(200);
-});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

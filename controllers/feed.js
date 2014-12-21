@@ -359,10 +359,10 @@ exports.invite = function(req,res){
                  sessionData.nickname = user.name;
                  sessionData.userID = user.id;
 
-                  // update both tracking lists and the users current sphere index 
-                  user.spheres.push({object: sphere._id, nickname: user.name}); 
-                  sphere.members.push({id: user.id , name: user.name});
-                  user.currentSphere = user.spheres.length - 1;
+                // update both tracking lists and the users current sphere index 
+                user.spheres.push({object: sphere._id, nickname: user.name}); 
+                sphere.members.push({id: user.id , name: user.name});
+                user.currentSphere = user.spheres.length - 1;
 
                   // update the client side session data to contain info on this sphere 
                   sessionData.currentSphere = sphere.id;
@@ -385,7 +385,7 @@ exports.invite = function(req,res){
 
                   req.session.newMember = true;   // flag to show the user was just added to sphere
 
-                  updateContacts(user, sphere, sessionData, "template_feed", res, req);
+                  updateContacts(user, sphere, sessionData, "invite", res, req);
 
                 }else{
                   exports.bookmark(req,res);
@@ -516,9 +516,11 @@ function updateContacts(user, sphere, sessionData, view, res, req, isMobile){
            }else{
               //render feed 
               if(isMobile == "true"){
-                  Session.respondJSON(res, sessionData);
+                Session.respondJSON(res, sessionData);
+              }else if(view == "invite"){
+                res.redirect("/");
               }else{
-                  Session.render(res, view, sessionData);
+                Session.render(res, view, sessionData);
               }
 
 
@@ -615,7 +617,6 @@ function retrieveSessionData(user, req, res, layout){
        
 
                         sessionData.announcements["joined"] = user.name + " joined the sphere";
-                        req.session.invite = false; 
                         req.session.newMember = true;
                         sphere.save(function(err){
                           if(err){console.log(err);}
