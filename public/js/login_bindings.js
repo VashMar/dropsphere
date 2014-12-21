@@ -1,5 +1,4 @@
 $(document).ready(function(){
-
     $('body').on('keypress', '#loginEmail, #loginPassword', function(e){
 
             if(e.keyCode==13 && !e.shiftKey){
@@ -23,10 +22,10 @@ $(document).ready(function(){
 });
 
 
-function googleAuth(){
+/*function googleAuth(){
    window.open('http://localhost:3500/auth/google','_blank');
    socketxdm.postMessage('googAuth');
-}
+} */
 
 function resetPass(){
     var email = $("#resetEmail").val().trim();
@@ -71,7 +70,7 @@ var login = function(){
     var loginAttempt = $.post( "/login", {email: email, password: password});
 
     loginAttempt.done(function(data){
-        $("body").html(data);
+        location.href = location.origin;
      
     });
 

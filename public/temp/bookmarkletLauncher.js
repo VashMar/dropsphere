@@ -30,7 +30,7 @@ function launchBookmark(inviteURL){
         var head=document.getElementsByTagName('head')[0],
             done=false;
         script.onload=script.onreadystatechange = function(){
-          if ( !done && (!this.readyState
+          if( !done && (!this.readyState
                || this.readyState == 'loaded'
                || this.readyState == 'complete') ) {
             done=true;
@@ -126,44 +126,7 @@ function launchBookmark(inviteURL){
 
       var css = document.createElement('style');
       css.type = 'text/css';
-      css.innerHTML = "#dropsphere
-      {
-        animation:slide .5s;
-        -webkit-animation:slide .5s;
-      }
-      @keyframes slide
-      {
-      from {right:-300px;}
-      to {right:0;}
-      }
-      @-webkit-keyframes slide
-      {
-      from {right:-300px;}
-      to {right:0;}
-      }
-      #close{
-      cursor:pointer;
-      position:absolute;
-      top:0;
-      right:0;
-      margin:2px 6px 0 0;
-      height:30px;
-      width:30px;
-      background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;
-      }
-      #close:hover{
-      background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;
-      }
-      #dropsphere iframe{
-        border:none;
-        height:100%;
-      }
-      #dropper{
-        position:absolute;
-        top:0;
-         pointer-events:none;
-      }
-      ";
+      css.innerHTML = "#dropsphere{animation:slide .5s; -webkit-animation:slide .5s;}@keyframes slide{from{right:-300px;}to{right:0;}}@-webkit-keyframes slide{from{right:-300px;}to{right:0;}}#close{cursor:pointer; position:absolute; top:0; right:0; margin:2px 6px 0 0; height:30px; width:30px; background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;}#close:hover{background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;}#dropsphere iframe{border:none; height:100%;}#dropper{position:absolute; top:0; pointer-events:none;}";
       document.body.appendChild(css);
       document.addEventListener('dragend', function(event){
           console.log('drag');
@@ -221,10 +184,13 @@ function launchBookmark(inviteURL){
                   preview += ',thumbnail:' + thumbnail;
                   socketxdm.postMessage(preview);
 
-              }if(message == 'googAuth'){
-                   var ds=document.getElementById('dropsphere');
-                    ds.parentNode.removeChild(ds);
-                    dropsphere=false;
+              }if(message == 'auth'){
+                console.log('auth page loading..');
+                location.href = 'http://localhost:3500/auth';
+              }if(message == 'close'){
+                  var ds=document.getElementById('dropsphere');
+                  ds.parentNode.removeChild(ds);
+                  dropsphere=false;
               }
           },
               onReady: function(){

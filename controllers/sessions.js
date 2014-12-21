@@ -3,12 +3,13 @@
 exports.render = function(res, layout, hash){
 	console.log("Session rendering...");
 	if(hash){
-        var login = (layout == "includes/feed") ? true : false
+        var login = (layout == "dev_auth") ? true : false
 
-        
-
-        console.log("rendering session hash.." );
-		res.render(layout, { data: {
+        if(login){
+            res.json(200);
+        }else{
+            console.log("rendering session hash.." );
+            res.render(layout, { data: {
                     nickname:  hash.nickname,
                     username: hash.username,
                     nicknames: hash.nicknames,
@@ -25,7 +26,8 @@ exports.render = function(res, layout, hash){
                     newRequests: hash.newRequests,
                     logged: login
                 }
-           });       		
+            });       
+        }	
 
 	 }else{
 	 	res.render(layout);
@@ -110,6 +112,11 @@ exports.storeData = function(req, sessionData){
         }
     });
 }
+
+exports.isLogged = function(req){
+    return (req.session.isLogged || req.cookies.email || req.session.passport.user) ? true :  false;
+}
+
 
 exports.sendCookie = function(res, email){
      console.log("Passing persistent cookie..");

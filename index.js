@@ -27,6 +27,7 @@ var Feed = require("./controllers/feed");
 
 var LinkParser = require("./helpers/link_parser");
 
+
 var request = require('request');
 var cheerio = require('cheerio');
 
@@ -164,29 +165,45 @@ var SessionSockets = require('session.socket.io'),
 app.get("/", function(req, res){
   console.log("ENVIRONMENT IS: " + ENV);
   if(ENV == 'production'){
-      console.log("RUNNING ON PORT: " + process.env.PORT);
       console.log("rendering production bookmarklet");
-      res.render("home");
+      if(req.session.isLogged || req.cookies.email || req.session.passport.user){
+        res.render("dev_auth");
+      }else{
+        res.render("home");
+      }
   }else{
-     (req.session.googAuth) ?  res.render("dev_auth") : res.render("dev_home");
+     if(req.session.isLogged || cookie){
+        res.render("dev_auth");   
+     }else{
+        res.render("dev_home");
+     }
   }    
 });
 
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
-                                            'https://www.googleapis.com/auth/userinfo.email'] }),
-  function(req, res){
-    console.log("Sending auth to google..");
-    // The request will be redirected to Google for authentication, so this
-    // function will not be called.
-  });
+
+app.get('/auth/google', function(req, res){
+    console.log("Session data: " + JSON.stringify(req.session));
+    console.log("Auth Cookies: " + JSON.stringify(req.cookies));
+    passport.authenticate("google",
+    {
+        scope:
+        [
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email"
+        ],
+        state: req.session.invite
+    })(req, res);
+});
+
+
+app.get('/auth', function(req, res){
+  console.log("Auth Hit");
+  res.render("template_login"); 
+});
 
 app.get('/oauth2callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res){
-    console.log("Google Callback Received.." );
-    req.session.googAuth = true;
-    console.log(req.session);
     res.redirect('/');  
 });
 
@@ -198,6 +215,8 @@ app.get('/logout', Feed.logout);
 
 //issue login form
 app.get('/login', function(req,res){
+  console.log("Session on login:" + JSON.stringify(req.session));
+  console.log("Login Cookies: " + JSON.stringify(req.cookies));
   res.render('includes/login');
 });
 
@@ -208,28 +227,18 @@ app.get('/join', function(req, res){
 
 app.post('/signup', Feed.signup);
 
-
-app.get("/invite/:id", function(req, res){
-  console.log("recieving invite");
-  var inviteID = req.param('id'); 
-  var url = "/bookmark/invite/" + inviteID;
-  console.log(url);
-  if(ENV == 'production'){
-     url = "http://dropsphere.herokuapp.com/" + url;
-     res.render("invite", {url: url});
-  }else{
-     url = "http://localhost:3500/" + url;
-     res.render("dev_invite", {url: url});
-  }
-});
-
-app.get("/bookmark/invite/:id", Feed.invite);
+app.get("/invite/:id", Feed.invite);
 
 app.post('/sendReset', Feed.sendReset);
 
 app.get('/resetPass/:token', Feed.resetPass);
 
 app.post('/newPass', Feed.newPass);
+
+app.get('/isLogged', function(req, res){
+  console.log("Is logged hit");
+  res.json(200);
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -289,7 +298,7 @@ sessionSockets.on('connection', function (err, socket, session){
       sphereIDs = session.sphereIDs, 
       contacts = session.contacts, 
       username = session.username,
-      currentUser,
+      currentUser = "",
       mainSphere;
 
   if(clients[sessionID]){
@@ -415,7 +424,6 @@ sessionSockets.on('connection', function (err, socket, session){
 
               socket.emit('preview', {wrappedLink: wrappedLink, url: url, thumbnail: thumbnail, title: title, image: image});
             }
-
   });
 
   function isConnected(sphere){

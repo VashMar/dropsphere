@@ -76,9 +76,7 @@ postSchema.methods.removeLoc = function(sphereID){
 
 // find a post location based on sphere id
 postSchema.methods.findLoc = function(sphereID){
-	console.log(sphereID);
 	var locs = this.locations;
-	console.log(locs);
 	var loc = false;
 
 	for(var i = 0; i < locs.length; i++){
@@ -217,7 +215,6 @@ postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
 postSchema.methods.viewedPost = function(userID, name, sphereID){
 	console.log("Viewed post in sphere: " + sphereID);
 	var loc = this.findLoc(sphereID);
-	console.log(loc);
 	var viewers = loc.viewers;
 
 	for(var v = 0; v < viewers.length; v++){
@@ -249,9 +246,9 @@ postSchema.methods.updatedChat = function(senderID, sphereID){
 	var loc = this.findLoc(sphereID);
 	var viewers = loc.viewers;
 
-	console.log(senderID);
 	for(var v = 0; v < viewers.length; v++){
 		if(viewers[v].id != senderID){
+			console.log("Chat marked as unseen");
 			viewers[v].seenChat = false;	
 		}
 	}
@@ -267,10 +264,7 @@ postSchema.methods.fillViewers = function(members, sphereID, sphereName, next){
 	for(var m = 0; m < members.length; m++){
 		loc.viewers.push({id: members[m].id }); 
 	}
-		
-
-	console.log("Post viewers filled: "  + this.locations);
-
+	
 	next(this); 
 
 }

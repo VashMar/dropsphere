@@ -9,7 +9,9 @@ $(document).ready(function(){
                 verifyAndCrawl(image);
             }else{
                 console.log(message + " sent from " + origin);
-                dropLink(message);
+                if (typeof(dropLink) != "undefined"){
+                    dropLink(message);
+                }
             }
             
         },

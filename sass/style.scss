@@ -100,29 +100,39 @@ input{
 #name, #join, #login{
 	position:absolute;
 	width:100%;
-	top:30%;
+	top:15%;
 }
 #join, #login{
 	#chatLogo{
 		margin-bottom:14px;
 	}
+	.form-control{
+		width:315px;
+	}
 }
+
+#joinClickables, #loginClickables{
+	width:300px;
+	margin: auto;
+}
+
 #joinSet, #loginSet{
 	margin-top:10px;
+	width:200px;
 }
+
 #account, #loginView{
 	clear:both;
 	float:right;
-	margin-right:10%;
 }
 
 #googleLogin{
 	background: url("/img/googleLogin.png") no-repeat;	
 	height:40px;
 	width:118pxpx;
-	margin-top:25px;
-	margin-left:136px;
-	display:block
+	margin-top:56px;
+	margin-left:96px;
+	display:block;
 }
 
 #googleLogin:hover{
@@ -131,8 +141,9 @@ input{
 
 .forgotPass{
 	font-size:11px;
-	float:left;
-	margin-left:5%;
+	float:right;
+	clear:both;
+	margin-right:22px;
 }
 
 /* Chat Header */

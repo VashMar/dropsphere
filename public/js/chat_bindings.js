@@ -540,6 +540,6 @@ $(document).ready(function(){
     function logout(){
        $.get("/logout", function(data){
             chat.Disconnect();
-           $("body").html(data);
+            socketxdm.postMessage('close');
        });
     }

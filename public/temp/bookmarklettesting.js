@@ -153,10 +153,13 @@ javascript:(function(){
                   preview += ',thumbnail:' + thumbnail;
                   socketxdm.postMessage(preview);
 
-              }if(message == 'googAuth'){
-                   var ds=document.getElementById('dropsphere');
-                    ds.parentNode.removeChild(ds);
-                    dropsphere=false;
+              }if(message == 'auth'){
+                console.log('auth page loading..');
+                location.href = 'http://localhost:3500/auth';
+              }if(message == 'close'){
+                  var ds=document.getElementById('dropsphere');
+                  ds.parentNode.removeChild(ds);
+                  dropsphere=false;
               }
           },
               onReady: function(){

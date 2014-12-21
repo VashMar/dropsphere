@@ -339,6 +339,7 @@ function Chat(username){
     }
 
     this.AddContact = function(contact){
+        console.log("Adding Contact: " + contact);
         socket.emit('addContact', contact);
     }
 
@@ -602,8 +603,10 @@ function Chat(username){
 
 
     socket.on('addContact', function(data){
+        console.log("Add Contact Hit");
         if(contacts.indexOf(data.id) < 0){
-            addNewContact(data.name, data.id);
+            console.log("Adding new contact: " + data.name + "," + data.id);
+            socket.emit('addContact', data.name);
         }
     });
 

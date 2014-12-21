@@ -20,7 +20,7 @@ exports.bookmark = function(req, res, cookie){
   var sesh = req.session;
   var email = req.cookies.email || sesh.passport.user; // persistent cookie session 
   
-
+  
   console.log("Bookmarklet launching.." + JSON.stringify(sesh));
   console.log("session email: " + email);
 	if(sesh.isLogged == true){ 
@@ -34,7 +34,7 @@ exports.bookmark = function(req, res, cookie){
       }
     });
   }else{
-    Session.render(res, "template_login");
+    Session.render(res, "login_redirect");
   }
 }
 
@@ -68,7 +68,7 @@ exports.googleAuth = function(profile,next){
               }else if(user){
                  console.log("Google User Validated..");
                   //send welcome email 
-                  Mailer.welcome(user.email);
+                  // Mailer.welcome(user.email);
 
                   // create main sphere 
                   var newSphere =  new Sphere({name: user.name + "'s sphere", owner: user._id, type: "Main" });
@@ -277,12 +277,12 @@ exports.signup = function(req, res){
 
                // if the user was invited to a sphere update the contacts before rendering 
                if(invSphere){
-                 updateContacts(user, invSphere, sessionData, "includes/feed", res, req, isMobile);
+                 updateContacts(user, invSphere, sessionData, "dev_auth", res, req, isMobile);
                }else{
                   if(isMobile == "true"){
                     Session.respondJSON(res, sessionData);
                   }else{
-                    Session.render(res, "includes/feed", sessionData);
+                    Session.render(res, "dev_auth", sessionData);
                   }
                  Session.storeData(req, sessionData);
                  Session.sendCookie(res, user.email);
@@ -319,7 +319,7 @@ exports.login = function(req, res){
           console.log("Incorrect Login Credentials");
           res.json(400, {message: "The email or password you entered is incorrect"});
         }else{
-          retrieveSessionData(user, req, res, "includes/feed");
+          retrieveSessionData(user, req, res, "dev_auth");
         }
       });
   }
@@ -341,7 +341,8 @@ exports.invite = function(req,res){
 
    req.session.inviteID = inviteID;
    req.session.invite = true; 
-   console.log("Invite Session: " + req.session);
+   req.session.cookie.expires = false;
+   console.log("Invite Session: " + JSON.stringify(req.session));
    if(req.session.isLogged == true){
     User.findOne({sessions: {$in : [req.sessionID]}}, function(err, user){
       if(user){
@@ -398,8 +399,9 @@ exports.invite = function(req,res){
       }
     });
 
-  } else{
+  }else{
     res.render("template_join");
+    res.cookie('invite', inviteID, { maxAge: 900000, httpOnly: true });
   }
 
 }
@@ -556,7 +558,7 @@ function retrieveSessionData(user, req, res, layout){
 
           // if the user is being invited to a sphere just track the nickname and sphere id for now
           if(req.session.invite == true){
-              console.log("user being invited");
+              console.log("user being invited to " + req.session.inviteID);
               sessionData.nickname = user.name;
               sphereID = req.session.inviteID;
               joined = moment(); // track the time the user joined the sphere as now 
@@ -587,6 +589,7 @@ function retrieveSessionData(user, req, res, layout){
                 }else{
                   // if the user has been invited to a sphere, make sure its valid and plop them in with a joined message 
                   if(req.session.invite == true){
+                       console.log("User being invited to sphere");
                         req.session.invite = false; // turn the flag off 
                         if(!user.isMember(sphere.id)){  
                         // add the user to the sphere and the sphere to the user's sphere list 
@@ -600,7 +603,7 @@ function retrieveSessionData(user, req, res, layout){
                         sessionData.nicknames = sphere.nicknames;
                         sessionData.sphereIDs.push(sessionData.currentSphere); 
 
-                        var mapData = {name: sphere.getName(user.id), 
+                        var mapData = {name: sphereName, 
                                     nickname: sessionData.nickname, 
                                     link: sphere.link(ENV), 
                                     updates: 0, 

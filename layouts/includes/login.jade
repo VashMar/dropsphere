@@ -5,10 +5,11 @@
 		h5#loginEmailError(class="error")
 		input#loginPassword.form-control(type="password" placeholder="Password")
 		h5#loginPassError(class="error")
-		a.forgotPass(href="#" data-toggle="modal" data-target="#resetPassword") Forgot Password?
-		input#loginSet.btn.btn-primary(type='button' value='login' data-loading-text="Wait...")
-		a#account(href="#" onclick='getJoin();') Need an account?
-		a#googleLogin(href="#" onclick='googleAuth();' target="_blank")
+		#loginClickables
+			input#loginSet.btn.btn-primary(type='button' value='login' data-loading-text="Wait...")
+			a#account(href="#" onclick='getJoin();') Need an account?
+			a.forgotPass(href="#" data-toggle="modal" data-target="#resetPassword") Forgot Password?
+			a#googleLogin(href="/auth/google")
 	#resetPassword.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
 		.modal-dialog
 			.modal-content
