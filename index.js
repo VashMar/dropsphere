@@ -64,13 +64,15 @@ if(process.env.REDISTOGO_URL){
           db: 2
      });
 
-} 
+}
 
+var ENV = process.env.NODE_ENV; 
+var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
 
 passport.use(new googleStrategy({
     clientID: '455565730528-8f3tt632ubgopmho7f1t9e8jh90iasn0.apps.googleusercontent.com',
     clientSecret: '0Xt8EZ4C8fYMZD0zk1k7RhQG',
-    callbackURL: "http://localhost:3500/oauth2callback"
+    callbackURL: baseURL + "oauth2callback"
 },
 function (accessToken, refreshToken, profile, done){
       // asynchronous verification, for effect...
@@ -100,8 +102,7 @@ passport.deserializeUser(function(email, callback){
 var port = process.env.PORT || 3500; 
 // connect websockets to our server 
 
-var ENV = process.env.NODE_ENV;
-var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
+
 
 var io = require('socket.io');
 
