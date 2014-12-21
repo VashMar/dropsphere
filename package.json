@@ -23,7 +23,8 @@
     "crawler": "*",
     "cheerio": "*",
     "request": "*",
-    "nodemailer": "1.0"
+    "nodemailer": "1.0",
+    "passport-google-oauth": "*"
   },
   "author": "developer"
 }
