@@ -67,7 +67,7 @@ if(process.env.REDISTOGO_URL){
 }
 
 var ENV = process.env.NODE_ENV; 
-var baseURL = (ENV == "production") ? "https://dropsphere.herokuapp.com/" : "http://localhost:3500/";
+var baseURL = (ENV == "production") ? "https://www.dropsphere.com/" : "http://localhost:3500/";
 
 passport.use(new googleStrategy({
     clientID: '455565730528-8f3tt632ubgopmho7f1t9e8jh90iasn0.apps.googleusercontent.com',
