@@ -42,7 +42,7 @@ function launchBookmark(inviteURL){
         head.appendChild(script);
       }
 
-      getScript('http://code.jquery.com/jquery.min.js',function() {
+      getScript('https://code.jquery.com/jquery.min.js',function() {
         if (typeof jQuery=='undefined') {
           msg='Sorry, but jQuery wasn\'t able to load';
         } else {
