@@ -812,7 +812,7 @@ function Chat(username){
                 createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags);
             }
         }else{
-            var noPosts = "<p class='noResults'> This is a sphere of nothingness. A single drop could change that.. </p>"
+            var noPosts = "<p class='noResults'> What a sad, empty sphere. A single drop could change that.. </p>"
             $("#sphereChat").length > 0 ?  $(noPosts).insertAfter("#sphereChat") : $("#feed").append(noPosts);
         }
 
