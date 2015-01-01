@@ -312,6 +312,7 @@ sessionSockets.on('connection', function (err, socket, session){
       console.log("User Loaded");
       currentUser = user;
       mainSphere = sphere;
+      console.log(mainSphere);
       socket.join(currentUser.id); 
       socket.emit('userLoaded');
     }
@@ -637,6 +638,8 @@ sessionSockets.on('connection', function (err, socket, session){
   }); // end seen  
 
   socket.on('addToMain', function(postID){
+    console.log("Adding to Main..");
+    console.log(mainSphere);
     Post.findOne({_id:postID}, function(err, post){
       // only add if doesn't exist
       if(post && mainSphere.posts.indexOf(postID) < 0){

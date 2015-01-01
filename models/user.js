@@ -372,14 +372,14 @@ userSchema.methods.removeSphere = function(sphereID){
 
 userSchema.statics.load = function(sessionID, next){
     console.log("Loading Current User.. " + sessionID);
-    this.findOne({sessions: {$in : [sessionID]}}, function(err, user){
+    this.findOne({sessions: {$in : [sessionID]}}).populate('mainSphere').exec(function(err, user){
         if(err || !user){
             console.log("User not found");
             next(err);
-        } else{
+        }else{
             console.log("User found..");
 
-            next(false, user);
+            next(false, user, user.mainSphere);
         }
     });
 }
