@@ -498,7 +498,7 @@ $(document).ready(function(){
 
     function addPostTag(){
         var tag = $("#inputTag").val();
-        var postID = $(this).attr('data');
+        var postID = $("#submitTag").attr('data');
         chat.addTag(tag, postID);
         $("#inputTag").val("");
     }
