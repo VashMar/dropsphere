@@ -293,7 +293,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
  			postTime: moment(this.date).format(), 
  			viewers: this.getViewed(viewers),
  			seen: this.hasSeenChat(user.id, viewers, hasMessages),
- 			tags: tags;
+ 			tags: tags
  		};
 }
 
