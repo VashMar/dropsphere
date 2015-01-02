@@ -845,7 +845,7 @@ function Chat(username){
          createPost(postID, content, memberNum, nickname, time, true, true, 0);
 
          socket.emit('sharePost', {postID: sharedPostID, sphere:sphere});
-
+         notify("Post Shared");
          // reset sharedPost 
          sharedPost = null;
     }
