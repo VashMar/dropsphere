@@ -169,7 +169,10 @@ userSchema.methods.removeInvite = function(sphereID){
 }
 
 userSchema.methods.hasContact = function(user){
-    if(this.contacts.indexOf(user.id) > 0){
+    console.log("checking if " + user.id + " is already a contact..");
+    console.log(this.contacts);
+
+    if(this.contacts.indexOf(user.id) > -1){
         console.log("Contact already exists");
         return true;
     }

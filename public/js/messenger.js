@@ -653,7 +653,7 @@ function Chat(username){
         var sphereName  = "<span id='invitedSphere'>" + data.sphereName + "</span>";
         var sender = "<span id='inviteSender'>(from: " + data.sender + ")</span>";
         var accept = "<a id='acceptInvite' href='#'>Accept</a>";
-        var ignore = "<a id='ignoreInvite' href='#'>Ignore</a>";;
+        var ignore = "<a id='ignoreInvite' href='#'>Ignore</a>";
         $("#pendingInvites").append("<li data='" + data.sphere + "'>" + glyphicon + sphereName + sender + accept + ignore + "</li>");
         $("#newRequests").html("<p>" + data.newRequests + "</p>");
         $("#newRequests").show();

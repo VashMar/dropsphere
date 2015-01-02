@@ -8,6 +8,7 @@ exports.render = function(res, layout, hash){
         if(login){
             res.json(200);
         }else{
+            if(!hash.sphereMap[hash.currentSphere]){ hash.currentSphere = hash.sphereIDs[0]; }
             console.log("rendering session hash.." );
             res.render(layout, { data: {
                     nickname:  hash.nickname,

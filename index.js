@@ -721,7 +721,7 @@ sessionSockets.on('connection', function (err, socket, session){
         if(post){
           console.log("Marking post as viewed by this user..");
           var sphereString = String(data.sphere);    
-          
+
           post.viewedPost(currentUser.id, currentUser.name, sphereString);
           post.save(function(err, savedPost){
             if(savedPost){
@@ -812,33 +812,36 @@ sessionSockets.on('connection', function (err, socket, session){
 
     var onComplete = function(user){
       if(!currentUser.hasContact(user)){
-        currentUser.addContact(user);
         console.log("User requests: " + user.newRequests);
 
-        user.pendingRequest(currentUser, function(){
-          // emit the success to the person adding
-          socket.emit('contactAdded', {username: user.name, userID: user.id});
+        if(!user.hasContact(currentUser)){
+          user.pendingRequest(currentUser, function(){
+            // emit the success to the person adding
+            socket.emit('contactAdded', {username: user.name, userID: user.id});
 
-          console.log("Updated user requests: " + user.newRequests);
-          // notify the pending request to the recipient
-          io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id, newRequests: user.newRequests});
+            console.log("Updated user requests: " + user.newRequests);
+            // notify the pending request to the recipient 
+            io.sockets.in(user.id).emit('pendingRequest', {username: currentUser.name, userID: currentUser.id, newRequests: user.newRequests});
 
-        });
+          });
 
-        Mailer.newRequest(user.email, currentUser.name);
+          Mailer.newRequest(user.email, currentUser.name);
 
+            user.save(function(err){
+            if(!err){
+              console.log("Request Sent");
+            }
+          });
+
+        }
+
+        currentUser.addContact(user);
         //update sessions
         session.contacts[user.id] = user.name;
-
         // save user's and sessions 
         currentUser.save(function(err){
           if(!err){
             console.log("Contact Added");
-          }
-        });
-        user.save(function(err){
-          if(!err){
-            console.log("Request Sent");
           }
         });
         session.save();
