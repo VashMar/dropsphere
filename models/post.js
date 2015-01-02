@@ -285,7 +285,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
 	var loc = this.findLoc(sphereID);
 	var viewers =  this.getViewers(sphereID);
 	var hasMessages = this.hasMessages(sphereID);
-
+	var tags = loc.tags || [];
  	return {sender: this.creatorName(), 
  			content: this.contentData, 
  			isOwner: this.ownedBy(user._id), 
@@ -293,7 +293,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
  			postTime: moment(this.date).format(), 
  			viewers: this.getViewed(viewers),
  			seen: this.hasSeenChat(user.id, viewers, hasMessages),
- 			tags: loc.tags || [];
+ 			tags: tags;
  		};
 }
 
