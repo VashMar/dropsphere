@@ -279,7 +279,9 @@ function Chat(username){
     }
 
     this.ViewedPost = function(postID){
-        socket.emit('viewedPost', {postID: postID, sphere: currentSphere});
+        if(!posts[postID].isOwner){
+            socket.emit('viewedPost', {postID: postID, sphere: currentSphere});
+        }
     }
 
     this.EditPost = function(postID, newtext){
@@ -1044,11 +1046,10 @@ function Chat(username){
             viewed = "",
             viewedAndShare = "",
             sender = "<div class='postername'>" + sender + "</div>",
-            savePost=   "<li>" + saveIcon + "</li>",
+            tagPost=   "<li>" + tagIcon + "</li>";
             postChat = "<li>" + chatIcon + "</li>",
             viewersIcon = "<li style='float:left;'>" + viewedIcon + viewed + "</li>",
-            sharePost = "<li>" + shareIcon + " </li>",
-            tagElement = "";
+            sharePost = "<li>" + shareIcon + " </li>";
 
 
         if(isOwner){
@@ -1059,7 +1060,6 @@ function Chat(username){
             savePost = "";
             postChat ="";
             viewersIcon = "";
-            tagElement = "<li>" + tagIcon + "</li>";
             sender = "";
         }else if(viewedNum > 0){               
             viewed = "<span class='viewedNum'>" + viewedNum + "</span>";
@@ -1076,8 +1076,7 @@ function Chat(username){
             "<div class='postButtons'><ul>" +
             viewersIcon +
             sharePost +
-            tagElement + 
-            savePost + 
+            tagPost + 
             postChat + "</ul></div></div>");
 
         if($(".noResults").length > 0){

@@ -721,6 +721,7 @@ sessionSockets.on('connection', function (err, socket, session){
         if(post){
           console.log("Marking post as viewed by this user..");
           var sphereString = String(data.sphere);    
+          
           post.viewedPost(currentUser.id, currentUser.name, sphereString);
           post.save(function(err, savedPost){
             if(savedPost){
