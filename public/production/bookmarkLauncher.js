@@ -106,7 +106,7 @@ function launchBookmark(inviteURL){
       d.style.position = 'fixed';
       d.style.top='0';
       d.style.right='0';
-      d.style.zIndex='9999999';
+      d.style.zIndex='2147483647';
       d.style.borderLeft='1px solid #ddd';
       document.body.appendChild(d);
       var close = document.createElement('div');
