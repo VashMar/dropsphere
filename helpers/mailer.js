@@ -58,12 +58,21 @@ exports.newRequest = function(email, requester){
 }
 
 
+exports.newPost = function(email, senderName, sphereName){
+	var mailOptions = {
+		from: 'Dropsphere Team <admin@dropshere.com>',
+		to: email,
+		subject:  senderName +  " (" + senderEmail + ") " + " has dropped a new post in " + sphereName + "!",
+		html: "Check out " + senderName + "'s latest droppings "
+	}
+}
+
 exports.inviteEmail = function(email, senderName, senderEmail, ENV, token){
 
 	var link; 
 
 	if(ENV == "production"){
-		link = "<a href='http://dropsphere.herokuapp.com/invite/" + token + "'> Go here </a>";
+		link = "<a href='https://www.dropsphere.com/invite/" + token + "'> Go here </a>";
 	}else{
 		link = "<a href='http://localhost:3500/invite/" + token + "'> Go here </a>";	
 	}

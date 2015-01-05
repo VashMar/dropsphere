@@ -205,7 +205,7 @@ app.get('/auth', function(req, res){
 });
 
 app.get('/oauth2callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: '/auth' }),
   function(req, res){
     res.redirect('/');  
 });
@@ -1427,6 +1427,7 @@ sessionSockets.on('connection', function (err, socket, session){
               console.log("Updating session info with new nickname..");
               session.nickname = nickname;
               session.nicknames = nicknames;
+              session.sphereMap[sphere.id].nickname = nickname;  
               session.save();
             }
 
