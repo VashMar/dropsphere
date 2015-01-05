@@ -1360,43 +1360,55 @@ sessionSockets.on('connection', function (err, socket, session){
   socket.on('requestMessages', function(data, fillMessages){
       console.log("Requesting Messages..." + data.postID);
 
-      var postID = data.postID;
-      if(postID != "sphereChat"){
-          Post.findOne({_id: postID}, function(err, post){ 
-            if(err){
-              console.log(err);
-            }
 
-            if(post){
-              console.log("Extracting Messages from Post.." + post);
-              console.log("Sphere: " + data.sphereID);
-              post.getLoc(data.sphereID, function(loc){
-                console.log(loc);
-                Message.populate(loc, {path:'messages'}, function(err, loc){
-                  var messages = loc.messages || [];
-                  renderConvo(messages);
-              });
-
-            });
-      
-            }else{
-              console.log("Couldn't obtain post");
-            }
-          });
+         // convert data sent as string to a hash if necessary (mobile)
+      if(typeof data == 'string' || data instanceof String){
+        LinkParser.hashMeBaby(data, function(data){
+            getChat(data);
+        });
       }else{
-          Sphere.findOne({_id:data.sphereID}).populate('chat').exec(function(err, sphere){
-            if(err){
-              console.log(err);
-            }
+            getChat(data);
+      }
 
-            if(sphere){
-                messages = sphere.chat;
-                console.log("Getting messages from sphere chat.." + messages);
-                renderConvo(messages);
-            }else{
-              console.log("Couldn't obtain sphere");
-            }
-          });
+      function getChat(data){
+        var postID = data.postID;
+        if(postID != "sphereChat"){
+            Post.findOne({_id: postID}, function(err, post){ 
+              if(err){
+                console.log(err);
+              }
+
+              if(post){
+                console.log("Extracting Messages from Post.." + post);
+                console.log("Sphere: " + data.sphereID);
+                post.getLoc(data.sphereID, function(loc){
+                  console.log(loc);
+                  Message.populate(loc, {path:'messages'}, function(err, loc){
+                    var messages = loc.messages || [];
+                    renderConvo(messages);
+                });
+
+              });
+        
+              }else{
+                console.log("Couldn't obtain post");
+              }
+            });
+        }else{
+            Sphere.findOne({_id:data.sphereID}).populate('chat').exec(function(err, sphere){
+              if(err){
+                console.log(err);
+              }
+
+              if(sphere){
+                  messages = sphere.chat;
+                  console.log("Getting messages from sphere chat.." + messages);
+                  renderConvo(messages);
+              }else{
+                console.log("Couldn't obtain sphere");
+              }
+            });
+        }
       }
   }); // end request messages 
 
