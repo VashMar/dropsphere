@@ -1538,7 +1538,6 @@ sessionSockets.on('connection', function (err, socket, session){
     console.log("Sending Feed..");
       var posts = {};
       var feed = [];
-      var titles = [];
       for(var i = sphere.posts.length - 1; i > -1 ; i--){
           var currentPost = sphere.posts[i];
           var post = currentPost.getPostData(currentUser, sphere.id);
@@ -1547,7 +1546,6 @@ sessionSockets.on('connection', function (err, socket, session){
           posts[key] = post;
           feed.push(key);
 
-          titles.push(post.content.title);
       }
 
       console.log("updating view..");
@@ -1559,7 +1557,6 @@ sessionSockets.on('connection', function (err, socket, session){
       session.posts = posts;
       session.save();
 
-      console.log("POST TITLES: " + titles);
   }
 
 
