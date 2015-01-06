@@ -213,7 +213,7 @@ function Chat(username){
                 var viewers = post['viewers'];
                 var tags = post['tags'];
                 var memberNum = nicknames.indexOf(sender); 
-                time = moment(postTime).format("MMM Do, h:mm a");
+                time = moment.utc(postTime).local().format("MMM Do, h:mm a");
 
 
                 var passFilter = (type == "text" && isLink == false) || 
@@ -290,7 +290,7 @@ function Chat(username){
     }
 
     this.DeletePost = function(postID){
-        socket.emit('deletePost',{postID: postID, sphere: sphereID});
+        socket.emit('deletePost',{postID: postID, sphere: currentSphere});
         notify("Post Deleted");
     }
 
@@ -445,9 +445,10 @@ function Chat(username){
         console.log("Receiving Post..");
         // if the message is being sent to the current sphere being looked at, add it to the chat 
         if(currentSphere == data.sphere && currentPost == null && !searching && !filtering){    
-             var memberNum = data.memberNum || nicknames.indexOf(data.sender);  
-             var time = data.time || moment().calendar();       
-             createPost(data.postID, data.post, memberNum, data.sender, time, true, data.isOwner);
+             var memberNum = data.memberNum || nicknames.indexOf(data.sender);
+             var time = moment.utc(data.time).toDate();
+             time = moment(time).format("MMM Do, h:mm a");     
+             createPost(data.postID, data.post, memberNum, data.sender, time, true, false);
              socket.emit("seen", {sphere: data.sphere});
         }else if(sphereIDs.indexOf(data.sphere) >= 0 && sphereMap[data.sphere]){
               addUpdate(data.sphere);  
@@ -738,6 +739,8 @@ function Chat(username){
                 var convoTime = conversations[i];
                 var convo = messages[convoTime];
 
+                convoTime =  moment.utc(convoTime).local(); // convert the convo time to the clients local time
+
                 $("#feed").append("<h6>" + moment(convoTime).calendar() + "</h6>");
 
                 for(var m = 0; m < convo.length; m++){
@@ -809,7 +812,8 @@ function Chat(username){
                 var viewers = post['viewers'];
                 var memberNum = nicknames.indexOf(sender); 
 
-                time = moment(postTime).format("MMM Do, h:mm a");
+                time = moment.utc(postTime).local().format("MMM Do, h:mm a");
+
                 content = buildPostContent(isLink, content);
                 createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags);
             }
@@ -996,7 +1000,6 @@ function Chat(username){
         }
 
         return "";
-        
     }
 
     function tagify(text){
@@ -1050,7 +1053,6 @@ function Chat(username){
             postChat = "<li>" + chatIcon + "</li>",
             viewersIcon = "<li style='float:left;'>" + viewedIcon + viewed + "</li>",
             sharePost = "<li>" + shareIcon + " </li>";
-
 
         if(isOwner){
             options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";

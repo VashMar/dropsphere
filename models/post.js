@@ -28,6 +28,7 @@ var postSchema = mongoose.Schema({
 			name: {type: String},
 			seenChat: {type: Boolean, default: true},
 			seenPost: {type:Boolean, default: false},
+			minimized: {type:Boolean, default: false},
 			shared: {type: ObjectId, ref: 'Post'}
 		}],
 		tags: [String]

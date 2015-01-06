@@ -492,7 +492,8 @@ sessionSockets.on('connection', function (err, socket, session){
           var sphereString = String(data.sphere).trim();       // we need the sphere id in string format for emitting 
           console.log("The sphere: " + sphereString);
           var sphereClients = Object.keys(io.sockets.adapter.rooms[sphereString]);        // get all the user connections in the sphere
-          data.time = moment().format("MMM Do, h:mm a");
+          data.time = moment().utc();
+          //moment().format("MMM Do, h:mm a");
 
 
           var url = data.url || "",
@@ -763,9 +764,13 @@ sessionSockets.on('connection', function (err, socket, session){
     Post.delete(data.postID, currentUser.id);
     delete session.posts[data.postID]
     session.feed.splice(session.feed.indexOf(data.postID), 1);
-    session.save();
-    io.sockets.in(sphereString).emit('removePost', {postID: data.postID});
-    io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
+    session.save(function(err){
+      if(!err){
+          io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
+      }
+    });
+
+    socket.broadcast.to(data.sphere).emit('removePost', {postID: data.postID});
   });
 
 
