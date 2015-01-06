@@ -665,12 +665,21 @@ a.post_image img {
   float: none;
   max-width: 140px; }
 
+.minimize, .maximize {
+  float: left; }
+
 .sender {
-  width: 100%;
-  height: 40px; }
+  width: 100%; }
 
 .time {
   font-size: 10px; }
+
+.nameShift, .timeShift {
+  float: left;
+  padding-left: 7px; }
+
+.timeShift {
+  padding-top: 3px; }
 
 .chatSender {
   font-weight: bold; }

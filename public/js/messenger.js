@@ -1072,7 +1072,7 @@ function Chat(username){
 
 
         var postElement = $("<div class='post' data=" + data +  " data-tags="+ tags + ">" + 
-            "<div class='sender user" + memberNum + "'>" + options + "<span>" + 
+            "<div class='sender user" + memberNum + "'>" + options + "<span><a class='minimize'>[-]</a>" + 
             sender + "<div class='time'>" + time + "</div></span></div>" + 
             "<div class='postContent'>" + content + "</div>" +
             "<div class='postButtons'><ul>" +

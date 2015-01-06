@@ -173,6 +173,27 @@ $(document).ready(function(){
         chat.SphereChat();
     });
 
+    $("#feed").on("click", "a.minimize", function(){
+        var post = $(this).parents(".post");
+        post.find(".postContent").hide();
+        post.find(".postername ").toggleClass('nameShift');
+        post.find(".time").toggleClass('timeShift');
+        $(this).html("[+]");
+        $(this).toggleClass('maximize');
+        $(this).toggleClass('minimize', false);
+    });
+
+
+    $("#feed").on("click", "a.maximize", function(){
+        var post = $(this).parents(".post");
+        post.find(".postContent").show();
+        post.find(".postername ").toggleClass('nameShift', false);
+        post.find(".time").toggleClass('timeShift', false);
+        $(this).html("[-]");
+        $(this).toggleClass('maximize', false);
+        $(this).toggleClass('minimize');
+    });
+
     $("#feed").on("click", "a span.title", function(){
         var postID = $(this).parents('.post').attr('data');
         chat.ViewedPost(postID);
