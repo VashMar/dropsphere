@@ -200,6 +200,39 @@ postSchema.methods.getViewed = function(viewers){
 
 }
 
+// returns if a post is minimized
+postSchema.methods.isMini = function(userID, viewers){
+	for(var v = 0; v < viewers.length; v++){
+		if(viewers[v].id == userID){
+			return viewers[v].minimized;
+		}
+	}
+}
+
+postSchema.methods.minimize = function(userID, sphereID){
+	var loc = this.findLoc(sphereID);
+	var viewers = loc.viewers; 
+	for(var v=0; v < viewers.length;  v++){
+		if(viewers[v].id == userID){
+			viewers[v].minimized = true; 
+			console.log("Post minimized");
+		}
+	}
+}
+
+postSchema.methods.maximize = function(userID, sphereID){
+	var loc = this.findLoc(sphereID);
+	var viewers = loc.viewers; 
+	for(var v=0; v < viewers.length;  v++){
+		if(viewers[v].id == userID){
+			viewers[v].minimized = false; 
+			console.log("Post maximized");
+		}
+	}
+}
+
+
+
 // returns whether a user has seen the post's chat or not 
 postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
 
@@ -210,6 +243,8 @@ postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
 	}
 	return true; 
 }
+
+
 
 
 // marks a post as seen by a specific user 
@@ -294,6 +329,7 @@ postSchema.methods.getPostData = function(user, sphereID, isMobile){
  			postTime: moment(this.date).format(), 
  			viewers: this.getViewed(viewers),
  			seen: this.hasSeenChat(user.id, viewers, hasMessages),
+ 			minimized: this.isMini(user.id, viewers),
  			tags: tags
  		};
 }

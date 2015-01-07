@@ -120,10 +120,12 @@
                         - var isLink = post['isLink'];
                         - var postTime = post['postTime'];
                         - var seenConvo = post['seen'];
+                        - var minimized = post['minimized'];
                         - var memberNum = nicknames.indexOf(sender);
                         - var viewers = post['viewers'];
                         - var tags = post['tags'];
                         - var viewerNames = "";
+                        - var display = "";
                         each viewerName, index in viewers 
                             - viewerNames += viewerName
                             if index < viewers.length - 1
@@ -146,11 +148,18 @@
                                                     span.postOption Remove Post 
 
                                 span
-                                    .minimize [-]
-                                    if sphereMap[currentSphere].type != "Main"
-                                        .postername=sender 
-                                    .time=moment(postTime).format("MMM Do, h:mm a")
-                            .postContent
+                                    if minimized
+                                        - display = "display:none;";
+                                        .maximize [+]
+                                        if sphereMap[currentSphere].type != "Main"
+                                        .postername.nameShift=sender 
+                                        .time.timeShift=moment(postTime).format("MMM Do, h:mm a")
+                                    else
+                                        .minimize [-]
+                                        if sphereMap[currentSphere].type != "Main"
+                                            .postername=sender 
+                                        .time=moment(postTime).format("MMM Do, h:mm a")             
+                            .postContent(style=display)
                                 if isLink === true
                                         if content["image"] == ""
                                             a.post_link(target='_blank' href=content['url'])
@@ -174,6 +183,9 @@
                                                 if viewers.length > 0
                                                     span.viewedNum
                                                         =viewers.length 
+                                    if tags.length > 0 && minimized
+                                        .tag
+                                            =tags
                                     li
                                         a.shareIcon(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
                                     if sphereMap[currentSphere].type != "Main"

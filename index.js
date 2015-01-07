@@ -677,6 +677,40 @@ sessionSockets.on('connection', function (err, socket, session){
   });
 
 
+  socket.on('minimizePost', function(data){
+    console.log("minimizing post..");
+    Post.findOne({_id: data.postID}, function(err,post){
+        if(post){
+          console.log("minimized post found");
+          post.minimize(currentUser.id, data.sphere);
+          session.posts[post.id].minimized = true;
+          session.save();
+          post.save(function(err){
+            if(err){
+              console.log(err);
+            }
+          });
+        }
+    });
+  });
+
+  socket.on('maximizePost', function(data){
+    console.log("maximizing post..");
+    Post.findOne({_id: data.postID}, function(err,post){
+      if(post){
+          console.log("maximized post found");
+          post.maximize(currentUser.id, data.sphere);
+          session.posts[post.id].minimized = false;
+          session.save();
+          post.save(function(err){
+            if(err){
+              console.log(err);
+            }
+          });
+      }
+    });
+  });
+
   socket.on('sharePost', function(data){
 
         Post.findOne({_id: data.postID}, function(err, post){

@@ -175,23 +175,34 @@ $(document).ready(function(){
 
     $("#feed").on("click", "a.minimize", function(){
         var post = $(this).parents(".post");
+        var tags = post.attr('data-tags');
+        var postID = post.attr('data');
         post.find(".postContent").hide();
         post.find(".postername ").toggleClass('nameShift');
-        post.find(".time").toggleClass('timeShift');
+        var time = post.find('.time');
+        time.toggleClass('timeShift');
         $(this).html("[+]");
         $(this).toggleClass('maximize');
         $(this).toggleClass('minimize', false);
+        if(tags.length > 0){
+            $("<div class='tag'>" + tags +" </div>").insertAfter(post.find('.postButtons li:first'));
+        }
+
+        chat.MiniPost(postID);   
     });
 
 
     $("#feed").on("click", "a.maximize", function(){
         var post = $(this).parents(".post");
+        var postID = post.attr('data');
         post.find(".postContent").show();
         post.find(".postername ").toggleClass('nameShift', false);
         post.find(".time").toggleClass('timeShift', false);
         $(this).html("[-]");
         $(this).toggleClass('maximize', false);
         $(this).toggleClass('minimize');
+        post.find(".tag").remove();
+        chat.MaxiPost(postID);   
     });
 
     $("#feed").on("click", "a span.title", function(){

@@ -222,7 +222,7 @@ function Chat(username){
                                  (type == "unread" && !seen);
                 if(passFilter){
                     content = buildPostContent(isLink, content);
-                    createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags);
+                    createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags, false);
                     filteredPosts.push(postID);
                     console.log("Filtered Posts: " + filteredPosts);
                 }
@@ -292,6 +292,17 @@ function Chat(username){
     this.DeletePost = function(postID){
         socket.emit('deletePost',{postID: postID, sphere: currentSphere});
         notify("Post Deleted");
+    }
+
+    this.MiniPost = function(postID){
+        console.log("post minimized..");
+        socket.emit('minimizePost', {postID: postID, sphere: currentSphere});
+        posts[postID].minimized = true;
+    }
+
+    this.MaxiPost = function(postID){
+        socket.emit('maximizePost', {postID: postID, sphere: currentSphere});
+        posts[postID].minimized = false;
     }
 
     this.OpenPersonal = function(userID){
@@ -811,11 +822,12 @@ function Chat(username){
                 var tags = post['tags']
                 var viewers = post['viewers'];
                 var memberNum = nicknames.indexOf(sender); 
+                var isMini = post['minimized'];
 
                 time = moment.utc(postTime).local().format("MMM Do, h:mm a");
 
                 content = buildPostContent(isLink, content);
-                createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags);
+                createPost(postID, content, memberNum, sender, time, seen, isOwner, viewers.length, tags, isMini);
             }
         }else{
             var noPosts = "<p class='noResults'> What a sad, empty sphere. A single drop could change that.. </p>"
@@ -848,7 +860,7 @@ function Chat(username){
             url = content['url'];
 
          content = buildPostContent(isLink, content);
-         createPost(postID, content, memberNum, nickname, time, true, true, 0);
+         createPost(postID, content, memberNum, nickname, time, true, true, 0, false);
 
          socket.emit('sharePost', {postID: sharedPostID, sphere:sphere});
          notify("Post Shared");
@@ -1041,19 +1053,19 @@ function Chat(username){
         return htmlString;
     }
 
-    function createPost(postID,content,memberNum,sender,time,seen,isOwner,viewedNum,tags){
+    function createPost(postID,content,memberNum,sender,time,seen,isOwner,viewedNum,tags,isMini){
 
         var chatIcon = (seen) ? seenIcon : unseenIcon;
             data = (postID) ? postID : '',
             options = "",
             viewed = "",
             viewedAndShare = "",
-            sender = "<div class='postername'>" + sender + "</div>",
-            tagPost=   "<li>" + tagIcon + "</li>";
+            tagPost=   "<li>" + tagIcon + "</li>",
             postChat = "<li>" + chatIcon + "</li>",
             viewersIcon = "<li style='float:left;'>" + viewedIcon + viewed + "</li>",
-            sharePost = "<li>" + shareIcon + " </li>";
-
+            sharePost = "<li>" + shareIcon + " </li>",
+            display = "",
+            minTags = "";
         if(isOwner){
             options = "<div class='dropdown'><a id='postSettings' data-toggle='dropdown' href='#'></a><ul id='postDropdown' role='menu' aria-labelledby='dLabel' class='dropdown-menu'><li role='presentation'><a id='editOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#editPost' href='#'><span class='glyphicon glyphicon-pencil'></span><span class='postOption'>Edit post</span></a></li><li role='presentation'><a id='removeOption' role='menuitem' tabindex='-1' data-toggle='modal' data-target='#removePost' href='#'><span class='glyphicon glyphicon-trash'></span><span class='postOption'>Remove Post </span></a></li></ul></div>";
         }
@@ -1070,16 +1082,25 @@ function Chat(username){
         }
 
 
+        if(isMini){
+            display = "<span><a class='maximize'>[+]</a>" + 
+            "<div class='postername nameShift'>" + sender + "</div><div class='time timeShift'>" + time + "</div></span></div>" + 
+            "<div class='postContent' style='display:none;'>" + content + "</div>";
+            minTags = "<div class='tag'>" + tags + "</div>";
+        }else{
+            display = "<span><a class='minimize'>[-]</a>" + 
+            "<div class='postername'>" + sender + "</div><div class='time'>" + time + "</div></span></div>" + 
+            "<div class='postContent'>" + content + "</div>";
+        }
 
         var postElement = $("<div class='post' data=" + data +  " data-tags="+ tags + ">" + 
-            "<div class='sender user" + memberNum + "'>" + options + "<span><a class='minimize'>[-]</a>" + 
-            sender + "<div class='time'>" + time + "</div></span></div>" + 
-            "<div class='postContent'>" + content + "</div>" +
+            "<div class='sender user" + memberNum + "'>" + options + display +
             "<div class='postButtons'><ul>" +
             viewersIcon +
+            minTags + 
             sharePost +
-            tagPost + 
-            postChat + "</ul></div></div>");
+            postChat + 
+            tagPost + "</ul></div></div>");
 
         if($(".noResults").length > 0){
             $(".noResults").remove();
