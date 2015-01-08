@@ -562,7 +562,8 @@ function Chat(username){
     });
 
     socket.on('getPostID', function(data){
-        $("#feed .post").first().attr("data", data.postID);
+       $("#feed .post").first().attr("data", data.postID);
+       $("#feed .post").first().attr("data-tags", "");
     });
 
     socket.on('newSphere', function(data){
@@ -1057,6 +1058,7 @@ function Chat(username){
 
         var chatIcon = (seen) ? seenIcon : unseenIcon;
             data = (postID) ? postID : '',
+            tags = (tags) ? tags : '',
             options = "",
             viewed = "",
             viewedAndShare = "",
