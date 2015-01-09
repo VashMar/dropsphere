@@ -184,9 +184,8 @@ $(document).ready(function(){
         $(this).html("[+]");
         $(this).toggleClass('maximize');
         $(this).toggleClass('minimize', false);
-        if(tags.length > 0){
-            $("<div class='tag'>" + tags +" </div>").insertAfter(post.find('.postButtons li:first'));
-        }
+        $("<div class='tag'>" + tags +" </div>").insertAfter(post.find('.postButtons li:first'));
+        
 
         chat.MiniPost(postID);   
     });

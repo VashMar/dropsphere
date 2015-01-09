@@ -782,6 +782,7 @@ function Chat(username){
         var tags = data.tags; 
         post.tags = post.tags.concat(tags);
         var tagList = "<ul class='tagList'>";
+        var postElement = $(".post[data=" + data.postID + "]");
 
         for(var i = 0; i < tags.length; i++){
             var tag = "<li>" + tags[i] + "</li>";
@@ -797,6 +798,9 @@ function Chat(username){
                 }
             }        
         }
+        var displayTags = post.tags.toString();
+        postElement.attr('data-tags', displayTags);
+        postElement.find(".tag").html(displayTags);
     });
 
     /* Extra Functions */
