@@ -10,6 +10,7 @@ var email = require("emailjs/email");
 
 var passport = require('passport'),
     googleStrategy = require('passport-google-oauth').OAuth2Strategy;
+    amazonStrategy = require('passport-amazon').Strategy;
 
 // models 
 var mongoose = require("mongoose"),
@@ -74,7 +75,7 @@ passport.use(new googleStrategy({
     clientSecret: '0Xt8EZ4C8fYMZD0zk1k7RhQG',
     callbackURL: baseURL + "oauth2callback"
 },
-function (accessToken, refreshToken, profile, done){
+function(accessToken, refreshToken, profile, done){
       // asynchronous verification, for effect...
       process.nextTick(function(){
       console.log(profile); //profile contains all the personal data returned 
@@ -84,6 +85,22 @@ function (accessToken, refreshToken, profile, done){
   });
 }
 ));
+
+
+passport.use(new amazonStrategy({
+  clientID: 'amzn1.application-oa2-client.f7fa4351e94e4db2ac651761e3f7b69e' ,
+  clientSecret: 'e02eb1bc47d06ec05bdbec13ffa193d57314faa4fc5f518626332c0140d9ee24',
+  callbackURL: baseURL + "oauth2callback"
+},
+function(accessToken, refreshToken, profile, done){
+    // asynchronous verification, for effect...
+    process.nextTick(function(){
+      console.log(profile);
+      return done(null, profile);
+    });
+  }
+));
+
 
 
 // passport session setup
@@ -198,6 +215,12 @@ app.get('/auth/google', function(req, res){
     })(req, res);
 });
 
+app.get('/auth/amazon',
+  passport.authenticate('amazon', { scope: ['profile', 'postal_code'] }),
+  function(req, res){
+  // The request will be redirected to Amazon for authentication, so this
+  // function will not be called.
+});
 
 app.get('/auth', function(req, res){
   console.log("Auth Hit");
@@ -394,7 +417,7 @@ sessionSockets.on('connection', function (err, socket, session){
                     if(imgAttr.height > 40 && imgAttr.width > 40){
                         thumbnail = imgAttr.src;
                         return false;
-                      } 
+                    } 
                   });
                 viewWrapped(); 
               }else{
@@ -592,13 +615,12 @@ sessionSockets.on('connection', function (err, socket, session){
               if(msg){
                 console.log("Message Saved: " + msg);
                 post.addTags(sphereString, data.tags, function(addedTags){
-                
-                  post.addMessage(message, sphereString);
-                  if(addedTags){
-                    session.posts[data.postID].tags = session.posts[data.postID].tags.concat(addedTags);  // update tags in cache 
-                    session.save();
-                    socket.emit('updateTags', {tags: addedTags, postID: post.id});
-                  }
+                post.addMessage(message, sphereString);
+                if(addedTags){
+                  session.posts[data.postID].tags = session.posts[data.postID].tags.concat(addedTags);  // update tags in cache 
+                  session.save();
+                  socket.emit('updateTags', {tags: addedTags, postID: post.id});
+                }
                 });
               }
             });
@@ -843,7 +865,6 @@ sessionSockets.on('connection', function (err, socket, session){
           });
         }
      });
-
   });
 
   socket.on('addContact', function(contact){

@@ -130,6 +130,7 @@ function Chat(username){
         $(".tagList").remove();
         $(".slimScrollDiv").css('height', feedHeight);
         $("#feed").css('height', "94%");
+        $('a.maximize,a.minimize').show();
         $("#search").show();
         currentPost = null;
         clearUpdates();

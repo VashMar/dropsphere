@@ -24,7 +24,8 @@
     "cheerio": "*",
     "request": "*",
     "nodemailer": "1.0",
-    "passport-google-oauth": "*"
+    "passport-google-oauth": "*",
+    "passport-amazon" : "*"
   },
   "author": "developer"
 }

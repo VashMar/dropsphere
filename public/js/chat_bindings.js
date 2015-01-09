@@ -212,7 +212,12 @@ $(document).ready(function(){
 
 
     $("#feed").on("click", "a.chatIcon, a.unseenChat", function(){
-        chat.SelectPost($(this).parents(".post"));
+        var post = $(this).parents(".post");
+        post.find(".postContent").show();
+        post.find(".postername ").toggleClass('nameShift', false);
+        post.find(".time").toggleClass('timeShift', false);
+        $('a.maximize,a.minimize').hide();
+        chat.SelectPost(post);
     });
 
 
