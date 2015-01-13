@@ -330,8 +330,8 @@ sessionSockets.on('connection', function (err, socket, session){
   }
 
 
-  Post.transferData();
-  //Post.checkData();
+  //Post.transferData();
+  Post.checkData();
 
   // get the current user object for this socket 
   User.load(sessionID, function(err, user, sphere){
