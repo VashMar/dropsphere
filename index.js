@@ -329,6 +329,10 @@ sessionSockets.on('connection', function (err, socket, session){
     clients[sessionID] = [socketID];
   }
 
+
+  Post.transferData();
+  //Post.checkData();
+
   // get the current user object for this socket 
   User.load(sessionID, function(err, user, sphere){
     if(user){

@@ -29,10 +29,22 @@ var postSchema = mongoose.Schema({
 			seenChat: {type: Boolean, default: true},
 			seenPost: {type:Boolean, default: false},
 			minimized: {type:Boolean, default: false},
-			shared: {type: ObjectId, ref: 'Post'}
 		}],
 		tags: [String]
 	}],
+	sphere: {
+			 id: {type:String}, 		// the sphere id of the shared post 
+			 name: {type:String}
+			},  
+	messages: [{type: ObjectId, ref: 'Message'}], // the conversation involving the post at this location 
+	viewers: [{			// the viewers of this post at this location 
+		id: {type: String},
+		name: {type: String},
+		seenChat: {type: Boolean, default: true},
+		seenPost: {type:Boolean, default: false},
+		minimized: {type:Boolean, default: false},
+	}],
+	tags: [String]
 });
 
 
@@ -77,12 +89,29 @@ postSchema.methods.removeLoc = function(sphereID){
 
 // find a post location based on sphere id
 postSchema.methods.findLoc = function(sphereID){
+	var currPost = this;
 	var locs = this.locations;
 	var loc = false;
 
 	for(var i = 0; i < locs.length; i++){
 		if(locs[i].sphere == sphereID){
 			loc = locs[i];
+
+			/* if(i == 0){
+				console.log("Transferring sphere data onto post..");
+				currPost.sphere.id = loc.sphere;
+				currPost.sphere.name = loc.name;
+				currPost.viewers = loc.viewers;
+				currPost.messages = loc.messages;
+				currPost.tags = loc.tags;
+				currPost.save(function(err,post){
+					if(err){
+						console.log(err);
+					}else{
+						console.log("post sphere data transferred.." + post.sphere);
+					}
+				});
+			} */
 			break; 
 		}
 	}
@@ -363,6 +392,71 @@ postSchema.statics.deleteSphere = function(sphereID){
             post.removeLoc(sphereID);
         }
     });
+}
+
+postSchema.statics.transferData = function(){
+	var Post = this;
+	Post.find({}, function(err, posts){
+		console.log("Posts found: " + posts.length);
+
+		posts.forEach(function(post){
+
+			var loc = post.locations[0];
+			if(loc){
+				console.log("Transferring sphere data onto post..");
+				post.sphere.id = loc.sphere;
+				post.sphere.name = loc.name;
+				post.viewers = loc.viewers;
+				post.messages = loc.messages;
+				post.tags = loc.tags;
+				post.save(function(err,saved){
+					if(err){
+						console.log(err);
+					}else{
+						console.log("post sphere data transferred.." + saved.viewers);
+					}
+				});
+			}
+
+			if(post.locations.length > 1){
+				for(var i = 1; i < post.locations.length; i++){
+					var newPostLoc = post.locations[i];
+
+          			var postInfo = {content: post.content, 
+                        creator: post.creator, 
+                        contentData: post.contentData,
+                        isLink: post.isLink,
+                        viewers: newPostLoc.viewers,
+                        messages: newPostLoc.messages,
+                        tags: newPostLoc.tags
+                    };				
+
+					var newPost = new Post(postInfo);
+					newPost.sphere.id = newPostLoc.sphere;
+					newPost.sphere.name = newPostLoc.name;
+					newPost.save(function(err,savedPost){
+						if(savedPost){
+							console.log("New Post copied for location");
+						}else if(err){
+							console.log(err);
+						}
+					});
+				}
+			}
+		});
+	});
+}
+
+postSchema.statics.checkData = function(){
+	this.find({}, function(err,posts){
+		posts.forEach(function(post){
+			if(!post.sphere){
+				console.log("Post doesn't have sphere" + post);
+			}else{
+				console.log("Data successfully transferred");
+			}
+		});
+	});
 }
 
 module.exports = mongoose.model('Post', postSchema);
