@@ -196,7 +196,11 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
               }
 
               if(msg){
-                next(msg);
+                var sphereName = false;
+                if(sphere.type == "Group"){
+                  sphereName = sphere.name;
+                }
+                next(msg, sphereName);
               }
             }); 
 
@@ -213,7 +217,7 @@ sphereSchema.statics.savePost = function(User, sphereID, post, next){
              var member = sphere.members[i].id;
              var postCreator = post.creator.object;
              if(member != postCreator){
-                User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]}, {'$inc': {'spheres.$.updates' : 1}}, function(err){
+                User.update({$and: [{_id: member} , {'spheres.object': sphere._id}]},{'$inc': {'spheres.$.updates' : 1}}, function(err){
                     if(err){console.log(err);}
                     else{
                       console.log("notifications updated");

@@ -296,7 +296,6 @@ function Chat(username){
     }
 
     this.MiniPost = function(postID){
-        console.log("post minimized..");
         socket.emit('minimizePost', {postID: postID, sphere: currentSphere});
         posts[postID].minimized = true;
     }

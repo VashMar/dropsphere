@@ -42,7 +42,8 @@ var userSchema = new Schema({
         object: {type: ObjectId, ref: 'Sphere'},      // references the sphere object user belongs to              
         nickname: {type: String},                    // references the users name in that sphere 
         joined: {type: Date, default: Date.now},    // when the user joined the sphere
-        updates: {type: Number, default: 0}        // notification counter for each sphere 
+        updates: {type: Number, default: 0},        // notification counter for each sphere 
+        lastMailUpdate: {type:Date}
         }],
     currentSphere: {type: Number, default: 0}, // index of the user's current sphere 
     mainSphere: {type:ObjectId, ref:'Sphere'}, // the users main sphere 

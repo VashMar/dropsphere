@@ -552,7 +552,7 @@ sessionSockets.on('connection', function (err, socket, session){
 
           var post = new Post(postInfo);
 
-          Sphere.savePost(User, sphereString, post, function(savedPost){
+          Sphere.savePost(User, sphereString, post, function(savedPost, sphereName){
               console.log("Post saved to sphere..." + savedPost);
               var postID = savedPost.id;
               data.postID = postID;
@@ -562,7 +562,8 @@ sessionSockets.on('connection', function (err, socket, session){
               session.feed.unshift(postID);
               session.save();
               io.sockets.in(sphereString).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
-              console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]) );
+              console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
+              notifyMail(sphereString, currentUser, sphereName);
           });  
       }
 
@@ -739,23 +740,21 @@ sessionSockets.on('connection', function (err, socket, session){
            if(post){
               console.log("Post creator: " + post.creator.object);
                console.log("Post sharer: " + currentUser._id);
-               // if the post creator and sharer are same, reference this post, otherwise make a copy
-              if(post.creator.object != currentUser.id){
-                    var postInfo = {content: post.content, 
-                          creator: {object: currentUser, name: currentUser.name}, 
-                          contentData:{
-                             url: post.contentData.url,
-                             thumbnail: post.contentData.thumbnail,
-                             image: post.contentData.image,
-                             title: post.contentData.title
-                            }
-                          };
-                  var copiedPost = new Post(postInfo);
-                  post = copiedPost; 
+     
+              var postInfo = {content: post.content, 
+                    creator: {object: currentUser, name: currentUser.name}, 
+                    contentData:{
+                       url: post.contentData.url,
+                       thumbnail: post.contentData.thumbnail,
+                       image: post.contentData.image,
+                       title: post.contentData.title
+                      }
+                    };
 
-              }
+              var copiedPost = new Post(postInfo);
+      
               // save the post to the sphere and track the sphere from the post
-              Sphere.savePost(currentUser, data.sphere, post, function(savedPost){
+              Sphere.savePost(currentUser, data.sphere, copiedPost, function(savedPost){
                 console.log("Post saved to sphere..." + savedPost);
                 var postID = savedPost.id;
                 socket.emit('getPostID', {postID : postID});
@@ -763,7 +762,7 @@ sessionSockets.on('connection', function (err, socket, session){
                 session.feed.unshift(postID);
                 session.save();
                 io.sockets.in(data.sphere).emit('cachePost', {feed: session.feed, posts: session.posts, sphereID: data.sphere});
-                console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]) );
+                console.log("Saved Session Data: " + JSON.stringify(session.posts[postID]));
               });
 
            }
@@ -1669,6 +1668,42 @@ sessionSockets.on('connection', function (err, socket, session){
         socket.emit('renderConvo', convo);
   }
 
+  // notifys the user on sphere happenings through email. Has a delay so they don't get spammed.
+  function notifyMail(sphereID, poster, sphereName){
+    console.log("Notifying recipients..");
+    User.find({'spheres.object':sphereID}, function(err, users){
+        for(var i = 0; i < users.length; i++){
+            var user = users[i];
+            if(poster.id != user.id){
+              for(var x=0; x < user.spheres.length; x++){
+                  var sphere = user.spheres[x];
+                  if(sphere.object == sphereID){
+                    if(!sphere.lastMailUpdate){
+                      sphere.lastMailUpdate = moment();
+                      Mailer.newPost(user.email, poster.name, sphereName, ENV);
+                      user.save(function(err, savedUser){
+                        if(err){
+                          console.log(err);
+                        }else{
+                          console.log("notified user: " + user.name);
+                        }
+                      });
+                    }else{
+                      var lastSent = moment(sphere.lastMailUpdate);
+                      var now = moment();
+                      console.log("lastMailUpdate: " + now.diff(lastSent, "minutes") + " minutes ago" );
+                      if(now.diff(lastSent, "minutes") > 60){
+                          sphere.lastMailUpdate = moment();
+                          Mailer.newPost(user.email, poster.name, sphereName, ENV);
+                          user.save();
+                      }
+                    }
+                  }
+              }
+            }
+        }
+    });
+  }
 
 
 }); // end connection 

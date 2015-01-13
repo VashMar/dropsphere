@@ -58,13 +58,28 @@ exports.newRequest = function(email, requester){
 }
 
 
-exports.newPost = function(email, senderName, sphereName){
+exports.newPost = function(email, senderName, sphereName, ENV){
+	console.log("Sending new post email..");
+	if(ENV == "production"){
+		link = "<a href='https://www.dropsphere.com/'> Going here </a>";
+	}else{
+		link = "<a href='http://localhost:3500/'> Going here </a>";	
+	}
+
+	if(sphereName){
+		sphereName = "in " + sphereName;		
+	}else{
+		sphereName = "for you";
+	}
+
 	var mailOptions = {
 		from: 'Dropsphere Team <admin@dropshere.com>',
 		to: email,
-		subject:  senderName +  " (" + senderEmail + ") " + " has dropped a new post in " + sphereName + "!",
-		html: "Check out " + senderName + "'s latest droppings "
+		subject:  senderName + " has dropped a new post " + sphereName + "!",
+		html: "Check out " + senderName + "'s latest droppings by launching your dropsphere bar or " + link
 	}
+
+	send(mailOptions);
 }
 
 exports.inviteEmail = function(email, senderName, senderEmail, ENV, token){
@@ -77,13 +92,13 @@ exports.inviteEmail = function(email, senderName, senderEmail, ENV, token){
 		link = "<a href='http://localhost:3500/invite/" + token + "'> Go here </a>";	
 	}
 
-  	var msg = senderName + " seems to want to share stuff they find on the web with you. Five them what they want by click this link: " + "<a href=''";
+  	var msg = senderName + " seems to want to share stuff they find on the web with you. Give them what they want by click this link: " + "<a href=''";
 
 	var mailOptions = {
 	    from: 'Dropsphere Team <admin@dropshere.com>', // sender address
 	    to: email, // list of receivers
 	    subject: senderName + ' (' + senderEmail + ') ' + 'has invited you to join DropSphere!', // Subject line
-	    html:  senderName + " seems to want to share stuff they find on the web with you! Give them what they want: " + link,
+	    html:  senderName + " seems to want to share stuff they find on the web with you! Give them what they want: " + link
 	};
 
 	send(mailOptions);
