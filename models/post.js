@@ -61,7 +61,14 @@ postSchema.pre('save', function(next){
 
 // add a location to the post 
 postSchema.methods.addLoc = function(sphereID, sphereName){
-	this.locations.push({sphere: sphereID, title: this.contentData.title, name: sphereName});
+	//this.locations.push({sphere: sphereID, title: this.contentData.title, name: sphereName});
+	this.sphere.id = sphereID;
+	this.sphere.name = sphereName;
+	this.save(function(err,post){
+		if(!err && post){
+			console.log("Post and sphere sync'd");
+		}
+	});
 }
 
 postSchema.methods.removeLoc = function(sphereID){
@@ -159,22 +166,18 @@ postSchema.methods.addTags = function(sphereID, tags, next){
 }
 
 postSchema.method.getTags = function(sphereID){
-	var post = this;
-	post.getLoc(sphereID, function(loc){
-		return loc.tags;
-	});
+	return this.tags;
 }
 
 // adds a message to a a conversation involving this post at a certain sphere location
 postSchema.methods.addMessage = function(message, sphereID){
-	var loc = this.findLoc(sphereID);
+	//var loc = this.findLoc(sphereID);
 
-	loc.messages.push(message);
+	this.messages.push(message);
 
 	this.save(function(err, post){
 		if(post){
 			console.log("Message added to post");
-			console.log("Post tags: " + loc.tags);
 		}
 	});
 }
@@ -231,9 +234,9 @@ postSchema.methods.getViewed = function(viewers){
 
 // returns if a post is minimized
 postSchema.methods.isMini = function(userID, viewers){
-	for(var v = 0; v < viewers.length; v++){
-		if(viewers[v].id == userID){
-			return viewers[v].minimized;
+	for(var v = 0; v < this.viewers.length; v++){
+		if(this.viewers[v].id == userID){
+			return this.viewers[v].minimized;
 		}
 	}
 }
@@ -241,20 +244,21 @@ postSchema.methods.isMini = function(userID, viewers){
 postSchema.methods.minimize = function(userID, sphereID){
 	var loc = this.findLoc(sphereID);
 	var viewers = loc.viewers; 
-	for(var v=0; v < viewers.length;  v++){
-		if(viewers[v].id == userID){
-			viewers[v].minimized = true; 
+	for(var v=0; v < this.viewers.length;  v++){
+		if(this.viewers[v].id == userID){
+			this.viewers[v].minimized = true; 
 			console.log("Post minimized");
 		}
 	}
 }
 
 postSchema.methods.maximize = function(userID, sphereID){
-	var loc = this.findLoc(sphereID);
-	var viewers = loc.viewers; 
+	//var loc = this.findLoc(sphereID);
+	//var viewers = loc.viewers; 
+	
 	for(var v=0; v < viewers.length;  v++){
-		if(viewers[v].id == userID){
-			viewers[v].minimized = false; 
+		if(this.viewers[v].id == userID){
+			this.viewers[v].minimized = false; 
 			console.log("Post maximized");
 		}
 	}
@@ -265,9 +269,9 @@ postSchema.methods.maximize = function(userID, sphereID){
 // returns whether a user has seen the post's chat or not 
 postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
 
-	for(var v = 0; v < viewers.length; v++){
-		if(viewers[v].id == userID && hasMessages){
-			return viewers[v].seenChat;
+	for(var v = 0; v < this.viewers.length; v++){
+		if(this.viewers[v].id == userID && hasMessages){
+			return this.viewers[v].seenChat;
 		}
 	}
 	return true; 
@@ -279,14 +283,14 @@ postSchema.methods.hasSeenChat = function(userID, viewers, hasMessages){
 // marks a post as seen by a specific user 
 postSchema.methods.viewedPost = function(userID, name, sphereID){
 	console.log("Viewed post in sphere: " + sphereID);
-	var loc = this.findLoc(sphereID);
-	var viewers = loc.viewers;
+	//var loc = this.findLoc(sphereID);
+	//var viewers = loc.viewers;
 
-	for(var v = 0; v < viewers.length; v++){
-		if(viewers[v].id == userID){
+	for(var v = 0; v < this.viewers.length; v++){
+		if(this.viewers[v].id == userID){
 			console.log("Post viewed by:  " + name);
-			viewers[v].seenPost = true;
-			viewers[v].name = name;
+			this.viewers[v].seenPost = true;
+			this.viewers[v].name = name;
 		}
 	}
 
@@ -295,12 +299,12 @@ postSchema.methods.viewedPost = function(userID, name, sphereID){
 // marks a post's chat as seen by a specific user 
 postSchema.methods.chatSeen = function(userID, sphereID){
 
-	var loc = this.findLoc(sphereID);
-	var viewers = loc.viewers;
+	//var loc = this.findLoc(sphereID);
+	//var viewers = loc.viewers;
 
-	for(var v = 0; v < viewers.length; v++){
-		if(viewers[v].id == userID){
-			viewers[v].seenChat = true;	
+	for(var v = 0; v < this.viewers.length; v++){
+		if(this.viewers[v].id == userID){
+			this.viewers[v].seenChat = true;	
 			console.log("Chat marked as seen")
 		}
 	}
@@ -308,13 +312,13 @@ postSchema.methods.chatSeen = function(userID, sphereID){
 
 postSchema.methods.updatedChat = function(senderID, sphereID){
 
-	var loc = this.findLoc(sphereID);
-	var viewers = loc.viewers;
+	//var loc = this.findLoc(sphereID);
+	//var viewers = loc.viewers;
 
-	for(var v = 0; v < viewers.length; v++){
-		if(viewers[v].id != senderID){
+	for(var v = 0; v < this.viewers.length; v++){
+		if(this.viewers[v].id != senderID){
 			console.log("Chat marked as unseen");
-			viewers[v].seenChat = false;	
+			this.viewers[v].seenChat = false;	
 		}
 	}
 }
@@ -323,11 +327,11 @@ postSchema.methods.updatedChat = function(senderID, sphereID){
 postSchema.methods.fillViewers = function(members, sphereID, sphereName, next){
 
 	// get post location
-	var loc = this.findLoc(sphereID);
+	//var loc = this.findLoc(sphereID);
 
 	// fill viewers at location with the sphere members 
 	for(var m = 0; m < members.length; m++){
-		loc.viewers.push({id: members[m].id }); 
+		this.viewers.push({id: members[m].id }); 
 	}
 	
 	next(this); 
@@ -347,19 +351,19 @@ postSchema.methods.ownedBy = function(userID){
 postSchema.methods.getPostData = function(user, sphereID, isMobile){
 
 	var postContent = isMobile == "true" ? this.contentData : this.content;
-	var loc = this.findLoc(sphereID);
-	var viewers =  this.getViewers(sphereID);
-	var hasMessages = this.hasMessages(sphereID);
-	var tags = loc.tags || [];
+	//var loc = this.findLoc(sphereID);
+	//var viewers =  this.getViewers(sphereID);
+	var hasMessages = this.messages.length > 0;
+	// var tags = loc.tags || [];
  	return {sender: this.creatorName(), 
  			content: this.contentData, 
  			isOwner: this.ownedBy(user._id), 
  			isLink: this.isLink, 
  			postTime: moment(this.date).format(), 
- 			viewers: this.getViewed(viewers),
- 			seen: this.hasSeenChat(user.id, viewers, hasMessages),
- 			minimized: this.isMini(user.id, viewers),
- 			tags: tags
+ 			viewers: this.getViewed(this.viewers),
+ 			seen: this.hasSeenChat(user.id, this.viewers, hasMessages),
+ 			minimized: this.isMini(user.id, this.viewers),
+ 			tags: this.tags
  		};
 }
 
@@ -441,6 +445,11 @@ postSchema.statics.transferData = function(){
 							console.log(err);
 						}
 					});
+
+					if(i == post.locations.length -1){
+					  console.log("removing other locations");
+					  post.locations.splice(1, post.locations.length);
+					}
 				}
 			}
 		});

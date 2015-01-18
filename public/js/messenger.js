@@ -422,9 +422,17 @@ function Chat(username){
             if(currentSphere == data.sphere && currentPost == data.postID){    
                  // update message seen here 
                  var memberNum = nicknames.indexOf(data.sender);         
+                 var timeLast = $("#feed").find('h6').last().attr('data-timestamp');
+                 var now = moment();
                  for(var i = 0; i < data.tags.length; i++){
                     var tag = data.tags[i];
                     data.msg = data.msg.replace(data.tags[i], "<a class='postTag'>" + data.tags[i] + "</a>");
+                 }
+                 console.log("timeLast: " + timeLast);
+                 console.log("now : " + now);
+                 console.log((now - timeLast)/60000);
+                 if(!timeLast || (now - timeLast)/60000 >= 30){
+                    $("#feed").append("<h6 data-timestamp='" + now + "'>" + now.calendar() + "</h6>");
                  }
                  $("#feed").append("<p class='message'><span class='chatSender user" + memberNum + "'>" + data.sender + ": </span> " + data.msg  + "</p>");
                  scrollBottom();
@@ -753,7 +761,7 @@ function Chat(username){
 
                 convoTime =  moment.utc(convoTime).local(); // convert the convo time to the clients local time
 
-                $("#feed").append("<h6>" + moment(convoTime).calendar() + "</h6>");
+                $("#feed").append("<h6 data-timestamp='" + convoTime + "'>" + moment(convoTime).calendar() + "</h6>");
 
                 for(var m = 0; m < convo.length; m++){
                     var msg = convo[m];

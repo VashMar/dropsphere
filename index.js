@@ -330,8 +330,8 @@ sessionSockets.on('connection', function (err, socket, session){
   }
 
 
-  //Post.transferData();
-  Post.checkData();
+  Post.transferData();
+  //Post.checkData();
 
   // get the current user object for this socket 
   User.load(sessionID, function(err, user, sphere){
@@ -1436,7 +1436,7 @@ sessionSockets.on('connection', function (err, socket, session){
       function getChat(data){
         var postID = data.postID;
         if(postID != "sphereChat"){
-            Post.findOne({_id: postID}, function(err, post){ 
+            Post.findOne({_id: postID}).populate('messages').exec(function(err, post){ 
               if(err){
                 console.log(err);
               }
@@ -1444,15 +1444,16 @@ sessionSockets.on('connection', function (err, socket, session){
               if(post){
                 console.log("Extracting Messages from Post.." + post);
                 console.log("Sphere: " + data.sphereID);
-                post.getLoc(data.sphereID, function(loc){
+             /*post.getLoc(data.sphereID, function(loc){
                   console.log(loc);
                   Message.populate(loc, {path:'messages'}, function(err, loc){
                     var messages = loc.messages || [];
                     renderConvo(messages);
                 });
+              }); */
+                var messages = post.messages;
+                renderConvo(messages);
 
-              });
-        
               }else{
                 console.log("Couldn't obtain post");
               }
