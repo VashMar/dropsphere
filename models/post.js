@@ -136,7 +136,32 @@ postSchema.methods.addTags = function(sphereID, tags, next){
 	if(tags){
 		var post = this;
 		var addedTags = [];
-		post.getLoc(sphereID, function(loc){
+
+		if(tags.constructor === Array){
+				for(var i = 0; i < tags.length; i++){
+					var tag = tags[i];
+					if(this.tags.indexOf(tag) < 0){
+						console.log("pushing tag..");
+						this.tags.push(tag);
+						addedTags.push(tag);
+					}
+
+					if(i == tags.length -1 ){
+						next(addedTags);
+					}
+				}
+		}else{
+			var tag = tags;
+			if(this.tags.indexOf(tag) < 0){
+				console.log("pushing tag..");
+				this.tags.push(tag);
+				addedTags.push(tag);
+				next(addedTags);
+			}
+		}
+
+
+		/*post.getLoc(sphereID, function(loc){
 			if(tags.constructor === Array){
 				for(var i = 0; i < tags.length; i++){
 					var tag = tags[i];
@@ -159,10 +184,11 @@ postSchema.methods.addTags = function(sphereID, tags, next){
 					next(addedTags);
 				}
 			}
-		});
+		}); */
 	}else{
 		next("");
-	}
+	} 
+
 }
 
 postSchema.method.getTags = function(sphereID){
