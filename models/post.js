@@ -254,11 +254,12 @@ postSchema.methods.minimize = function(userID, sphereID){
 
 postSchema.methods.maximize = function(userID, sphereID){
 	//var loc = this.findLoc(sphereID);
-	//var viewers = loc.viewers; 
+	var viewers = this.viewers; 
 	
+
 	for(var v=0; v < viewers.length;  v++){
-		if(this.viewers[v].id == userID){
-			this.viewers[v].minimized = false; 
+		if(viewers[v].id == userID){
+			viewers[v].minimized = false; 
 			console.log("Post maximized");
 		}
 	}

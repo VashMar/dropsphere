@@ -188,15 +188,15 @@
                                             =tags
                                     li
                                         a.shareIcon(href='#' title="Share Link" data-toggle="modal" data-target="#sharePost")   
-                                    if sphereMap[currentSphere].type != "Main"
-                                        li
-                                            a.tagIcon(href='#' title="Save Link")   
+                                    if sphereMap[currentSphere].type != "Main" 
                                         li
                                             a(href='#' title="Comments")    
                                                 if seenConvo === false 
                                                     a.unseenChat(href='#' title="Comments")  
                                                 else 
                                                     a.chatIcon(href='#' title="Comments")
+                                        li
+                                            a.tagIcon(href='#' title="Save Link")  
         #search
             a#searchIcon(href="#")
             .dropdown
