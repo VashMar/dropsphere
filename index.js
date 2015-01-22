@@ -1331,29 +1331,32 @@ sessionSockets.on('connection', function (err, socket, session){
           var sphereID = data.sphereID.trim();
           var posts = {};
           var feed = [];
-          if(targetSphere){
-             if(targetSphere.object == sphereID || targetSphere.object.id == sphereID){
-                retrieveTarget(targetSphere, sphereID, sphereIndex);
-              }else{
-                  targetSphere = null;
-                  for(var i = 0; i < currentUser.spheres.length; i++){
-                      if(data.sphereID == currentUser.spheres[i].object){
-                          console.log("match found");
-                          targetSphere = currentUser.spheres[i];  
-                          sphereIndex = i;    
-                          retrieveTarget(targetSphere, sphereID, sphereIndex);
-                      }
 
-                      if(i == currentUser.spheres.length - 1 && !targetSphere){
-                        socket.emit("nonexistingSphere");
-                      }
 
-                  }
-              }
+          if(!targetSphere){
+            sphereHunt();
+          }else if(targetSphere.object == sphereID || targetSphere.object.id == sphereID){
+            sphereHunt();
           }else{
-           console.log("target sphere is null");
-           socket.emit("nonexistingSphere");      
+            retrieveTarget(targetSphere, sphereID, sphereIndex);
           }
+
+        function sphereHunt(){
+            targetSphere = null;
+            for(var i = 0; i < currentUser.spheres.length; i++){
+                if(data.sphereID == currentUser.spheres[i].object){
+                    console.log("match found");
+                    targetSphere = currentUser.spheres[i];  
+                    sphereIndex = i;    
+                    retrieveTarget(targetSphere, sphereID, sphereIndex);
+                }
+
+                if(i == currentUser.spheres.length - 1 && !targetSphere){
+                  socket.emit("nonexistingSphere");
+                }
+
+            }
+        }
       } 
 
 
