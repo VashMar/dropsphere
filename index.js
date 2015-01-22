@@ -330,7 +330,7 @@ sessionSockets.on('connection', function (err, socket, session){
   }
 
 
-  Post.transferData();
+//  Post.transferData();
   //Post.checkData();
 
   // get the current user object for this socket 
@@ -1351,6 +1351,7 @@ sessionSockets.on('connection', function (err, socket, session){
                   }
               }
           }else{
+           console.log("target sphere is null");
            socket.emit("nonexistingSphere");      
           }
       } 
