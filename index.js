@@ -1376,7 +1376,7 @@ sessionSockets.on('connection', function (err, socket, session){
                 });
 
                 //reset updates on sessions
-                session.totalUpdates -= session.sphereMap[sphere.id].updates;
+                session.totalUpdates -= session.sphereMap[sphereID].updates;
                 session.sphereMap[sphere.id].updates = 0;
                 session.save();
                 

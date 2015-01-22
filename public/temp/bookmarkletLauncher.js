@@ -61,7 +61,7 @@ function launchBookmark(inviteURL){
             msg='This page is now jQuerified with UI' + jQuery.fn.jquery;
             if (otherlib) {msg+=' and noConflict(). Use $jq(), not $().';}
           }
-          getScript('http://dropsphere.herokuapp.com/easyxdm/easyxdm.debug.js', function(){
+          getScript('http://localhost:3500/easyxdm/easyxdm.debug.js', function(){
             console.log('xdm loaded');
             book();
             book2();
@@ -72,7 +72,7 @@ function launchBookmark(inviteURL){
       }
 
       function testMsg(){
-        targetWindow.postMessage('Hello World!', 'http://dropsphere.herokuapp.com');
+        targetWindow.postMessage('Hello World!', 'http://localhost:3500');
       }
       
       function showMsg(){
@@ -126,7 +126,7 @@ function launchBookmark(inviteURL){
 
       var css = document.createElement('style');
       css.type = 'text/css';
-      css.innerHTML = "#dropsphere{animation:slide .5s; -webkit-animation:slide .5s;}@keyframes slide{from{right:-300px;}to{right:0;}}@-webkit-keyframes slide{from{right:-300px;}to{right:0;}}#close{cursor:pointer; position:absolute; top:0; right:0; margin:2px 6px 0 0; height:30px; width:30px; background:url(http://dropsphere.herokuapp.com/img/close.png) no-repeat;}#close:hover{background:url(http://dropsphere.herokuapp.com/img/close_hover.png) no-repeat;}#dropsphere iframe{border:none; height:100%;}#dropper{position:absolute; top:0; pointer-events:none;}";
+      css.innerHTML = "#dropsphere{animation:slide .5s; -webkit-animation:slide .5s;}@keyframes slide{from{right:-300px;}to{right:0;}}@-webkit-keyframes slide{from{right:-300px;}to{right:0;}}#close{cursor:pointer; position:absolute; top:0; right:0; margin:2px 6px 0 0; height:30px; width:30px; background:url(http://localhost:3500/img/close.png) no-repeat;}#close:hover{background:url(http://localhost:3500/img/close_hover.png) no-repeat;}#dropsphere iframe{border:none; height:100%;}#dropper{position:absolute; top:0; pointer-events:none;}";
       document.body.appendChild(css);
       document.addEventListener('dragend', function(event){
           console.log('drag');
